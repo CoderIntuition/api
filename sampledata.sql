@@ -4,6 +4,43 @@ VALUES (1, 'Two Sum', 'two-sum', 'arrays', 1, 4, 40,
         'Given an array of integers and a target, return the indices of the two numbers that add up to target',
         'def two_sum(nums, target):', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
 
+REPLACE INTO coderintuition.problem_step (id, problem_id, step_num, name, type, text_contents, quiz_contents, time, created_at, updated_at)
+VALUES (1, 1, 1, 'Step 1: Understand the Problem', 'text', 'Read the problem and understand it.', '', 5, '2020-08-29 00:00:00', '2020-08-29 00:00:00');
+
+REPLACE INTO coderintuition.problem_step (id, problem_id, step_num, name, type, text_contents, quiz_contents, time, created_at, updated_at)
+VALUES (2, 1, 2, 'Step 2: Problem Understanding Quiz', 'quiz', '', '"questions": [
+      {
+        "question": "How can you access the state of a component from inside of a member function?",
+        "questionType": "text",
+        "answerSelectionType": "single",
+        "answers": [
+          "this.getState()",
+          "this.prototype.stateValue",
+          "this.state",
+          "this.values"
+        ],
+        "correctAnswer": "3",
+        "messageForCorrectAnswer": "Correct answer. Good job.",
+        "messageForIncorrectAnswer": "Incorrect answer. Please try again.",
+        "explanation": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "point": "1"
+      },
+      {
+        "question": "ReactJS is developed by _____?",
+        "questionType": "text",
+        "answerSelectionType": "single",
+        "answers": [
+          "Google Engineers",
+          "Facebook Engineers"
+        ],
+        "correctAnswer": "2",
+        "messageForCorrectAnswer": "Correct answer. Good job.",
+        "messageForIncorrectAnswer": "Incorrect answer. Please try again.",
+        "explanation": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "point": "1"
+      },
+    ]', 5, '2020-08-29 00:00:00', '2020-08-29 00:00:00');
+
 REPLACE INTO coderintuition.problem (id, name, url_name, category, difficulty, num_steps, total_time, description, default_code, created_at,
                       updated_at)
 VALUES (2, 'Maximum Subarray', 'maximum-subarray', 'arrays', 1, 3, 30,
