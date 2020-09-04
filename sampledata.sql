@@ -1,8 +1,8 @@
 REPLACE INTO coderintuition.problem (id, name, url_name, category, difficulty, num_steps, total_time, description, default_code, created_at,
                       updated_at)
-VALUES (1, 'Two Sum', 'two-sum', 'arrays', 1, 4, 40,
-        'Given an array of integers and a target, return the indices of the two numbers that add up to target',
-        'def two_sum(nums, target):', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
+VALUES (1, 'Sort Array', 'sort-array', 'arrays', 1, 4, 40,
+        'Given an array of integers, sort the array in non-decreasing order.',
+        'def sort_array(nums):', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
 
 REPLACE INTO coderintuition.problem_step (id, problem_id, step_num, name, type, text_contents, quiz_contents, time, created_at, updated_at)
 VALUES (1, 1, 1, 'Step 1: Understand the Problem', 'text', 'Read the problem and understand it.', '', 5, '2020-08-29 00:00:00', '2020-08-29 00:00:00');
@@ -40,6 +40,18 @@ VALUES (2, 1, 2, 'Step 2: Problem Understanding Quiz', 'quiz', '', '"questions":
         "point": "1"
       },
     ]', 5, '2020-08-29 00:00:00', '2020-08-29 00:00:00');
+
+REPLACE INTO coderintuition.testcase(id, problem_id, testcase_num, name, is_default, input, output, time_limit, memory_limit, stack_limit, created_at, updated_at)
+VALUES (1, 1, 1, 'Test 1', true, '[1, 2, 3, 4]', '[1, 2, 3, 4]', 10, 10, 10, '2020-08-29 00:00:00', '2020-08-29 00:00:00');
+
+REPLACE INTO coderintuition.testcase(id, problem_id, testcase_num, name, is_default, input, output, time_limit, memory_limit, stack_limit, created_at, updated_at)
+VALUES (2, 1, 2, 'Test 1', true, '[3, 1, 4, 2]', '[1, 2, 3, 4]', 10, 10, 10, '2020-08-29 00:00:00', '2020-08-29 00:00:00');
+
+REPLACE INTO coderintuition.solution(id, problem_id, solution_num, name, is_primary, code, description, created_at, updated_at)
+VALUES (1, 1, 1, 'Approach 1: Manually sort the array', false, 'def sort_array(nums):\n    return []', 'Go through each element and compare', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
+
+REPLACE INTO coderintuition.solution(id, problem_id, solution_num, name, is_primary, code, description, created_at, updated_at)
+VALUES (2, 1, 2, 'Approach 2: Use built-in sorted', true, 'def sort_array(nums):\n    return sorted(nums)', 'Use the built-in function', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
 
 REPLACE INTO coderintuition.problem (id, name, url_name, category, difficulty, num_steps, total_time, description, default_code, created_at,
                       updated_at)

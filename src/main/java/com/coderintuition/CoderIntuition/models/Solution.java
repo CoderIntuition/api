@@ -10,43 +10,34 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "testcase")
+@Table(name = "solution")
 @Getter
 @Setter
-public class Testcase {
+public class Solution {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private Long id;
 
-    @JsonIgnoreProperties("testcases")
+    @JsonIgnoreProperties("solutions")
     @ManyToOne
     @JoinColumn(name = "problem_id")
     private Problem problem;
 
-    @Column(name = "testcase_num")
-    private Integer testcaseNum;
+    @Column(name = "solution_num")
+    private Integer solutionNum;
 
     @Column(name = "name")
     private String name;
 
-    @Column(name = "is_default")
-    private Boolean isDefault;
+    @Column(name = "is_primary")
+    private Boolean isPrimary;
 
-    @Column(name = "input", columnDefinition = "TEXT")
-    private String input;
+    @Column(name = "code", columnDefinition = "TEXT")
+    private String code;
 
-    @Column(name = "output", columnDefinition = "TEXT")
-    private String output;
-
-    @Column(name = "time_limit")
-    private Integer time_limit;
-
-    @Column(name = "memory_limit")
-    private Integer memory_limit;
-
-    @Column(name = "stack_limit")
-    private Integer stack_limit;
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -57,5 +48,4 @@ public class Testcase {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private Date updated_at;
-
 }

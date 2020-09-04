@@ -1,8 +1,6 @@
 package com.coderintuition.CoderIntuition.controllers;
 
-import com.coderintuition.CoderIntuition.dtos.ProblemDto;
 import com.coderintuition.CoderIntuition.models.Problem;
-import com.coderintuition.CoderIntuition.models.ProblemStep;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.ProblemStepRepository;
 import com.coderintuition.CoderIntuition.repositories.TestcaseRepository;
