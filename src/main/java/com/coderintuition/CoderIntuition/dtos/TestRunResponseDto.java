@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class SubmissionResponseDto {
+public class TestRunResponseDto {
 
     private String stdout;
     private String stderr;

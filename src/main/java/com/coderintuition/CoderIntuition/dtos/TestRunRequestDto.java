@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class SubmissionRequestDto {
+public class TestRunRequestDto {
 
     private Long problemId;
     private String language;

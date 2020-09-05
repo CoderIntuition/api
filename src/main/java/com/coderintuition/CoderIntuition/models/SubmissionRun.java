@@ -1,32 +1,28 @@
 package com.coderintuition.CoderIntuition.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
-@Table(name = "test_run")
+@Table(name = "submission_run")
 @Getter
 @Setter
-public class TestRun {
+public class SubmissionRun {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private Long id;
 
+    @JsonIgnoreProperties("submissionRuns")
     @ManyToOne
-    @JoinColumn(name = "problem_id")
-    private Problem problem;
+    @JoinColumn(name = "submission_id")
+    private Submission submission;
 
     @Column(name = "token")
     private String token;
-
-    @Column(name = "language")
-    private String language;
-
-    @Column(name = "code", columnDefinition = "TEXT")
-    private String code;
 
     @Column(name = "input", columnDefinition = "TEXT")
     private String input;
@@ -40,10 +36,6 @@ public class TestRun {
     @Column(name = "output", columnDefinition = "TEXT")
     private String output;
 
-    @Column(name = "stdout", columnDefinition = "TEXT")
-    private String stdout;
-
     @Column(name = "stderr", columnDefinition = "TEXT")
     private String stderr;
-
 }
