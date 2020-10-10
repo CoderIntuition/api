@@ -1,4 +1,4 @@
-package com.coderintuition.CoderIntuition.dtos;
+package com.coderintuition.CoderIntuition.dtos.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

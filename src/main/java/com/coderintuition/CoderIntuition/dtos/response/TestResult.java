@@ -1,4 +1,4 @@
-package com.coderintuition.CoderIntuition.dtos;
+package com.coderintuition.CoderIntuition.dtos.response;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

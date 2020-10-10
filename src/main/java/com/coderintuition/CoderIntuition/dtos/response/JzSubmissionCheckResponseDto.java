@@ -1,4 +1,4 @@
-package com.coderintuition.CoderIntuition.dtos;
+package com.coderintuition.CoderIntuition.dtos.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -13,7 +13,7 @@ public class JzSubmissionCheckResponseDto {
     private String compileOutput;
     private int memory;
     private String message;
-    private Status status;
+    private JzResponseStatus status;
     private String stderr;
     private String stdout;
     private String time;

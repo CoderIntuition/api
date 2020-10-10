@@ -1,9 +1,9 @@
 package com.coderintuition.CoderIntuition.controllers;
 
 import com.coderintuition.CoderIntuition.common.Utils;
-import com.coderintuition.CoderIntuition.dtos.JZSubmissionRequestDto;
-import com.coderintuition.CoderIntuition.dtos.JzSubmissionCheckResponseDto;
-import com.coderintuition.CoderIntuition.dtos.TestRunRequestDto;
+import com.coderintuition.CoderIntuition.dtos.request.JZSubmissionRequestDto;
+import com.coderintuition.CoderIntuition.dtos.response.JzSubmissionCheckResponseDto;
+import com.coderintuition.CoderIntuition.dtos.request.RunRequestDto;
 import com.coderintuition.CoderIntuition.models.Problem;
 import com.coderintuition.CoderIntuition.models.Solution;
 import com.coderintuition.CoderIntuition.models.TestRun;
@@ -62,19 +62,19 @@ public class TestRunController {
     }
 
     @PostMapping("/testrun")
-    public TestRun createTestRun(@RequestBody TestRunRequestDto testRunRequestDto) {
+    public TestRun createTestRun(@RequestBody RunRequestDto runRequestDto) {
         // retrieve the problem
-        Problem problem = problemRepository.findById(testRunRequestDto.getProblemId()).orElseThrow();
+        Problem problem = problemRepository.findById(runRequestDto.getProblemId()).orElseThrow();
         // retrieve the primary solution
         Solution primarySolution = problem.getSolutions().stream().filter(Solution::getIsPrimary).findFirst().orElseThrow();
         // warp the code with the test harness
-        String code = wrapCode(testRunRequestDto.getCode(), primarySolution.getCode(),
-                testRunRequestDto.getLanguage(), testRunRequestDto.getInput());
+        String code = wrapCode(runRequestDto.getCode(), primarySolution.getCode(),
+                runRequestDto.getLanguage(), runRequestDto.getInput());
 
         // create request to JudgeZero
         JZSubmissionRequestDto requestDto = new JZSubmissionRequestDto();
         requestDto.setSourceCode(code);
-        requestDto.setLanguageId(Utils.getLanguageId(testRunRequestDto.getLanguage()));
+        requestDto.setLanguageId(Utils.getLanguageId(runRequestDto.getLanguage()));
         requestDto.setStdin("");
         // send request to JudgeZero
         JzSubmissionCheckResponseDto result = Utils.callJudgeZero(requestDto, scheduler);
@@ -83,9 +83,9 @@ public class TestRunController {
         TestRun testRun = new TestRun();
         testRun.setProblem(problem);
         testRun.setToken(result.getToken());
-        testRun.setLanguage(testRunRequestDto.getLanguage());
-        testRun.setCode(testRunRequestDto.getCode());
-        testRun.setInput(testRunRequestDto.getInput());
+        testRun.setLanguage(runRequestDto.getLanguage());
+        testRun.setCode(runRequestDto.getCode());
+        testRun.setInput(runRequestDto.getInput());
 
         // save the results of the test run
         if (result.getStatus().getId() >= 6) { // error

@@ -1,8 +1,8 @@
 package com.coderintuition.CoderIntuition.common;
 
-import com.coderintuition.CoderIntuition.dtos.JZSubmissionRequestDto;
-import com.coderintuition.CoderIntuition.dtos.JZSubmissionResponseDto;
-import com.coderintuition.CoderIntuition.dtos.JzSubmissionCheckResponseDto;
+import com.coderintuition.CoderIntuition.dtos.request.JZSubmissionRequestDto;
+import com.coderintuition.CoderIntuition.dtos.response.JZSubmissionResponseDto;
+import com.coderintuition.CoderIntuition.dtos.response.JzSubmissionCheckResponseDto;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 

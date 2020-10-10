@@ -1,7 +1,11 @@
 package com.coderintuition.CoderIntuition.controllers;
 
 import com.coderintuition.CoderIntuition.common.Utils;
-import com.coderintuition.CoderIntuition.dtos.*;
+import com.coderintuition.CoderIntuition.dtos.request.JZSubmissionRequestDto;
+import com.coderintuition.CoderIntuition.dtos.request.RunRequestDto;
+import com.coderintuition.CoderIntuition.dtos.response.JzSubmissionCheckResponseDto;
+import com.coderintuition.CoderIntuition.dtos.response.SubmissionResponseDto;
+import com.coderintuition.CoderIntuition.dtos.response.TestResult;
 import com.coderintuition.CoderIntuition.models.Problem;
 import com.coderintuition.CoderIntuition.models.Submission;
 import com.coderintuition.CoderIntuition.models.TestCase;
@@ -70,23 +74,23 @@ public class SubmissionController {
     }
 
     @PostMapping("/submission")
-    public SubmissionResponseDto createSubmission(@RequestBody TestRunRequestDto testRunRequestDto) {
+    public SubmissionResponseDto createSubmission(@RequestBody RunRequestDto runRequestDto) {
         // retrieve the problem
-        Problem problem = problemRepository.findById(testRunRequestDto.getProblemId()).orElseThrow();
+        Problem problem = problemRepository.findById(runRequestDto.getProblemId()).orElseThrow();
         // warp the code with the test harness
-        String code = wrapCode(problem, testRunRequestDto.getCode(), testRunRequestDto.getLanguage(), problem.getTestCases());
+        String code = wrapCode(problem, runRequestDto.getCode(), runRequestDto.getLanguage(), problem.getTestCases());
 
         // create request to JudgeZero
         JZSubmissionRequestDto requestDto = new JZSubmissionRequestDto();
         requestDto.setSourceCode(code);
-        requestDto.setLanguageId(Utils.getLanguageId(testRunRequestDto.getLanguage()));
+        requestDto.setLanguageId(Utils.getLanguageId(runRequestDto.getLanguage()));
         requestDto.setStdin("");
         JzSubmissionCheckResponseDto result = Utils.callJudgeZero(requestDto, scheduler);
 
         // create the submission to be saved into the db
         Submission submission = new Submission();
-        submission.setCode(testRunRequestDto.getCode());
-        submission.setLanguage(testRunRequestDto.getLanguage());
+        submission.setCode(runRequestDto.getCode());
+        submission.setLanguage(runRequestDto.getLanguage());
         submission.setProblem(problem);
         submission.setToken(result.getToken());
 
