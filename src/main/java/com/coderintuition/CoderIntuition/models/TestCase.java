@@ -10,22 +10,22 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "testcase")
+@Table(name = "test_case")
 @Getter
 @Setter
-public class Testcase {
+public class TestCase {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private Long id;
 
-    @JsonIgnoreProperties("testcases")
+    @JsonIgnoreProperties("testCases")
     @ManyToOne
     @JoinColumn(name = "problem_id")
     private Problem problem;
 
-    @Column(name = "testcase_num")
-    private Integer testcaseNum;
+    @Column(name = "test_case_num")
+    private Integer testCaseNum;
 
     @Column(name = "name")
     private String name;

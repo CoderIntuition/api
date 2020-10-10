@@ -2,7 +2,6 @@ package com.coderintuition.CoderIntuition.controllers;
 
 import com.coderintuition.CoderIntuition.common.Utils;
 import com.coderintuition.CoderIntuition.dtos.JZSubmissionRequestDto;
-import com.coderintuition.CoderIntuition.dtos.JZSubmissionResponseDto;
 import com.coderintuition.CoderIntuition.dtos.JzSubmissionCheckResponseDto;
 import com.coderintuition.CoderIntuition.dtos.TestRunRequestDto;
 import com.coderintuition.CoderIntuition.models.Problem;
@@ -15,11 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @RestController
 public class TestRunController {
@@ -35,20 +34,22 @@ public class TestRunController {
 
     private ExecutorService scheduler = Executors.newFixedThreadPool(5);
 
+    // wrap the code with the test harness and the solution code
     private String wrapCode(String userCode, String solution, String language, String input) {
         if (language.equalsIgnoreCase("python")) {
-            String userFunctionName = Utils.getFunctionName(userCode);
-            String solFunctionName = Utils.getFunctionName(solution);
+            String functionName = Utils.getFunctionName(userCode);
+            // TODO: support multiple params
             String param = Utils.formatParam(input, language);
             List<String> codeLines = Arrays.asList(
                     userCode,
                     "",
                     "",
-                    solution.replace(solFunctionName, solFunctionName + "_sol"),
+                    // append _sol to the end of the solution function
+                    solution.replace(functionName, functionName + "_sol"),
                     "",
                     "",
-                    "user_result = " + userFunctionName + "(" + param + ")",
-                    "sol_result = " + solFunctionName + "_sol(" + param + ")",
+                    "user_result = " + functionName + "(" + param + ")",
+                    "sol_result = " + functionName + "_sol(" + param + ")",
                     "print(\"----------\")",
                     "if user_result == sol_result:",
                     "    print(\"passed|{}|{}\".format(sol_result, user_result))",
@@ -60,77 +61,25 @@ public class TestRunController {
         return "";
     }
 
-    private JzSubmissionCheckResponseDto callJudgeZero(JZSubmissionRequestDto requestDto) {
-        Map<String, String> header = new HashMap<>();
-        header.put("content-type", "application/json");
-        header.put("x-rapidapi-host", "judge0.p.rapidapi.com");
-        header.put("x-rapidapi-key", "570c3ea12amsh7d718c55ca5d164p153fd5jsnfca4d3b2f9f9");
-
-        Mono<JZSubmissionResponseDto> response = WebClient
-                .create("https://judge0.p.rapidapi.com")
-                .post()
-                .uri("/submissions")
-                .headers(httpHeaders -> httpHeaders.setAll(header))
-                .body(Mono.just(requestDto), JZSubmissionRequestDto.class)
-                .retrieve()
-                .bodyToMono(JZSubmissionResponseDto.class);
-        String token = Objects.requireNonNull(response.block()).getToken();
-
-        final JzSubmissionCheckResponseDto[] responseData = new JzSubmissionCheckResponseDto[1];
-        Future<?> future = scheduler.submit(() -> {
-            try {
-                while (true) {
-                    Thread.sleep(TimeUnit.SECONDS.toMillis(1));
-                    Map<String, String> header1 = new HashMap<>();
-                    header1.put("x-rapidapi-host", "judge0.p.rapidapi.com");
-                    header1.put("x-rapidapi-key", "570c3ea12amsh7d718c55ca5d164p153fd5jsnfca4d3b2f9f9");
-
-                    Mono<JzSubmissionCheckResponseDto> response1 = WebClient
-                            .create("https://judge0.p.rapidapi.com")
-                            .get()
-                            .uri("/submissions/{token}", token)
-                            .headers(httpHeaders -> httpHeaders.setAll(header1))
-                            .retrieve()
-                            .bodyToMono(JzSubmissionCheckResponseDto.class);
-
-                    responseData[0] = Objects.requireNonNull(response1.block());
-                    int statusId = responseData[0].getStatus().getId();
-                    if (statusId >= 3) {
-                        break;
-                    }
-                }
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
-            }
-        });
-
-        try {
-            try {
-                future.get(20, TimeUnit.SECONDS);
-            } catch (TimeoutException ex) {
-                ex.printStackTrace();
-            }
-        } catch (InterruptedException | ExecutionException ex) {
-            ex.printStackTrace();
-        }
-
-        return responseData[0];
-    }
-
     @PostMapping("/testrun")
     public TestRun createTestRun(@RequestBody TestRunRequestDto testRunRequestDto) {
+        // retrieve the problem
         Problem problem = problemRepository.findById(testRunRequestDto.getProblemId()).orElseThrow();
+        // retrieve the primary solution
         Solution primarySolution = problem.getSolutions().stream().filter(Solution::getIsPrimary).findFirst().orElseThrow();
+        // warp the code with the test harness
         String code = wrapCode(testRunRequestDto.getCode(), primarySolution.getCode(),
                 testRunRequestDto.getLanguage(), testRunRequestDto.getInput());
 
+        // create request to JudgeZero
         JZSubmissionRequestDto requestDto = new JZSubmissionRequestDto();
         requestDto.setSourceCode(code);
         requestDto.setLanguageId(Utils.getLanguageId(testRunRequestDto.getLanguage()));
         requestDto.setStdin("");
+        // send request to JudgeZero
+        JzSubmissionCheckResponseDto result = Utils.callJudgeZero(requestDto, scheduler);
 
-        JzSubmissionCheckResponseDto result = callJudgeZero(requestDto);
-
+        // create the test run to be saved into the db
         TestRun testRun = new TestRun();
         testRun.setProblem(problem);
         testRun.setToken(result.getToken());
@@ -138,26 +87,28 @@ public class TestRunController {
         testRun.setCode(testRunRequestDto.getCode());
         testRun.setInput(testRunRequestDto.getInput());
 
-        // error
-        if (result.getStatus().getId() >= 6) {
+        // save the results of the test run
+        if (result.getStatus().getId() >= 6) { // error
             testRun.setStatus("error");
             testRun.setExpectedOutput("");
             testRun.setOutput("");
             String[] error = result.getStderr().split("\n");
             testRun.setStderr(error[error.length - 1]);
             testRun.setStdout("");
-            // run success, check if output matches expected output
-        } else if (result.getStatus().getId() == 3) {
+        } else if (result.getStatus().getId() == 3) { // no errors
+            // everything above the line is stdout, everything below is test results
             String[] split = result.getStdout().trim().split("----------\n");
             testRun.setStdout(split[0]);
-            String[] resultOutput = split[1].split("\\|");
-            testRun.setStatus(resultOutput[0]);
-            testRun.setExpectedOutput(resultOutput[1]);
-            testRun.setOutput(resultOutput[2]);
+            // test results are formatted: {status}|{expected output}|{run output}
+            String[] testResult = split[1].split("\\|");
+            testRun.setStatus(testResult[0]);
+            testRun.setExpectedOutput(testResult[1]);
+            testRun.setOutput(testResult[2]);
             testRun.setStderr("");
         }
-
+        // save the test run into the db
         testRun = testRunRepository.save(testRun);
+
         return testRun;
     }
 }

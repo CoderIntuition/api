@@ -1,9 +1,9 @@
 package com.coderintuition.CoderIntuition.repositories;
 
-import com.coderintuition.CoderIntuition.models.Testcase;
+import com.coderintuition.CoderIntuition.models.TestCase;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TestcaseRepository extends JpaRepository<Testcase, Long> {
+public interface TestCaseRepository extends JpaRepository<TestCase, Long> {
 }

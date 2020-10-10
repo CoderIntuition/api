@@ -26,7 +26,7 @@ public class Problem {
 
     @JsonIgnoreProperties("problem")
     @OneToMany(mappedBy = "problem")
-    private List<Testcase> testcases;
+    private List<TestCase> testCases;
 
     @JsonIgnoreProperties("problem")
     @OneToMany(mappedBy = "problem")

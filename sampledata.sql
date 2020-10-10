@@ -54,10 +54,10 @@ VALUES (2, 1, 2, 'Step 2: Problem Understanding Quiz', 'quiz', '', '{
 	]
 }', 5, '2020-08-29 00:00:00', '2020-08-29 00:00:00');
 
-REPLACE INTO coderintuition.testcase(id, problem_id, testcase_num, name, is_default, input, output, time_limit, memory_limit, stack_limit, created_at, updated_at)
+REPLACE INTO coderintuition.test_case(id, problem_id, test_case_num, name, is_default, input, output, time_limit, memory_limit, stack_limit, created_at, updated_at)
 VALUES (1, 1, 1, 'Test 1', true, '[1, 2, 3, 4]', '[1, 2, 3, 4]', 10, 10, 10, '2020-08-29 00:00:00', '2020-08-29 00:00:00');
 
-REPLACE INTO coderintuition.testcase(id, problem_id, testcase_num, name, is_default, input, output, time_limit, memory_limit, stack_limit, created_at, updated_at)
+REPLACE INTO coderintuition.test_case(id, problem_id, test_case_num, name, is_default, input, output, time_limit, memory_limit, stack_limit, created_at, updated_at)
 VALUES (2, 1, 2, 'Test 1', false, '[3, 1, 4, 2]', '[1, 2, 3, 4]', 10, 10, 10, '2020-08-29 00:00:00', '2020-08-29 00:00:00');
 
 REPLACE INTO coderintuition.solution(id, problem_id, solution_num, name, is_primary, code, description, created_at, updated_at)

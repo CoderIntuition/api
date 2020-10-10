@@ -3,7 +3,7 @@ package com.coderintuition.CoderIntuition.controllers;
 import com.coderintuition.CoderIntuition.models.Problem;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.ProblemStepRepository;
-import com.coderintuition.CoderIntuition.repositories.TestcaseRepository;
+import com.coderintuition.CoderIntuition.repositories.TestCaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +20,7 @@ public class ProblemController {
     @Autowired
     ProblemStepRepository problemStepRepository;
     @Autowired
-    TestcaseRepository testcaseRepository;
+    TestCaseRepository testCaseRepository;
 
     @GetMapping("/problems/{category}")
     public List<Problem> getProblemsByCategory(@PathVariable String category) {
@@ -36,5 +36,4 @@ public class ProblemController {
     public Optional<Problem> getProblemByUrlname(@PathVariable String urlName) {
         return problemRepository.findByUrlName(urlName);
     }
-
 }
