@@ -1,11 +1,12 @@
 package com.coderintuition.CoderIntuition.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Date;
 
 @Entity
 @Table(name = "submission")
@@ -31,8 +32,20 @@ public class Submission {
     @Column(name = "code", columnDefinition = "TEXT")
     private String code;
 
-    @JsonIgnoreProperties("submission")
-    @OneToMany(mappedBy = "submission")
-    private List<SubmissionRun> submissionRuns;
+    @Column(name = "output", columnDefinition = "TEXT")
+    private String output;
+
+    @Column(name = "token")
+    private String token;
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_at", updatable = false)
+    private Date created_at;
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "updated_at")
+    private Date updated_at;
 }
 

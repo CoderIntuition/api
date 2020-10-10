@@ -1,13 +1,10 @@
 package com.coderintuition.CoderIntuition.controllers;
 
 import com.coderintuition.CoderIntuition.common.Utils;
-import com.coderintuition.CoderIntuition.dtos.JZSubmissionRequestDto;
-import com.coderintuition.CoderIntuition.dtos.JZSubmissionResponseDto;
-import com.coderintuition.CoderIntuition.dtos.JzSubmissionCheckResponseDto;
-import com.coderintuition.CoderIntuition.dtos.TestRunRequestDto;
+import com.coderintuition.CoderIntuition.dtos.*;
 import com.coderintuition.CoderIntuition.models.Problem;
-import com.coderintuition.CoderIntuition.models.Solution;
-import com.coderintuition.CoderIntuition.models.TestRun;
+import com.coderintuition.CoderIntuition.models.Submission;
+import com.coderintuition.CoderIntuition.models.Testcase;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.SubmissionRepository;
 import com.coderintuition.CoderIntuition.repositories.TestRunRepository;
@@ -22,7 +19,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 @RestController
-public class TestRunController {
+public class SubmissionController {
 
     @Autowired
     ProblemRepository problemRepository;
@@ -35,26 +32,35 @@ public class TestRunController {
 
     private ExecutorService scheduler = Executors.newFixedThreadPool(5);
 
-    private String wrapCode(String userCode, String solution, String language, String input) {
+    private String wrapCode2(Problem problem, String userCode, String language, List<Testcase> testcases) {
         if (language.equalsIgnoreCase("python")) {
-            String userFunctionName = Utils.getFunctionName(userCode);
-            String solFunctionName = Utils.getFunctionName(solution);
-            String param = Utils.formatParam(input, language);
-            List<String> codeLines = Arrays.asList(
+            String functionName = Utils.getFunctionName(problem.getDefaultCode());
+            List<String> codeLines = new ArrayList<String>(Arrays.asList(
                     userCode,
                     "",
                     "",
-                    solution.replace(solFunctionName, solFunctionName + "_sol"),
+                    "def test_harness(outputs, test_num, user_input, expected_output):",
+                    "    result = " + functionName + "(user_input)",
+                    "    if result == expected_output:",
+                    "        outputs.append(\"{}|passed\".format(test_num))",
+                    "    else:",
+                    "        outputs.append(\"{}|failed|{}\".format(test_num, result))",
                     "",
                     "",
-                    "user_result = " + userFunctionName + "(" + param + ")",
-                    "sol_result = " + solFunctionName + "_sol(" + param + ")",
-                    "print(\"----------\")",
-                    "if user_result == sol_result:",
-                    "    print(\"passed|{}|{}\".format(sol_result, user_result))",
-                    "else:",
-                    "    print(\"failed|{}|{}\".format(sol_result, user_result))"
-            );
+                    "outputs = []"
+            ));
+            for (Testcase testcase : testcases) {
+                String input = Utils.formatParam(testcase.getInput(), language);
+                String output = Utils.formatParam(testcase.getOutput(), language);
+                int num = testcase.getTestcaseNum();
+                codeLines.add("input" + num + " = " + input);
+                codeLines.add("output" + num + " = " + output);
+                codeLines.add("test_harness(outputs, " + num + ", input" + num + ", output" + num + ")");
+                codeLines.add("");
+            }
+            codeLines.add("print(\"----------\")");
+            codeLines.add("print(\"\\n\".join(outputs))");
+
             return String.join("\n", codeLines);
         }
         return "";
@@ -117,47 +123,57 @@ public class TestRunController {
         return responseData[0];
     }
 
-    @PostMapping("/testrun")
-    public TestRun createTestRun(@RequestBody TestRunRequestDto testRunRequestDto) {
+    @PostMapping("/submission")
+    public SubmissionResponseDto createSubmission(@RequestBody TestRunRequestDto testRunRequestDto) {
         Problem problem = problemRepository.findById(testRunRequestDto.getProblemId()).orElseThrow();
-        Solution primarySolution = problem.getSolutions().stream().filter(Solution::getIsPrimary).findFirst().orElseThrow();
-        String code = wrapCode(testRunRequestDto.getCode(), primarySolution.getCode(),
-                testRunRequestDto.getLanguage(), testRunRequestDto.getInput());
+        String code = wrapCode2(problem, testRunRequestDto.getCode(), testRunRequestDto.getLanguage(), problem.getTestcases());
 
         JZSubmissionRequestDto requestDto = new JZSubmissionRequestDto();
         requestDto.setSourceCode(code);
         requestDto.setLanguageId(Utils.getLanguageId(testRunRequestDto.getLanguage()));
         requestDto.setStdin("");
-
         JzSubmissionCheckResponseDto result = callJudgeZero(requestDto);
 
-        TestRun testRun = new TestRun();
-        testRun.setProblem(problem);
-        testRun.setToken(result.getToken());
-        testRun.setLanguage(testRunRequestDto.getLanguage());
-        testRun.setCode(testRunRequestDto.getCode());
-        testRun.setInput(testRunRequestDto.getInput());
+        Submission submission = new Submission();
+        submission.setCode(testRunRequestDto.getCode());
+        submission.setLanguage(testRunRequestDto.getLanguage());
+        submission.setProblem(problem);
+        submission.setToken(result.getToken());
 
+        SubmissionResponseDto response = new SubmissionResponseDto();
         // error
-        if (result.getStatus().getId() >= 6) {
-            testRun.setStatus("error");
-            testRun.setExpectedOutput("");
-            testRun.setOutput("");
+        if (result.getStatus().getId() >= 6) { // complication error
+            response.setStatus("error");
+            submission.setStatus("error");
             String[] error = result.getStderr().split("\n");
-            testRun.setStderr(error[error.length - 1]);
-            testRun.setStdout("");
-            // run success, check if output matches expected output
-        } else if (result.getStatus().getId() == 3) {
+            submission.setOutput(error[error.length - 1]);
+            response.setStderr(error[error.length - 1]);
+        } else if (result.getStatus().getId() == 3) { // no compilation error
             String[] split = result.getStdout().trim().split("----------\n");
-            testRun.setStdout(split[0]);
-            String[] resultOutput = split[1].split("\\|");
-            testRun.setStatus(resultOutput[0]);
-            testRun.setExpectedOutput(resultOutput[1]);
-            testRun.setOutput(resultOutput[2]);
-            testRun.setStderr("");
+            submission.setOutput(split[1]);
+            submission.setStatus("passed");
+            response.setStatus("passed");
+            List<TestResult> testResults = new ArrayList<>();
+            for (String str : split[1].split("\n")) {
+                String num = str.split("\\|")[0];
+                String status = str.split("\\|")[1];
+                TestResult testResult = new TestResult();
+                testResult.setStatus(status);
+                Testcase testcase = problem.getTestcases().get(Integer.parseInt(num) - 1);
+                testResult.setInput(testcase.getInput());
+                testResult.setExpectedOutput(testcase.getOutput());
+                testResult.setOutput(testcase.getOutput());
+                if (status.equals("failed")) {
+                    testResult.setOutput(str.split("\\|")[2]);
+                    response.setStatus("failed");
+                    submission.setStatus("failed");
+                }
+                testResults.add(testResult);
+            }
+            response.setTestResults(testResults);
         }
+        submission = submissionRepository.save(submission);
 
-        testRun = testRunRepository.save(testRun);
-        return testRun;
+        return response;
     }
 }

@@ -2,8 +2,11 @@ package com.coderintuition.CoderIntuition.models;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name = "test_run")
@@ -46,4 +49,13 @@ public class TestRun {
     @Column(name = "stderr", columnDefinition = "TEXT")
     private String stderr;
 
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_at", updatable = false)
+    private Date created_at;
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "updated_at")
+    private Date updated_at;
 }
