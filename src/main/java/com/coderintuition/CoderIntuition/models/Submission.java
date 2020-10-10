@@ -27,7 +27,8 @@ public class Submission {
     private String language;
 
     @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private TestStatus status;
 
     @Column(name = "code", columnDefinition = "TEXT")
     private String code;

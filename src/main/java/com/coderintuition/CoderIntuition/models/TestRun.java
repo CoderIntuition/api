@@ -35,7 +35,8 @@ public class TestRun {
     private String input;
 
     @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private TestStatus status;
 
     @Column(name = "expected_output", columnDefinition = "TEXT")
     private String expectedOutput;

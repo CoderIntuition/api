@@ -9,6 +9,7 @@ import com.coderintuition.CoderIntuition.dtos.response.TestResult;
 import com.coderintuition.CoderIntuition.models.Problem;
 import com.coderintuition.CoderIntuition.models.Submission;
 import com.coderintuition.CoderIntuition.models.TestCase;
+import com.coderintuition.CoderIntuition.models.TestStatus;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.SubmissionRepository;
 import com.coderintuition.CoderIntuition.repositories.TestRunRepository;
@@ -48,13 +49,14 @@ public class SubmissionController {
                     "def test_harness(outputs, test_num, user_input, expected_output):",
                     "    result = " + functionName + "(user_input)",
                     "    if result == expected_output:",
-                    "        outputs.append(\"{}|passed\".format(test_num))",
+                    "        outputs.append(\"{}|PASSED\".format(test_num))",
                     "    else:",
-                    "        outputs.append(\"{}|failed|{}\".format(test_num, result))",
+                    "        outputs.append(\"{}|FAILED|{}\".format(test_num, result))",
                     "",
                     "",
                     "outputs = []"
             ));
+
             // add code for each test case
             for (TestCase testCase : testCases) {
                 String input = Utils.formatParam(testCase.getInput(), language);
@@ -96,27 +98,27 @@ public class SubmissionController {
 
         // create the submission response dto to be sent back through the api
         SubmissionResponseDto response = new SubmissionResponseDto();
-        // error
         if (result.getStatus().getId() >= 6) { // error
-            response.setStatus("error");
-            submission.setStatus("error");
+            response.setStatus(TestStatus.ERROR);
+            submission.setStatus(TestStatus.ERROR);
             String[] error = result.getStderr().split("\n");
             submission.setOutput(error[error.length - 1]);
             response.setStderr(error[error.length - 1]);
+
         } else if (result.getStatus().getId() == 3) { // no errors
             // everything above the line is stdout, everything below is test results
             String[] split = result.getStdout().trim().split("----------\n");
             submission.setOutput(split[1]);
             // set status as passed at first and overwrite if any test failed
-            submission.setStatus("passed");
-            response.setStatus("passed");
+            submission.setStatus(TestStatus.PASSED);
+            response.setStatus(TestStatus.PASSED);
             List<TestResult> testResults = new ArrayList<>();
+
             for (String str : split[1].split("\n")) {
                 // test results are formatted: {test num}|{status}|{run output}
                 String[] testResult = str.split("\\|");
                 String num = testResult[0];
                 String status = testResult[1];
-
                 // create the test result object to be saved into the db
                 TestResult testResultObj = new TestResult();
                 testResultObj.setStatus(status);
@@ -127,8 +129,8 @@ public class SubmissionController {
                 testResultObj.setOutput(testCase.getOutput());
                 if (status.equals("failed")) {
                     testResultObj.setOutput(testResult[2]);
-                    response.setStatus("failed");
-                    submission.setStatus("failed");
+                    response.setStatus(TestStatus.FAILED);
+                    submission.setStatus(TestStatus.FAILED);
                 }
                 // add the test result to the list of test results
                 testResults.add(testResultObj);

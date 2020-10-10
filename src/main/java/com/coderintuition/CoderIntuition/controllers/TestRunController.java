@@ -2,11 +2,12 @@ package com.coderintuition.CoderIntuition.controllers;
 
 import com.coderintuition.CoderIntuition.common.Utils;
 import com.coderintuition.CoderIntuition.dtos.request.JZSubmissionRequestDto;
-import com.coderintuition.CoderIntuition.dtos.response.JzSubmissionCheckResponseDto;
 import com.coderintuition.CoderIntuition.dtos.request.RunRequestDto;
+import com.coderintuition.CoderIntuition.dtos.response.JzSubmissionCheckResponseDto;
 import com.coderintuition.CoderIntuition.models.Problem;
 import com.coderintuition.CoderIntuition.models.Solution;
 import com.coderintuition.CoderIntuition.models.TestRun;
+import com.coderintuition.CoderIntuition.models.TestStatus;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.SubmissionRepository;
 import com.coderintuition.CoderIntuition.repositories.TestRunRepository;
@@ -52,9 +53,9 @@ public class TestRunController {
                     "sol_result = " + functionName + "_sol(" + param + ")",
                     "print(\"----------\")",
                     "if user_result == sol_result:",
-                    "    print(\"passed|{}|{}\".format(sol_result, user_result))",
+                    "    print(\"PASSED|{}|{}\".format(sol_result, user_result))",
                     "else:",
-                    "    print(\"failed|{}|{}\".format(sol_result, user_result))"
+                    "    print(\"FAILED|{}|{}\".format(sol_result, user_result))"
             );
             return String.join("\n", codeLines);
         }
@@ -89,7 +90,7 @@ public class TestRunController {
 
         // save the results of the test run
         if (result.getStatus().getId() >= 6) { // error
-            testRun.setStatus("error");
+            testRun.setStatus(TestStatus.ERROR);
             testRun.setExpectedOutput("");
             testRun.setOutput("");
             String[] error = result.getStderr().split("\n");
@@ -101,7 +102,7 @@ public class TestRunController {
             testRun.setStdout(split[0]);
             // test results are formatted: {status}|{expected output}|{run output}
             String[] testResult = split[1].split("\\|");
-            testRun.setStatus(testResult[0]);
+            testRun.setStatus(TestStatus.valueOf(testResult[0]));
             testRun.setExpectedOutput(testResult[1]);
             testRun.setOutput(testResult[2]);
             testRun.setStderr("");
