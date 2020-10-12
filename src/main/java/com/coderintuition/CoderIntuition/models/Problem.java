@@ -56,10 +56,10 @@ public class Problem {
     @Column(name = "python_code")
     private String pythonCode;
 
-    @Column(name = "python_code")
+    @Column(name = "java_code")
     private String javaCode;
 
-    @Column(name = "python_code")
+    @Column(name = "javascript_code")
     private String javascriptCode;
 
     @CreationTimestamp

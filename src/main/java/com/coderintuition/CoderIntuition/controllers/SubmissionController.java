@@ -41,7 +41,7 @@ public class SubmissionController {
     // wrap the code with the test harness
     private String wrapCode(Problem problem, String userCode, String language, List<TestCase> testCases) {
         if (language.equalsIgnoreCase("python")) {
-            String functionName = Utils.getFunctionName(problem.getDefaultCode());
+            String functionName = Utils.getFunctionName(problem.getPythonCode());
             List<String> codeLines = new ArrayList<String>(Arrays.asList(
                     userCode,
                     "",

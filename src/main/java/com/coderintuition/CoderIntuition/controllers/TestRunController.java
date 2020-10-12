@@ -69,7 +69,7 @@ public class TestRunController {
         // retrieve the primary solution
         Solution primarySolution = problem.getSolutions().stream().filter(Solution::getIsPrimary).findFirst().orElseThrow();
         // warp the code with the test harness
-        String code = wrapCode(runRequestDto.getCode(), primarySolution.getCode(),
+        String code = wrapCode(runRequestDto.getCode(), primarySolution.getPythonCode(),
                 runRequestDto.getLanguage(), runRequestDto.getInput());
 
         // create request to JudgeZero
