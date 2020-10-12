@@ -21,19 +21,27 @@ import java.util.Set;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     private Long id;
 
     @NotBlank
+    @Column(name = "name")
     private String name;
 
     @NotBlank
     @Size(max = 50)
     @Email
+    @Column(name = "email")
     private String email;
 
     @NotBlank
     @Size(max = 120)
+    @Column(name = "password")
     private String password;
+
+    @Column(name = "language")
+    @Enumerated(EnumType.STRING)
+    private Language language;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_role",

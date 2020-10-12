@@ -33,8 +33,14 @@ public class Solution {
     @Column(name = "is_primary")
     private Boolean isPrimary;
 
-    @Column(name = "code", columnDefinition = "TEXT")
-    private String code;
+    @Column(name = "python_code", columnDefinition = "TEXT")
+    private String pythonCode;
+
+    @Column(name = "java_code", columnDefinition = "TEXT")
+    private String javaCode;
+
+    @Column(name = "javascript_code", columnDefinition = "TEXT")
+    private String javascriptCode;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;

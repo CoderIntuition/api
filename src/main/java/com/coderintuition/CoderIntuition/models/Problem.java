@@ -53,8 +53,14 @@ public class Problem {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "default_code")
-    private String defaultCode;
+    @Column(name = "python_code")
+    private String pythonCode;
+
+    @Column(name = "python_code")
+    private String javaCode;
+
+    @Column(name = "python_code")
+    private String javascriptCode;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
