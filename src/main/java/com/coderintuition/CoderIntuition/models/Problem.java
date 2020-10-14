@@ -44,12 +44,6 @@ public class Problem {
     @Column(name = "difficulty")
     private Integer difficulty;
 
-    @Column(name = "num_steps")
-    private Integer numSteps;
-
-    @Column(name = "total_time")
-    private Integer totalTime;
-
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 

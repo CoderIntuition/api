@@ -1,14 +1,14 @@
-REPLACE INTO coderintuition.problem (id, name, url_name, category, difficulty, num_steps, total_time, description, python_code, created_at,
+REPLACE INTO coderintuition.problem (id, name, url_name, category, difficulty, description, python_code, created_at,
                       updated_at)
-VALUES (1, 'Sort Array', 'sort-array', 'arrays', 1, 2, 40,
+VALUES (1, 'Sort Array', 'sort-array', 'arrays', 1,
         'Given an array of integers, sort the array in non-decreasing order.',
         'def sort_array(nums):', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
 
-REPLACE INTO coderintuition.problem_step (id, problem_id, step_num, name, type, text_contents, quiz_contents, time, created_at, updated_at)
-VALUES (1, 1, 1, 'Step 1: Understand the Problem', 'text', 'Read the problem and understand it.', '', 5, '2020-08-29 00:00:00', '2020-08-29 00:00:00');
+REPLACE INTO coderintuition.problem_step (id, problem_id, step_num, name, type, contents, time, created_at, updated_at)
+VALUES (1, 1, 1, 'Step 1: Understand the Problem', 'text', 'Read the problem and understand it.', 5, '2020-08-29 00:00:00', '2020-08-29 00:00:00');
 
-REPLACE INTO coderintuition.problem_step (id, problem_id, step_num, name, type, text_contents, quiz_contents, time, created_at, updated_at)
-VALUES (2, 1, 2, 'Step 2: Problem Understanding Quiz', 'quiz', '', '{
+REPLACE INTO coderintuition.problem_step (id, problem_id, step_num, name, type, contents, time, created_at, updated_at)
+VALUES (2, 1, 2, 'Step 2: Problem Understanding Quiz', 'quiz', '{
 	"quizTitle": "",
 	"quizSynopsis": "",
 	"appLocale": {

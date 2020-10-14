@@ -33,11 +33,8 @@ public class ProblemStep {
     @Column(name = "type")
     private String type;
 
-    @Column(name = "text_contents", columnDefinition = "TEXT")
-    private String textContents;
-
-    @Column(name = "quiz_contents", columnDefinition = "TEXT")
-    private String quizContents;
+    @Column(name = "contents", columnDefinition = "TEXT")
+    private String contents;
 
     @Column(name = "time")
     private Integer time;
