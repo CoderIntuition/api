@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import java.util.Date;
 
 @Entity
@@ -22,21 +23,29 @@ public class TestCase {
     @JsonIgnoreProperties("testCases")
     @ManyToOne
     @JoinColumn(name = "problem_id")
+    @NotNull
     private Problem problem;
 
     @Column(name = "test_case_num")
+    @Positive
+    @NotNull
     private Integer testCaseNum;
 
     @Column(name = "name")
+    @NotBlank
+    @Size(max = 300)
     private String name;
 
     @Column(name = "is_default")
+    @NotNull
     private Boolean isDefault;
 
     @Column(name = "input", columnDefinition = "TEXT")
+    @NotBlank
     private String input;
 
     @Column(name = "output", columnDefinition = "TEXT")
+    @NotBlank
     private String output;
 
     @Column(name = "time_limit")

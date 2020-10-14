@@ -4,10 +4,7 @@ import com.coderintuition.CoderIntuition.common.Utils;
 import com.coderintuition.CoderIntuition.dtos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.dtos.request.RunRequestDto;
 import com.coderintuition.CoderIntuition.dtos.response.JzSubmissionCheckResponseDto;
-import com.coderintuition.CoderIntuition.models.Problem;
-import com.coderintuition.CoderIntuition.models.Solution;
-import com.coderintuition.CoderIntuition.models.TestRun;
-import com.coderintuition.CoderIntuition.models.TestStatus;
+import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.SubmissionRepository;
 import com.coderintuition.CoderIntuition.repositories.TestRunRepository;
@@ -36,8 +33,8 @@ public class TestRunController {
     private ExecutorService scheduler = Executors.newFixedThreadPool(5);
 
     // wrap the code with the test harness and the solution code
-    private String wrapCode(String userCode, String solution, String language, String input) {
-        if (language.equalsIgnoreCase("python")) {
+    private String wrapCode(String userCode, String solution, Language language, String input) {
+        if (language == Language.PYTHON) {
             String functionName = Utils.getFunctionName(userCode);
             // TODO: support multiple params
             String param = Utils.formatParam(input, language);

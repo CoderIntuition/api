@@ -1,5 +1,6 @@
 package com.coderintuition.CoderIntuition.controllers;
 
+import com.coderintuition.CoderIntuition.models.Category;
 import com.coderintuition.CoderIntuition.models.Problem;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.ProblemStepRepository;
@@ -24,7 +25,7 @@ public class ProblemController {
 
     @GetMapping("/problems/{category}")
     public List<Problem> getProblemsByCategory(@PathVariable String category) {
-        return problemRepository.findByCategory(category);
+        return problemRepository.findByCategory(Category.valueOf(category.toUpperCase()));
     }
 
     @GetMapping("/problem/id/{id}")

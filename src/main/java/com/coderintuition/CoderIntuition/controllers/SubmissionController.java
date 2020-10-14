@@ -6,10 +6,7 @@ import com.coderintuition.CoderIntuition.dtos.request.RunRequestDto;
 import com.coderintuition.CoderIntuition.dtos.response.JzSubmissionCheckResponseDto;
 import com.coderintuition.CoderIntuition.dtos.response.SubmissionResponseDto;
 import com.coderintuition.CoderIntuition.dtos.response.TestResult;
-import com.coderintuition.CoderIntuition.models.Problem;
-import com.coderintuition.CoderIntuition.models.Submission;
-import com.coderintuition.CoderIntuition.models.TestCase;
-import com.coderintuition.CoderIntuition.models.TestStatus;
+import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.SubmissionRepository;
 import com.coderintuition.CoderIntuition.repositories.TestRunRepository;
@@ -39,8 +36,8 @@ public class SubmissionController {
     private ExecutorService scheduler = Executors.newFixedThreadPool(5);
 
     // wrap the code with the test harness
-    private String wrapCode(Problem problem, String userCode, String language, List<TestCase> testCases) {
-        if (language.equalsIgnoreCase("python")) {
+    private String wrapCode(Problem problem, String userCode, Language language, List<TestCase> testCases) {
+        if (language == Language.PYTHON) {
             String functionName = Utils.getFunctionName(problem.getPythonCode());
             List<String> codeLines = new ArrayList<String>(Arrays.asList(
                     userCode,

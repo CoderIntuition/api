@@ -24,19 +24,20 @@ public class User {
     @Column(name = "id")
     private Long id;
 
-    @NotBlank
     @Column(name = "name")
+    @NotBlank
+    @Size(max = 300)
     private String name;
 
-    @NotBlank
-    @Size(max = 50)
-    @Email
     @Column(name = "email")
+    @NotBlank
+    @Size(max = 300)
+    @Email
     private String email;
 
-    @NotBlank
-    @Size(max = 120)
     @Column(name = "password")
+    @NotBlank
+    @Size(max = 150)
     private String password;
 
     @Column(name = "language")

@@ -1,5 +1,6 @@
 package com.coderintuition.CoderIntuition.dtos.request;
 
+import com.coderintuition.CoderIntuition.models.Language;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,7 +11,7 @@ import lombok.Setter;
 public class RunRequestDto {
 
     private Long problemId;
-    private String language;
+    private Language language;
     private String input;
     private String code;
 }

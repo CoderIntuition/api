@@ -3,6 +3,7 @@ package com.coderintuition.CoderIntuition.common;
 import com.coderintuition.CoderIntuition.dtos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.dtos.response.JZSubmissionResponseDto;
 import com.coderintuition.CoderIntuition.dtos.response.JzSubmissionCheckResponseDto;
+import com.coderintuition.CoderIntuition.models.Language;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -12,12 +13,12 @@ import java.util.Objects;
 import java.util.concurrent.*;
 
 public class Utils {
-    public static int getLanguageId(String language) {
-        if (language.equalsIgnoreCase("python")) {
+    public static int getLanguageId(Language language) {
+        if (language == Language.PYTHON) {
             return 71;
-        } else if (language.equalsIgnoreCase("java")) {
+        } else if (language == Language.JAVA) {
             return 62;
-        } else if (language.equalsIgnoreCase("javascript")) {
+        } else if (language == Language.JAVASCRIPT) {
             return 63;
         }
         return -1;
@@ -27,10 +28,10 @@ public class Utils {
         return defaultCode.substring(4, defaultCode.indexOf("("));
     }
 
-    public static String formatParam(String param, String language) {
-        if (language.equalsIgnoreCase("java")) {
+    public static String formatParam(String param, Language language) {
+        if (language == Language.JAVA) {
 
-        } else if (language.equalsIgnoreCase("python")) {
+        } else if (language == Language.PYTHON) {
 
         }
         return param;

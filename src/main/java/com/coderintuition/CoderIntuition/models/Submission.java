@@ -6,6 +6,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 @Entity
@@ -21,22 +24,27 @@ public class Submission {
 
     @ManyToOne
     @JoinColumn(name = "problem_id")
+    @NotNull
     private Problem problem;
 
     @Column(name = "language")
-    private String language;
+    @Enumerated(EnumType.STRING)
+    private Language language;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private TestStatus status;
 
     @Column(name = "code", columnDefinition = "TEXT")
+    @NotBlank
     private String code;
 
     @Column(name = "output", columnDefinition = "TEXT")
     private String output;
 
     @Column(name = "token")
+    @NotBlank
+    @Size(max = 100)
     private String token;
 
     @CreationTimestamp

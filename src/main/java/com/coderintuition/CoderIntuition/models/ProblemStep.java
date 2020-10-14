@@ -7,6 +7,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 @Entity
@@ -22,21 +26,30 @@ public class ProblemStep {
     @JsonIgnoreProperties("problemSteps")
     @ManyToOne
     @JoinColumn(name = "problem_id")
+    @NotNull
     private Problem problem;
 
     @Column(name = "step_num")
+    @NotNull
+    @Positive
     private Integer stepNum;
 
     @Column(name = "name")
+    @NotBlank
+    @Size(max = 300)
     private String name;
 
     @Column(name = "type")
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private ProblemStepType type;
 
     @Column(name = "contents", columnDefinition = "TEXT")
+    @NotBlank
     private String contents;
 
     @Column(name = "time")
+    @NotNull
+    @Positive
     private Integer time;
 
     @CreationTimestamp

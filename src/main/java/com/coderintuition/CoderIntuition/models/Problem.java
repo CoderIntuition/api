@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import java.util.Date;
 import java.util.List;
 
@@ -22,38 +23,51 @@ public class Problem {
 
     @JsonIgnoreProperties("problem")
     @OneToMany(mappedBy = "problem")
+    @NotEmpty
     private List<ProblemStep> problemSteps;
 
     @JsonIgnoreProperties("problem")
     @OneToMany(mappedBy = "problem")
+    @NotEmpty
     private List<TestCase> testCases;
 
     @JsonIgnoreProperties("problem")
     @OneToMany(mappedBy = "problem")
+    @NotEmpty
     private List<Solution> solutions;
 
     @Column(name = "name")
+    @NotBlank
+    @Size(max = 300)
     private String name;
 
     @Column(name = "url_name")
+    @NotBlank
+    @Size(max = 300)
     private String urlName;
 
     @Column(name = "category")
-    private String category;
+    @Enumerated(EnumType.STRING)
+    private Category category;
 
     @Column(name = "difficulty")
+    @NotNull
+    @Min(1)
+    @Max(5)
     private Integer difficulty;
 
     @Column(name = "description", columnDefinition = "TEXT")
+    @NotBlank
     private String description;
 
-    @Column(name = "python_code")
+    @Column(name = "python_code", columnDefinition = "TEXT")
+    @NotBlank
     private String pythonCode;
 
-    @Column(name = "java_code")
+    @Column(name = "java_code", columnDefinition = "TEXT")
     private String javaCode;
 
-    @Column(name = "javascript_code")
+    @Column(name = "javascript_code", columnDefinition = "TEXT")
     private String javascriptCode;
 
     @CreationTimestamp
