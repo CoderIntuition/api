@@ -5,6 +5,7 @@ import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.util.Pair;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -18,18 +19,28 @@ public class JwtUtils {
     private String jwtSecret;
 
     @Value("${coderintuition.app.jwtExpirationMs}")
-    private int jwtExpirationMs;
+    private long jwtExpirationMs;
 
-    public String generateJwtToken(Authentication authentication) {
+    public Pair<String, Long> generateJwtToken(Authentication authentication) {
 
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+        long time = System.currentTimeMillis();
 
-        return Jwts.builder()
+        return Pair.of(Jwts.builder()
                 .setSubject((userPrincipal.getUsername()))
-                .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .setIssuedAt(new Date(time))
+                .setExpiration(new Date(time + jwtExpirationMs))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
-                .compact();
+                .compact(), time + jwtExpirationMs);
+    }
+
+    public Pair<String, Long> generateRefreshToken(String email) {
+        long time = System.currentTimeMillis();
+        return Pair.of(Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .signWith(SignatureAlgorithm.HS512, jwtSecret).compact(), time + jwtExpirationMs);
     }
 
     public String getUserNameFromJwtToken(String token) {

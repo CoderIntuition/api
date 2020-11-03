@@ -43,9 +43,9 @@ public class ProblemStep {
     @Enumerated(EnumType.STRING)
     private ProblemStepType type;
 
-    @Column(name = "contents", columnDefinition = "TEXT")
+    @Column(name = "content", columnDefinition = "TEXT")
     @NotBlank
-    private String contents;
+    private String content;
 
     @Column(name = "time")
     @NotNull

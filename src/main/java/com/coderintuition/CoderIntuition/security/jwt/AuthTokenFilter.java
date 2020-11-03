@@ -1,6 +1,7 @@
 package com.coderintuition.CoderIntuition.security.jwt;
 
 import com.coderintuition.CoderIntuition.security.services.UserDetailsServiceImpl;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,20 +42,39 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        } catch (Exception e) {
+        }
+//        catch (ExpiredJwtException e) {
+//            String isRefreshToken = request.getHeader("isRefreshToken");
+//            String requestURL = request.getRequestURL().toString();
+//            // allow for Refresh Token creation if following conditions are true.
+//            if (isRefreshToken != null && isRefreshToken.equals("true") && requestURL.contains("renew")) {
+//                allowForRefreshToken(e, request);
+//            } else {
+//                logger.error("Cannot set user authentication: {}", e);
+//            }
+//        }
+        catch (Exception e) {
             logger.error("Cannot set user authentication: {}", e);
         }
 
         filterChain.doFilter(request, response);
     }
 
+//    private void allowForRefreshToken(ExpiredJwtException ex, HttpServletRequest request) {
+//        // create a UsernamePasswordAuthenticationToken with null values.
+//        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+//                null, null, null);
+//        // After setting the Authentication in the context, we specify
+//        // that the current user is authenticated. So it passes the
+//        // Spring Security Configurations successfully.
+//        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+//    }
+
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
-
         if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-            return headerAuth.substring(7, headerAuth.length());
+            return headerAuth.substring(7);
         }
-
         return null;
     }
 }
