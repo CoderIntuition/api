@@ -17,22 +17,22 @@ import java.util.List;
 @Setter
 public class Problem {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
     @JsonIgnoreProperties("problem")
-    @OneToMany(mappedBy = "problem")
+    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL)
     @NotEmpty
     private List<ProblemStep> problemSteps;
 
     @JsonIgnoreProperties("problem")
-    @OneToMany(mappedBy = "problem")
+    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL)
     @NotEmpty
     private List<TestCase> testCases;
 
     @JsonIgnoreProperties("problem")
-    @OneToMany(mappedBy = "problem")
+    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL)
     @NotEmpty
     private List<Solution> solutions;
 

@@ -1,6 +1,7 @@
 package com.coderintuition.CoderIntuition.controllers;
 
 import com.coderintuition.CoderIntuition.dtos.request.cms.ProblemDto;
+import com.coderintuition.CoderIntuition.dtos.response.MessageResponse;
 import com.coderintuition.CoderIntuition.models.Problem;
 import com.coderintuition.CoderIntuition.models.ProblemStep;
 import com.coderintuition.CoderIntuition.models.Solution;
@@ -9,11 +10,9 @@ import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,12 +25,13 @@ public class CmsController {
 
     @PostMapping("/add")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ResponseEntity addProblem(ProblemDto problemDto) {
+    public ResponseEntity addProblem(@Valid @RequestBody ProblemDto problemDto) {
         Problem problem = new Problem();
         problem.setName(problemDto.getName());
         problem.setUrlName(problemDto.getUrlName());
         problem.setCategory(problemDto.getCategory());
         problem.setDifficulty(problemDto.getDifficulty());
+        problem.setDescription(problemDto.getDescription());
         problem.setPythonCode(problemDto.getPythonCode());
         problem.setJavaCode(problemDto.getJavaCode());
         problem.setJavascriptCode(problemDto.getJavascriptCode());
@@ -41,6 +41,7 @@ public class CmsController {
         for (int i = 0; i < problemDto.getProblemSteps().size(); i++) {
             var problemStepDto = problemDto.getProblemSteps().get(i);
             ProblemStep problemStep = new ProblemStep();
+            problemStep.setProblem(problem);
             problemStep.setStepNum(i + 1);
             problemStep.setName(problemStepDto.getName());
             problemStep.setType(problemStepDto.getType());
@@ -55,6 +56,7 @@ public class CmsController {
         for (int i = 0; i < problemDto.getTestCases().size(); i++) {
             var testCaseDto = problemDto.getTestCases().get(i);
             TestCase testCase = new TestCase();
+            testCase.setProblem(problem);
             testCase.setTestCaseNum(i + 1);
             testCase.setName(testCaseDto.getName());
             testCase.setIsDefault(testCaseDto.getIsDefault());
@@ -69,6 +71,7 @@ public class CmsController {
         for (int i = 0; i < problemDto.getSolutions().size(); i++) {
             var solutionDto = problemDto.getSolutions().get(i);
             Solution solution = new Solution();
+            solution.setProblem(problem);
             solution.setSolutionNum(i + 1);
             solution.setName(solutionDto.getName());
             solution.setIsPrimary(solutionDto.getIsPrimary());
@@ -81,6 +84,7 @@ public class CmsController {
         problem.setSolutions(solutions);
 
         problemRepository.save(problem);
-        return ResponseEntity.ok().build();
+
+        return ResponseEntity.ok().body(new MessageResponse("Problem saved successfully"));
     }
 }
