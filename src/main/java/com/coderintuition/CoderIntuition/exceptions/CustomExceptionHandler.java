@@ -29,7 +29,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(RecordNotFoundException.class)
-    public final ResponseEntity<Object> handleUserNotFoundException(RecordNotFoundException ex) {
+    public final ResponseEntity<Object> handleRecordNotFoundException(RecordNotFoundException ex) {
         List<String> details = new ArrayList<>();
         details.add(ex.getLocalizedMessage());
         ErrorResponse error = new ErrorResponse("Record Not Found", details);

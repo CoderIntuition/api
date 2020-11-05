@@ -22,17 +22,17 @@ public class Problem {
     private Long id;
 
     @JsonIgnoreProperties("problem")
-    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "problem")
     @NotEmpty
     private List<ProblemStep> problemSteps;
 
     @JsonIgnoreProperties("problem")
-    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "problem")
     @NotEmpty
     private List<TestCase> testCases;
 
     @JsonIgnoreProperties("problem")
-    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "problem")
     @NotEmpty
     private List<Solution> solutions;
 
@@ -69,6 +69,9 @@ public class Problem {
 
     @Column(name = "javascript_code", columnDefinition = "TEXT")
     private String javascriptCode;
+
+    @Column(name = "deleted")
+    private Boolean deleted;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
