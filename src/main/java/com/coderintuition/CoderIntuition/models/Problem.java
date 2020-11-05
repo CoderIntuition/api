@@ -41,7 +41,7 @@ public class Problem {
     @Size(max = 300)
     private String name;
 
-    @Column(name = "url_name")
+    @Column(name = "url_name", unique = true)
     @NotBlank
     @Size(max = 300)
     private String urlName;

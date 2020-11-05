@@ -1,8 +1,7 @@
 package com.coderintuition.CoderIntuition.controllers;
 
-import com.coderintuition.CoderIntuition.dtos.request.cms.DeleteProblemRequest;
-import com.coderintuition.CoderIntuition.dtos.request.cms.ProblemDto;
-import com.coderintuition.CoderIntuition.dtos.request.cms.UpdateProblemRequest;
+import com.coderintuition.CoderIntuition.dtos.request.cms.*;
+import com.coderintuition.CoderIntuition.dtos.response.ErrorResponse;
 import com.coderintuition.CoderIntuition.dtos.response.MessageResponse;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
 import com.coderintuition.CoderIntuition.models.Problem;
@@ -18,7 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
+import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,8 +41,14 @@ public class CmsController {
 
     @PostMapping("/update")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ResponseEntity updateProblem(@Valid @RequestBody UpdateProblemRequest updateProblemRequest) {
+    public ResponseEntity updateProblem(@Valid @RequestBody UpdateProblemRequest updateProblemRequest) throws Exception {
         ProblemDto problemDto = updateProblemRequest.getProblem();
+        if (problemDto.getTestCases().stream().filter(TestCaseDto::getIsDefault).count() != 1) {
+            throw new Exception("There must be exactly one default test case");
+        }
+        if (problemDto.getSolutions().stream().filter(SolutionDto::getIsPrimary).count() != 1) {
+            throw new Exception("There must be exactly one primary solution");
+        }
 
         // update general problem info
         Problem problem = problemRepository.findById(updateProblemRequest.getId()).orElseThrow();
@@ -132,7 +139,13 @@ public class CmsController {
 
     @PostMapping("/add")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ResponseEntity addProblem(@Valid @RequestBody ProblemDto problemDto) {
+    public ResponseEntity addProblem(@Valid @RequestBody ProblemDto problemDto) throws Exception {
+        if (problemDto.getTestCases().stream().filter(TestCaseDto::getIsDefault).count() != 1) {
+            throw new Exception("There must be exactly one default test case");
+        }
+        if (problemDto.getSolutions().stream().filter(SolutionDto::getIsPrimary).count() != 1) {
+            throw new Exception("There must be exactly one primary solution");
+        }
         Problem problem = new Problem();
         problem.setName(problemDto.getName());
         problem.setUrlName(problemDto.getUrlName());
@@ -155,7 +168,6 @@ public class CmsController {
             problemStep.setContent(problemStepDto.getContent());
             problemStep.setTime(problemStepDto.getTime());
 
-            problemStepRepository.save(problemStep);
             problemSteps.add(problemStep);
         }
         problem.setProblemSteps(problemSteps);
@@ -172,7 +184,6 @@ public class CmsController {
             testCase.setInput(testCaseDto.getInput());
             testCase.setOutput(testCaseDto.getOutput());
 
-            testCaseRepository.save(testCase);
             testCases.add(testCase);
         }
         problem.setTestCases(testCases);
@@ -191,12 +202,21 @@ public class CmsController {
             solution.setJavaCode(solutionDto.getJavaCode());
             solution.setJavascriptCode(solutionDto.getJavascriptCode());
 
-            solutionRepository.save(solution);
             solutions.add(solution);
         }
         problem.setSolutions(solutions);
 
         problemRepository.save(problem);
+        for (var problemStep : problemSteps) {
+            problemStepRepository.save(problemStep);
+        }
+        for (var testCase : testCases) {
+            testCaseRepository.save(testCase);
+        }
+        for (var solution : solutions) {
+            solutionRepository.save(solution);
+        }
+
         return ResponseEntity.ok().body(new MessageResponse("Problem saved successfully"));
     }
 
