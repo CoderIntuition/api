@@ -1,7 +1,6 @@
 package com.coderintuition.CoderIntuition.controllers;
 
 import com.coderintuition.CoderIntuition.dtos.request.cms.*;
-import com.coderintuition.CoderIntuition.dtos.response.ErrorResponse;
 import com.coderintuition.CoderIntuition.dtos.response.MessageResponse;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
 import com.coderintuition.CoderIntuition.models.Problem;
@@ -17,9 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
-import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
 
