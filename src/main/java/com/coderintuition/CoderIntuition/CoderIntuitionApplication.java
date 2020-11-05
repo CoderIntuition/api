@@ -15,6 +15,6 @@ public class CoderIntuitionApplication extends SpringBootServletInitializer {
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-        return builder.sources(ApplicationRunner.class);
+        return builder.sources(CoderIntuitionApplication.class);
     }
 }
