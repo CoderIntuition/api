@@ -36,6 +36,7 @@ public class CmsController {
     @Autowired
     SolutionRepository solutionRepository;
 
+    // test
     @PostMapping("/update")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
     public ResponseEntity updateProblem(@Valid @RequestBody UpdateProblemRequest updateProblemRequest) throws Exception {
