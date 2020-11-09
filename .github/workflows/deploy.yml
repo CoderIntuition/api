@@ -23,6 +23,11 @@ jobs:
         run: mvn clean install
       - name: Publish to Github Packages Registry
         uses: elgohr/Publish-Docker-Github-Action@master
+        env:
+          CODERINTUITION_DATASOURCE_URL: ${{ secrets.CODERINTUITION_DATASOURCE_URL }}
+          CODERINTUITION_DATASOURCE_USERNAME: ${{ secrets.CODERINTUITION_DATASOURCE_USERNAME }}
+          CODERINTUITION_DATASOURCE_PASSWORD: ${{ secrets.CODERINTUITION_DATASOURCE_PASSWORD }}
+          CODERINTUITION_JWT_SECRET: ${{ secrets.CODERINTUITION_JWT_SECRET }}
         with:
           name: davidhqr/coderintuition-api/coderintutition-api
           registry: docker.pkg.github.com
@@ -30,6 +35,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           dockerfile: Dockerfile
           tags: latest
+          buildargs: CODERINTUITION_DATASOURCE_URL,CODERINTUITION_DATASOURCE_USERNAME,CODERINTUITION_DATASOURCE_PASSWORD,CODERINTUITION_JWT_SECRET
       - name: Deploy package
         uses: appleboy/ssh-action@master
         env:
