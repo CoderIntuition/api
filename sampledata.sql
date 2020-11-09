@@ -1,3 +1,5 @@
+USE coderintuition;
+
 REPLACE INTO coderintuition.problem (name, url_name, category, difficulty, description, python_code, created_at,
                       updated_at)
 VALUES ('Sort Array', 'sort-array', 'ARRAYS', 1,
