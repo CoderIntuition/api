@@ -1,0 +1,44 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Use Java 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11'
+      - name: Build WAR with maven
+        run: mvn clean install
+      - name: Publish to Github Packages Registry
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: davidhqr/coderintuition-api/coderintutition-api
+          registry: docker.pkg.github.com
+          username: ${{ secrets.GIT_USERNAME }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          dockerfile: Dockerfile
+          tags: latest
+      - name: Deploy package
+        uses: appleboy/ssh-action@master
+        env:
+          GITHUB_USERNAME: ${{ secrets.GIT_USERNAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USERNAME }}
+          password: ${{ secrets.REMOTE_PASSWORD }}
+          port: ${{ secrets.REMOTE_PORT }}
+          envs: GITHUB_USERNAME, GITHUB_TOKEN
+          script: |
+            docker login docker.pkg.github.com -u $GITHUB_USERNAME -p $GITHUB_TOKEN
+            docker pull docker.pkg.github.com/davidhqr/coderintuition-api/coderintutition-api:latest
+            docker stop api
+            docker rm api
+            docker run -d --name=api --network=coderintuition docker.pkg.github.com/davidhqr/coderintuition-api/coderintutition-api:latest
