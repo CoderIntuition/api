@@ -50,6 +50,5 @@ jobs:
           script: |
             docker login docker.pkg.github.com -u $GITHUB_USERNAME -p $GITHUB_TOKEN
             docker pull docker.pkg.github.com/davidhqr/coderintuition-api/coderintutition-api:latest
-            docker stop api
-            docker rm api
-            docker run -d --name=api --network=coderintuition docker.pkg.github.com/davidhqr/coderintuition-api/coderintutition-api:latest
+            docker-compose -f ~/docker-compose/docker-compose.yml up --force-recreate --build -d
+            docker image prune -f
