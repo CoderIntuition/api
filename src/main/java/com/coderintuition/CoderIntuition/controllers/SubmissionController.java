@@ -116,16 +116,14 @@ public class SubmissionController {
                 String[] testResult = str.split("\\|");
                 String num = testResult[0];
                 String status = testResult[1];
-                String output = testResult[2];
                 // create the test result object to be saved into the db
                 TestResult testResultObj = new TestResult();
                 testResultObj.setStatus(status);
-                testResultObj.setOutput(output);
                 // retrieve the test case for this test result
                 TestCase testCase = problem.getTestCases().get(Integer.parseInt(num) - 1);
                 testResultObj.setInput(testCase.getInput());
                 testResultObj.setExpectedOutput(testCase.getOutput());
-                if (status.equals("failed")) {
+                if (status.equals("FAILED")) {
                     testResultObj.setOutput(testResult[2]);
                     response.setStatus(TestStatus.FAILED);
                     submission.setStatus(TestStatus.FAILED);
