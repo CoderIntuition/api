@@ -37,6 +37,7 @@ public class SubmissionController {
 
     // wrap the code with the test harness
     private String wrapCode(Problem problem, String userCode, Language language, List<TestCase> testCases) {
+        // TODO: support different languages
         if (language == Language.PYTHON) {
             String functionName = Utils.getFunctionName(problem.getPythonCode());
             List<String> codeLines = new ArrayList<String>(Arrays.asList(
