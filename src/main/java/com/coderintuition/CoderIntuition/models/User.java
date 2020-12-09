@@ -3,10 +3,12 @@ package com.coderintuition.CoderIntuition.models;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.minidev.json.annotate.JsonIgnore;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,10 +37,18 @@ public class User {
     @Email
     private String email;
 
+    @Column(name = "verified")
+    @NotNull
+    private Boolean verified;
+
     @Column(name = "password")
-    @NotBlank
     @Size(max = 150)
+    @JsonIgnore
     private String password;
+
+    @Column(name = "image_url")
+    @Size(max = 500)
+    private String imageUrl;
 
     @Column(name = "language")
     @Enumerated(EnumType.STRING)
@@ -49,6 +59,15 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
+
+    @Column(name = "auth_provider")
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private AuthProvider authProvider;
+
+    @Column(name = "auth_provider_id")
+    @Size(max = 200)
+    private String authProviderId;
 
     public User(String name, String email, String password) {
         this.name = name;
