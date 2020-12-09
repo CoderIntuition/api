@@ -1,4 +1,4 @@
-package com.coderintuition.CoderIntuition.common;
+package com.coderintuition.CoderIntuition.util;
 
 import com.coderintuition.CoderIntuition.dtos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.dtos.response.JZSubmissionResponseDto;

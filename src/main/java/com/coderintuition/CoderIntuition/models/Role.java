@@ -1,6 +1,7 @@
 package com.coderintuition.CoderIntuition.models;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -9,6 +10,7 @@ import javax.persistence.*;
 @Table(name = "role")
 @Getter
 @Setter
+@NoArgsConstructor
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,4 +19,8 @@ public class Role {
     @Column(name = "name")
     @Enumerated(EnumType.STRING)
     private ERole name;
+
+    public Role(ERole name) {
+        this.name = name;
+    }
 }
