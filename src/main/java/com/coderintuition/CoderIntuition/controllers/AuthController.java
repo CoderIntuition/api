@@ -1,37 +1,35 @@
 package com.coderintuition.CoderIntuition.controllers;
 
 import com.coderintuition.CoderIntuition.dtos.request.LoginRequest;
+import com.coderintuition.CoderIntuition.dtos.request.RenewRequest;
 import com.coderintuition.CoderIntuition.dtos.request.SignupRequest;
 import com.coderintuition.CoderIntuition.dtos.request.ValidateRequest;
-import com.coderintuition.CoderIntuition.dtos.response.JwtResponse;
+import com.coderintuition.CoderIntuition.dtos.response.AuthResponse;
 import com.coderintuition.CoderIntuition.dtos.response.MessageResponse;
 import com.coderintuition.CoderIntuition.models.ERole;
 import com.coderintuition.CoderIntuition.models.Role;
 import com.coderintuition.CoderIntuition.models.User;
 import com.coderintuition.CoderIntuition.repositories.RoleRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
-import com.coderintuition.CoderIntuition.security.jwt.JwtUtils;
-import com.coderintuition.CoderIntuition.security.services.UserDetailsImpl;
+import com.coderintuition.CoderIntuition.security.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Set;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
     @Autowired
     AuthenticationManager authenticationManager;
@@ -43,38 +41,26 @@ public class AuthController {
     RoleRepository roleRepository;
 
     @Autowired
-    PasswordEncoder encoder;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
-    JwtUtils jwtUtils;
+    private TokenProvider tokenProvider;
 
-    @PostMapping("/signin")
+
+    @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        Authentication authentication;
-        try {
-            authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-        } catch (BadCredentialsException ex) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
-        }
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getEmail(),
+                        loginRequest.getPassword()
+                )
+        );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
+
         // token and expiration time
-        Pair<String, Long> token = jwtUtils.generateJwtToken(authentication);
-
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(new JwtResponse(
-                token.getFirst(),
-                token.getSecond(),
-                userDetails.getId(),
-                userDetails.getName(),
-                userDetails.getUsername(), // email
-                roles
-        ));
+        Pair<String, Long> tokenPair = tokenProvider.createToken(authentication);
+        return ResponseEntity.ok(new AuthResponse(tokenPair.getFirst(), tokenPair.getSecond()));
     }
 
     @PostMapping("/signup")
@@ -84,7 +70,7 @@ public class AuthController {
         }
         // Create new user's account
         User user = new User(signUpRequest.getName(), signUpRequest.getEmail(),
-                encoder.encode(signUpRequest.getPassword()));
+                passwordEncoder.encode(signUpRequest.getPassword()));
         Role userRole = roleRepository.findByName(ERole.ROLE_USER).orElseThrow();
         Set<Role> roles = new HashSet<>();
         roles.add(userRole);
@@ -95,20 +81,18 @@ public class AuthController {
     }
 
     @PostMapping("/renew")
-    public ResponseEntity<?> renewUser(@RequestBody JwtResponse jwtRequest) {
-        if (!jwtUtils.validateJwtToken(jwtRequest.getToken())) {
+    public ResponseEntity<?> renewUser(@RequestBody RenewRequest renewRequest) {
+        if (!tokenProvider.validateToken(renewRequest.getToken())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
         }
-        Pair<String, Long> token = jwtUtils.generateRefreshToken(jwtRequest.getEmail());
+        Pair<String, Long> tokenPair = tokenProvider.refreshToken(renewRequest.getUserId());
 
-        jwtRequest.setToken(token.getFirst());
-        jwtRequest.setExpiration(token.getSecond());
-        return ResponseEntity.ok(jwtRequest);
+        return ResponseEntity.ok(new AuthResponse(tokenPair.getFirst(), tokenPair.getSecond()));
     }
 
     @PostMapping("/validate")
     public ResponseEntity<?> validateUser(@RequestBody ValidateRequest validateRequest) {
-        if (jwtUtils.validateJwtToken(validateRequest.getToken())) {
+        if (tokenProvider.validateToken(validateRequest.getToken())) {
             return ResponseEntity.ok().body("Valid token");
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
