@@ -125,7 +125,7 @@ VALUES ('Word Search', 'word-search', 'ARRAYS', 4,
         'def exist(self, board: List[List[str]], word: str) -> bool:', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
 
 REPLACE INTO role(name) VALUES('ROLE_USER');
-REPLACE INTO role(name) VALUES('ROLE_PREMIUM');
+REPLACE INTO role(name) VALUES('ROLE_PLUS');
 REPLACE INTO role(name) VALUES('ROLE_MODERATOR');
 SET @moderator_id = LAST_INSERT_ID();
 REPLACE INTO role(name) VALUES('ROLE_ADMIN');
