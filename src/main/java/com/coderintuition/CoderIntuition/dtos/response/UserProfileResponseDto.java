@@ -2,6 +2,7 @@ package com.coderintuition.CoderIntuition.dtos.response;
 
 import com.coderintuition.CoderIntuition.models.Activity;
 import com.coderintuition.CoderIntuition.models.Badge;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
 public class UserProfileResponseDto {
     private String name;

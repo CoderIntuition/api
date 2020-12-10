@@ -1,5 +1,7 @@
 package com.coderintuition.CoderIntuition.controllers;
 
+import com.coderintuition.CoderIntuition.dtos.response.UserProfileResponseDto;
+import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
 import com.coderintuition.CoderIntuition.exceptions.ResourceNotFoundException;
 import com.coderintuition.CoderIntuition.models.User;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
@@ -25,7 +27,20 @@ public class UserController {
     }
 
     @GetMapping(value = "/user/{username}")
-    public void getUserProfile(@PathVariable String username) {
+    public UserProfileResponseDto getUserProfile(@PathVariable String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RecordNotFoundException("Username " + username + " not found"));
 
+        return new UserProfileResponseDto(user.getName(),
+                user.getUsername(),
+                user.getImageUrl(),
+                user.getBadges(),
+                user.getActivities(),
+                // TODO: call level calculation method to calculate level
+                0,
+                user.getGithubLink(),
+                user.getLinkedinLink(),
+                user.getWebsiteLink(),
+                user.getCreated_at());
     }
 }

@@ -25,11 +25,11 @@ public class Activity {
     private ActivityType activityType;
 
     @ManyToOne
-    @Column(name = "problem_id")
+    @JoinColumn(name = "problem_id")
     private Problem problem;
 
     @ManyToOne
-    @Column(name = "badge")
+    @JoinColumn(name = "badge_id")
     private Badge badge;
 
     @CreationTimestamp
