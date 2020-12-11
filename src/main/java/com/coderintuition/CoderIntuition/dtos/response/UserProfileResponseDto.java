@@ -2,6 +2,7 @@ package com.coderintuition.CoderIntuition.dtos.response;
 
 import com.coderintuition.CoderIntuition.models.Activity;
 import com.coderintuition.CoderIntuition.models.Badge;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,7 @@ public class UserProfileResponseDto {
     private String githubLink;
     private String linkedinLink;
     private String websiteLink;
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date joinedDate;
 }
 
