@@ -26,6 +26,7 @@ public class ProduceOutputController {
         String functionName = Utils.getFunctionName(code);
         // TODO: support multiple params
         String param = Utils.formatParam(input, Language.PYTHON);
+        // TODO: put this into a text file with args
         List<String> codeLines = Arrays.asList(
                 code,
                 "",
@@ -42,6 +43,8 @@ public class ProduceOutputController {
     public ProduceOutputResponse produceOutput(@RequestBody ProduceOutputDto produceOutputDto) {
         // warp the code with the test harness
         String code = wrapCode(produceOutputDto.getCode(), produceOutputDto.getInput());
+
+        // TODO: support different languages
 
         // create request to JudgeZero
         JZSubmissionRequestDto requestDto = new JZSubmissionRequestDto();

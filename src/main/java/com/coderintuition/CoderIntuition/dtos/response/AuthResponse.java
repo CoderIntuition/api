@@ -10,12 +10,10 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class AuthResponse {
-    private String token;
-    private Long expiration;
+    private String accessToken;
     private String type = "Bearer";
 
-    public AuthResponse(String token, Long expiration) {
-        this.token = token;
-        this.expiration = expiration;
+    public AuthResponse(String accessToken) {
+        this.accessToken = accessToken;
     }
 }

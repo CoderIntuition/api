@@ -7,21 +7,25 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 @Entity
-@Table(name = "role")
+@Table(name = "badge")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Role {
+public class Badge {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(name = "id")
+    private Long id;
 
     @Column(name = "name")
-    @Enumerated(EnumType.STRING)
-    private ERole name;
+    @NotBlank
+    @Size(max = 300)
+    private String name;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -32,8 +36,4 @@ public class Role {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private Date updated_at;
-
-    public Role(ERole name) {
-        this.name = name;
-    }
 }

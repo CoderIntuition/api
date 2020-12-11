@@ -10,18 +10,27 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "role")
+@Table(name = "activity")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Role {
+public class Activity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(name = "id")
+    private Long id;
 
-    @Column(name = "name")
+    @Column(name = "activity_type")
     @Enumerated(EnumType.STRING)
-    private ERole name;
+    private ActivityType activityType;
+
+    @ManyToOne
+    @JoinColumn(name = "problem_id")
+    private Problem problem;
+
+    @ManyToOne
+    @JoinColumn(name = "badge_id")
+    private Badge badge;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -32,8 +41,4 @@ public class Role {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private Date updated_at;
-
-    public Role(ERole name) {
-        this.name = name;
-    }
 }
