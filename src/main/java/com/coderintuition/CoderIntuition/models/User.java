@@ -112,9 +112,13 @@ public class User {
     @Column(name = "updated_at")
     private Date updated_at;
 
-    public User(String name, String email, String password) {
+    public User(String name, String email, String password, Boolean verified, String username, AuthProvider authProvider, Set<Role> roles) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.verified = verified;
+        this.username = username;
+        this.authProvider = authProvider;
+        this.roles = roles;
     }
 }

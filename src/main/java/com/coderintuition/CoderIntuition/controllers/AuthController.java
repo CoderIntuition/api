@@ -6,6 +6,7 @@ import com.coderintuition.CoderIntuition.dtos.request.SignupRequest;
 import com.coderintuition.CoderIntuition.dtos.request.ValidateRequest;
 import com.coderintuition.CoderIntuition.dtos.response.AuthResponse;
 import com.coderintuition.CoderIntuition.dtos.response.MessageResponse;
+import com.coderintuition.CoderIntuition.models.AuthProvider;
 import com.coderintuition.CoderIntuition.models.ERole;
 import com.coderintuition.CoderIntuition.models.Role;
 import com.coderintuition.CoderIntuition.models.User;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -60,7 +62,18 @@ public class AuthController {
 
         // token and expiration time
         Pair<String, Long> tokenPair = tokenProvider.createToken(authentication);
-        return ResponseEntity.ok(new AuthResponse(tokenPair.getFirst(), tokenPair.getSecond()));
+        return ResponseEntity.ok(new AuthResponse(tokenPair.getFirst()));
+    }
+
+    private static String generateUsername() {
+        String aToZ = "abcdefghijklmnopqrstuvwxyz0123456789";
+        Random rand = new Random();
+        StringBuilder res = new StringBuilder();
+        for (int i = 0; i < 10; i++) {
+            int randIndex = rand.nextInt(aToZ.length());
+            res.append(aToZ.charAt(randIndex));
+        }
+        return res.toString();
     }
 
     @PostMapping("/signup")
@@ -69,12 +82,12 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new MessageResponse("Email is already in use"));
         }
         // Create new user's account
-        User user = new User(signUpRequest.getName(), signUpRequest.getEmail(),
-                passwordEncoder.encode(signUpRequest.getPassword()));
         Role userRole = roleRepository.findByName(ERole.ROLE_USER).orElseThrow();
         Set<Role> roles = new HashSet<>();
         roles.add(userRole);
-        user.setRoles(roles);
+        User user = new User(signUpRequest.getName(), signUpRequest.getEmail(),
+                passwordEncoder.encode(signUpRequest.getPassword()), false,
+                generateUsername(), AuthProvider.LOCAL, roles);
         userRepository.save(user);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully"));
@@ -87,7 +100,7 @@ public class AuthController {
         }
         Pair<String, Long> tokenPair = tokenProvider.refreshToken(renewRequest.getUserId());
 
-        return ResponseEntity.ok(new AuthResponse(tokenPair.getFirst(), tokenPair.getSecond()));
+        return ResponseEntity.ok(new AuthResponse(tokenPair.getFirst()));
     }
 
     @PostMapping("/validate")
