@@ -13,12 +13,14 @@ jobs:
       - name: Use Java 11
         uses: actions/setup-java@v1
         with:
-          java-version: '11'
+          java-version: `'11'
       - name: Build WAR with maven
         env:
           CODERINTUITION_DATASOURCE_URL: ${{ secrets.CODERINTUITION_DATASOURCE_URL }}
           CODERINTUITION_DATASOURCE_USERNAME: ${{ secrets.CODERINTUITION_DATASOURCE_USERNAME }}
           CODERINTUITION_DATASOURCE_PASSWORD: ${{ secrets.CODERINTUITION_DATASOURCE_PASSWORD }}
+          CODERINTUITION_GOOGLE_CLIENT_ID: ${{ secrets.CODERINTUITION_GOOGLE_CLIENT_ID }}
+          CODERINTUITION_GOOGLE_CLIENT_SECRET: ${{ secrets.CODERINTUITION_GOOGLE_CLIENT_SECRET }}
           CODERINTUITION_JWT_SECRET: ${{ secrets.CODERINTUITION_JWT_SECRET }}
         run: mvn clean install
       - name: Publish to Github Packages Registry
@@ -27,6 +29,8 @@ jobs:
           CODERINTUITION_DATASOURCE_URL: ${{ secrets.CODERINTUITION_DATASOURCE_URL }}
           CODERINTUITION_DATASOURCE_USERNAME: ${{ secrets.CODERINTUITION_DATASOURCE_USERNAME }}
           CODERINTUITION_DATASOURCE_PASSWORD: ${{ secrets.CODERINTUITION_DATASOURCE_PASSWORD }}
+          CODERINTUITION_GOOGLE_CLIENT_ID: ${{ secrets.CODERINTUITION_GOOGLE_CLIENT_ID }}
+          CODERINTUITION_GOOGLE_CLIENT_SECRET: ${{ secrets.CODERINTUITION_GOOGLE_CLIENT_SECRET }}
           CODERINTUITION_JWT_SECRET: ${{ secrets.CODERINTUITION_JWT_SECRET }}
         with:
           name: davidhqr/coderintuition-api/coderintutition-api
@@ -35,7 +39,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           dockerfile: Dockerfile
           tags: latest
-          buildargs: CODERINTUITION_DATASOURCE_URL,CODERINTUITION_DATASOURCE_USERNAME,CODERINTUITION_DATASOURCE_PASSWORD,CODERINTUITION_JWT_SECRET
+          buildargs: CODERINTUITION_DATASOURCE_URL,CODERINTUITION_DATASOURCE_USERNAME,CODERINTUITION_DATASOURCE_PASSWORD,CODERINTUITION_GOOGLE_CLIENT_ID,CODERINTUITION_GOOGLE_CLIENT_SECRET,CODERINTUITION_JWT_SECRET
       - name: Deploy package
         uses: appleboy/ssh-action@master
         env:
