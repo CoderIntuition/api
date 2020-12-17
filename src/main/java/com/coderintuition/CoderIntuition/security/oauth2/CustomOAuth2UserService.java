@@ -37,7 +37,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(oAuth2UserRequest);
-
         try {
             return processOAuth2User(oAuth2UserRequest, oAuth2User);
         } catch (AuthenticationException ex) {
@@ -53,6 +52,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(oAuth2UserRequest.getClientRegistration().getRegistrationId(), unprotectedAttributes);
 
         AuthProvider authProvider = AuthProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId().toUpperCase());
+        String authProviderName = StringUtils.capitalize(authProvider.toString().toLowerCase());
 
         // github doesn't provide emails from oauth so need to fetch from their API
         if (authProvider == AuthProvider.GITHUB && (oAuth2UserInfo.getEmail() == null || oAuth2UserInfo.getEmail().isEmpty())) {
@@ -73,18 +73,20 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             }
         }
 
+        // no email received from auth provider
         if (StringUtils.isEmpty(oAuth2UserInfo.getEmail())) {
-            throw new OAuth2AuthenticationProcessingException("Email not found from OAuth2 provider");
+            throw new OAuth2AuthenticationProcessingException("Email not received from OAuth2 provider " + authProviderName);
         }
 
         Optional<User> userOptional = userRepository.findByEmail(oAuth2UserInfo.getEmail());
         User user;
+        // if user already has an account try to update, otherwise create new account
         if (userOptional.isPresent()) {
             user = userOptional.get();
+            // user has an account using a different provider
             if (!user.getAuthProvider().equals(authProvider)) {
-                throw new OAuth2AuthenticationProcessingException("Looks like you're signed up with " +
-                        user.getAuthProvider() + " account. Please use your " + user.getAuthProvider() +
-                        " account to login.");
+                throw new OAuth2AuthenticationProcessingException("You already have an existing account using " +
+                        authProviderName + ". Please use your " + authProviderName + " account to sign in.");
             }
             user = updateExistingUser(user, oAuth2UserInfo);
         } else {
@@ -96,7 +98,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private User registerNewUser(OAuth2UserRequest oAuth2UserRequest, OAuth2UserInfo oAuth2UserInfo) {
         User user = new User();
-
         user.setAuthProvider(AuthProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId().toUpperCase()));
         user.setAuthProviderId(oAuth2UserInfo.getId());
         user.setName(oAuth2UserInfo.getName());
