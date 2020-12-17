@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.*;
 
 public class Utils {
@@ -92,5 +93,16 @@ public class Utils {
         }
 
         return responseData[0];
+    }
+
+    public static String generateUsername() {
+        String aToZ = "abcdefghjkmnopqrstuvwxyz0123456789";
+        Random rand = new Random();
+        StringBuilder res = new StringBuilder();
+        for (int i = 0; i < 8; i++) {
+            int randIndex = rand.nextInt(aToZ.length());
+            res.append(aToZ.charAt(randIndex));
+        }
+        return res.toString();
     }
 }

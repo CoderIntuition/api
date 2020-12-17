@@ -13,6 +13,7 @@ import com.coderintuition.CoderIntuition.models.User;
 import com.coderintuition.CoderIntuition.repositories.RoleRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
 import com.coderintuition.CoderIntuition.security.TokenProvider;
+import com.coderintuition.CoderIntuition.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -65,17 +65,6 @@ public class AuthController {
         return ResponseEntity.ok(new AuthResponse(tokenPair.getFirst()));
     }
 
-    private static String generateUsername() {
-        String aToZ = "abcdefghijklmnopqrstuvwxyz0123456789";
-        Random rand = new Random();
-        StringBuilder res = new StringBuilder();
-        for (int i = 0; i < 10; i++) {
-            int randIndex = rand.nextInt(aToZ.length());
-            res.append(aToZ.charAt(randIndex));
-        }
-        return res.toString();
-    }
-
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
@@ -87,7 +76,7 @@ public class AuthController {
         roles.add(userRole);
         User user = new User(signUpRequest.getName(), signUpRequest.getEmail(),
                 passwordEncoder.encode(signUpRequest.getPassword()), false,
-                generateUsername(), AuthProvider.LOCAL, roles);
+                Utils.generateUsername(), AuthProvider.LOCAL, roles);
         userRepository.save(user);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully"));

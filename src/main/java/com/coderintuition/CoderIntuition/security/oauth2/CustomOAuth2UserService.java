@@ -10,6 +10,7 @@ import com.coderintuition.CoderIntuition.repositories.UserRepository;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
 import com.coderintuition.CoderIntuition.security.oauth2.user.OAuth2UserInfo;
 import com.coderintuition.CoderIntuition.security.oauth2.user.OAuth2UserInfoFactory;
+import com.coderintuition.CoderIntuition.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
@@ -53,6 +54,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         AuthProvider authProvider = AuthProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId().toUpperCase());
 
+        // github doesn't provide emails from oauth so need to fetch from their API
         if (authProvider == AuthProvider.GITHUB && (oAuth2UserInfo.getEmail() == null || oAuth2UserInfo.getEmail().isEmpty())) {
             Map<String, String> header = new HashMap<>();
             header.put("Authorization", "token " + oAuth2UserRequest.getAccessToken().getTokenValue());
@@ -99,6 +101,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         user.setAuthProviderId(oAuth2UserInfo.getId());
         user.setName(oAuth2UserInfo.getName());
         user.setEmail(oAuth2UserInfo.getEmail());
+        user.setUsername(Utils.generateUsername());
         user.setVerified(false);
         Set<Role> roles = Stream.of(new Role(ERole.ROLE_USER)).collect(Collectors.toCollection(HashSet::new));
         user.setRoles(roles);
