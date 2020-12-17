@@ -85,8 +85,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user = userOptional.get();
             // user has an account using a different provider
             if (!user.getAuthProvider().equals(authProvider)) {
-                throw new OAuth2AuthenticationProcessingException("You already have an existing account using " +
-                        authProviderName + ". Please use your " + authProviderName + " account to sign in.");
+                String userAuthProviderName = StringUtils.capitalize(user.getAuthProvider().toString().toLowerCase());
+                throw new OAuth2AuthenticationProcessingException("You already have an existing account with " +
+                        userAuthProviderName + ". Please use your " + userAuthProviderName + " account to sign in.");
             }
             user = updateExistingUser(user, oAuth2UserInfo);
         } else {
