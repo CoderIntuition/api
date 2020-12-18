@@ -23,10 +23,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -50,14 +52,16 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword()
-                )
-        );
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) throws Exception {
+        // check if email is using LOCAL auth provider
+        Optional<User> user = userRepository.findByEmail(loginRequest.getEmail());
+        if (user.isPresent() && user.get().getAuthProvider() != AuthProvider.LOCAL) {
+            String provider = StringUtils.capitalize(user.get().getAuthProvider().toString().toLowerCase());
+            throw new Exception("Your email is signed up using " + provider + ". Please log in using " + provider + " instead.");
+        }
 
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // token and expiration time
@@ -79,7 +83,12 @@ public class AuthController {
                 Utils.generateUsername(), AuthProvider.LOCAL, roles);
         userRepository.save(user);
 
-        return ResponseEntity.ok(new MessageResponse("User registered successfully"));
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(signUpRequest.getEmail(), signUpRequest.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        // token and expiration time
+        Pair<String, Long> tokenPair = tokenProvider.createToken(authentication);
+        return ResponseEntity.ok(new AuthResponse(tokenPair.getFirst()));
     }
 
     @PostMapping("/renew")

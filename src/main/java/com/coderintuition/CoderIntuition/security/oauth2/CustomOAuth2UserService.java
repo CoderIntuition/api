@@ -6,6 +6,7 @@ import com.coderintuition.CoderIntuition.models.AuthProvider;
 import com.coderintuition.CoderIntuition.models.ERole;
 import com.coderintuition.CoderIntuition.models.Role;
 import com.coderintuition.CoderIntuition.models.User;
+import com.coderintuition.CoderIntuition.repositories.RoleRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
 import com.coderintuition.CoderIntuition.security.oauth2.user.OAuth2UserInfo;
@@ -33,6 +34,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
@@ -105,7 +109,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         user.setEmail(oAuth2UserInfo.getEmail());
         user.setUsername(Utils.generateUsername());
         user.setVerified(false);
-        Set<Role> roles = Stream.of(new Role(ERole.ROLE_USER)).collect(Collectors.toCollection(HashSet::new));
+        Set<Role> roles = new HashSet<>();
+        roles.add(roleRepository.findByName(ERole.ROLE_USER).orElseThrow());
         user.setRoles(roles);
         user.setImageUrl(oAuth2UserInfo.getImageUrl());
         return userRepository.save(user);

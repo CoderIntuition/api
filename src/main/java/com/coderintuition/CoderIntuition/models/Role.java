@@ -23,16 +23,6 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private ERole name;
 
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at", updatable = false)
-    private Date created_at;
-
-    @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updated_at")
-    private Date updated_at;
-
     public Role(ERole name) {
         this.name = name;
     }
