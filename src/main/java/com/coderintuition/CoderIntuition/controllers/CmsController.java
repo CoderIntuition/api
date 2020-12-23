@@ -1,7 +1,7 @@
 package com.coderintuition.CoderIntuition.controllers;
 
-import com.coderintuition.CoderIntuition.dtos.request.cms.*;
-import com.coderintuition.CoderIntuition.dtos.response.MessageResponse;
+import com.coderintuition.CoderIntuition.pojos.request.cms.*;
+import com.coderintuition.CoderIntuition.pojos.response.MessageResponse;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
 import com.coderintuition.CoderIntuition.models.Problem;
 import com.coderintuition.CoderIntuition.models.ProblemStep;

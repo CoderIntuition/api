@@ -1,0 +1,24 @@
+import java.util.*;
+
+${definitionCode}
+
+${userCode}
+
+${solutionCode}
+
+public class Main {
+    ${setupCode}
+
+    public void main(String[] args) {
+        ${retType} userResult = new Solution().${functionName}(${args});
+        ${retType} solutionResult = new ActualSolution().${functionName}(${args});
+
+        ${userResultFormat}
+        ${solResultFormat}
+
+        if (${equalsCode}):
+            System.out.printf("PASSED|{}|{}\n", sol_result, user_result);
+        else:
+            System.out.printf("FAILED|{}|{}\n", sol_result, user_result);
+    }
+}

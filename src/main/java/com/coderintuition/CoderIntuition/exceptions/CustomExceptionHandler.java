@@ -1,6 +1,6 @@
 package com.coderintuition.CoderIntuition.exceptions;
 
-import com.coderintuition.CoderIntuition.dtos.response.ErrorResponse;
+import com.coderintuition.CoderIntuition.pojos.response.ErrorResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

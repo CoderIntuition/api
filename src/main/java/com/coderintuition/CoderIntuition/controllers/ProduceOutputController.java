@@ -1,10 +1,10 @@
 package com.coderintuition.CoderIntuition.controllers;
 
-import com.coderintuition.CoderIntuition.util.Utils;
-import com.coderintuition.CoderIntuition.dtos.request.JZSubmissionRequestDto;
-import com.coderintuition.CoderIntuition.dtos.request.ProduceOutputDto;
-import com.coderintuition.CoderIntuition.dtos.response.JzSubmissionCheckResponseDto;
-import com.coderintuition.CoderIntuition.dtos.response.ProduceOutputResponse;
+import com.coderintuition.CoderIntuition.common.Utils;
+import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
+import com.coderintuition.CoderIntuition.pojos.request.ProduceOutputDto;
+import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
+import com.coderintuition.CoderIntuition.pojos.response.ProduceOutputResponse;
 import com.coderintuition.CoderIntuition.models.Language;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -1,6 +1,6 @@
 package com.coderintuition.CoderIntuition.security.oauth2;
 
-import com.coderintuition.CoderIntuition.dtos.response.GithubEmailResponse;
+import com.coderintuition.CoderIntuition.pojos.response.GithubEmailResponse;
 import com.coderintuition.CoderIntuition.exceptions.OAuth2AuthenticationProcessingException;
 import com.coderintuition.CoderIntuition.models.AuthProvider;
 import com.coderintuition.CoderIntuition.models.ERole;
@@ -11,7 +11,7 @@ import com.coderintuition.CoderIntuition.repositories.UserRepository;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
 import com.coderintuition.CoderIntuition.security.oauth2.user.OAuth2UserInfo;
 import com.coderintuition.CoderIntuition.security.oauth2.user.OAuth2UserInfoFactory;
-import com.coderintuition.CoderIntuition.util.Utils;
+import com.coderintuition.CoderIntuition.common.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
@@ -26,8 +26,6 @@ import reactor.core.publisher.Flux;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {

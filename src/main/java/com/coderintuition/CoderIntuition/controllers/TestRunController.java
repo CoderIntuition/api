@@ -1,9 +1,9 @@
 package com.coderintuition.CoderIntuition.controllers;
 
-import com.coderintuition.CoderIntuition.util.Utils;
-import com.coderintuition.CoderIntuition.dtos.request.JZSubmissionRequestDto;
-import com.coderintuition.CoderIntuition.dtos.request.RunRequestDto;
-import com.coderintuition.CoderIntuition.dtos.response.JzSubmissionCheckResponseDto;
+import com.coderintuition.CoderIntuition.common.Utils;
+import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
+import com.coderintuition.CoderIntuition.pojos.request.RunRequestDto;
+import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
 import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.SubmissionRepository;

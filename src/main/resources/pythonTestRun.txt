@@ -1,0 +1,23 @@
+${tree}
+
+${linkedList}
+
+${userCode}
+
+${solutionCode}
+
+def main():
+    user_result = ${functionName}(${args})
+    sol_result = ${functionName}_sol(${args})
+    print("-----------------------------------")
+
+    ${userResultFormat}
+    ${solResultFormat}
+
+    if user_result == sol_result:
+        print("PASSED|{}|{}".format(sol_result, user_result))
+    else:
+        print("FAILED|{}|{}".format(sol_result, user_result))
+
+if __name__ == "__main__":
+    main()

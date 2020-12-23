@@ -1,11 +1,11 @@
 package com.coderintuition.CoderIntuition.controllers;
 
-import com.coderintuition.CoderIntuition.dtos.request.LoginRequest;
-import com.coderintuition.CoderIntuition.dtos.request.RenewRequest;
-import com.coderintuition.CoderIntuition.dtos.request.SignupRequest;
-import com.coderintuition.CoderIntuition.dtos.request.ValidateRequest;
-import com.coderintuition.CoderIntuition.dtos.response.AuthResponse;
-import com.coderintuition.CoderIntuition.dtos.response.MessageResponse;
+import com.coderintuition.CoderIntuition.pojos.request.LoginRequest;
+import com.coderintuition.CoderIntuition.pojos.request.RenewRequest;
+import com.coderintuition.CoderIntuition.pojos.request.SignupRequest;
+import com.coderintuition.CoderIntuition.pojos.request.ValidateRequest;
+import com.coderintuition.CoderIntuition.pojos.response.AuthResponse;
+import com.coderintuition.CoderIntuition.pojos.response.MessageResponse;
 import com.coderintuition.CoderIntuition.models.AuthProvider;
 import com.coderintuition.CoderIntuition.models.ERole;
 import com.coderintuition.CoderIntuition.models.Role;
@@ -13,7 +13,7 @@ import com.coderintuition.CoderIntuition.models.User;
 import com.coderintuition.CoderIntuition.repositories.RoleRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
 import com.coderintuition.CoderIntuition.security.TokenProvider;
-import com.coderintuition.CoderIntuition.util.Utils;
+import com.coderintuition.CoderIntuition.common.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;

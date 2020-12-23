@@ -1,7 +1,7 @@
 package com.coderintuition.CoderIntuition.controllers;
 
+import com.coderintuition.CoderIntuition.pojos.response.UserProfileResponseDto;
 import com.coderintuition.CoderIntuition.dtos.request.UserGeneralSettingsRequest;
-import com.coderintuition.CoderIntuition.dtos.response.UserProfileResponseDto;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
 import com.coderintuition.CoderIntuition.exceptions.ResourceNotFoundException;
 import com.coderintuition.CoderIntuition.models.User;
