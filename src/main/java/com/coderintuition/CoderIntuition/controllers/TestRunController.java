@@ -1,10 +1,11 @@
 package com.coderintuition.CoderIntuition.controllers;
 
+import com.coderintuition.CoderIntuition.common.CodeTemplateFiller;
 import com.coderintuition.CoderIntuition.common.Utils;
+import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.pojos.request.RunRequestDto;
 import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
-import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.SubmissionRepository;
 import com.coderintuition.CoderIntuition.repositories.TestRunRepository;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,50 +30,38 @@ public class TestRunController {
     @Autowired
     SubmissionRepository submissionRepository;
 
-    private ExecutorService scheduler = Executors.newFixedThreadPool(5);
+    private final ExecutorService scheduler = Executors.newFixedThreadPool(5);
 
-    // wrap the code with the test harness and the solution code
-    private String wrapCode(String userCode, String solution, Language language, String input) {
-        if (language == Language.PYTHON) {
-            String functionName = Utils.getFunctionName(userCode);
-            // TODO: support multiple params
-            String param = Utils.formatParam(input, language);
-            List<String> codeLines = Arrays.asList(
-                    userCode,
-                    "",
-                    "",
-                    // append _sol to the end of the solution function
-                    solution.replace(functionName, functionName + "_sol"),
-                    "",
-                    "",
-                    "user_result = " + functionName + "(" + param + ")",
-                    "sol_result = " + functionName + "_sol(" + param + ")",
-                    "print(\"----------\")",
-                    "if user_result == sol_result:",
-                    "    print(\"PASSED|{}|{}\".format(sol_result, user_result))",
-                    "else:",
-                    "    print(\"FAILED|{}|{}\".format(sol_result, user_result))"
-            );
-            return String.join("\n", codeLines);
+    private String formatErrorMessage(Language language, String err) {
+        switch (language) {
+            case PYTHON:
+                return err.replaceAll("File .* line \\d+ *\\n", "");
+            case JAVA:
+                return err.replaceAll("Main\\.java:\\d+: ", "");
+            default:
+                return err;
         }
-        return "";
     }
 
     @PostMapping("/testrun")
     public TestRun createTestRun(@RequestBody RunRequestDto runRequestDto) {
         // retrieve the problem
         Problem problem = problemRepository.findById(runRequestDto.getProblemId()).orElseThrow();
-        // retrieve the primary solution
+
+        // wrap the code with the test run template
+        CodeTemplateFiller filler = CodeTemplateFiller.getInstance();
+        String functionName = Utils.getFunctionName(runRequestDto.getLanguage(), problem.getCode(runRequestDto.getLanguage()));
         Solution primarySolution = problem.getSolutions().stream().filter(Solution::getIsPrimary).findFirst().orElseThrow();
-        // warp the code with the test harness
-        String code = wrapCode(runRequestDto.getCode(), primarySolution.getPythonCode(),
-                runRequestDto.getLanguage(), runRequestDto.getInput());
+        List<Argument> args = problem.getArguments();
+        // fill in the test run template with the arguments/return type for this test run
+        String code = filler.fillTestRun(runRequestDto.getLanguage(), runRequestDto.getCode(), primarySolution.getCode(runRequestDto.getLanguage()),
+                functionName, args, problem.getReturnType());
 
         // create request to JudgeZero
         JZSubmissionRequestDto requestDto = new JZSubmissionRequestDto();
         requestDto.setSourceCode(code);
         requestDto.setLanguageId(Utils.getLanguageId(runRequestDto.getLanguage()));
-        requestDto.setStdin("");
+        requestDto.setStdin(runRequestDto.getInput());
         // send request to JudgeZero
         JzSubmissionCheckResponseDto result = Utils.callJudgeZero(requestDto, scheduler);
 
@@ -90,19 +78,33 @@ public class TestRunController {
             testRun.setStatus(TestStatus.ERROR);
             testRun.setExpectedOutput("");
             testRun.setOutput("");
-            String[] error = result.getStderr().split("\n");
-            testRun.setStderr(error[error.length - 1]);
+            String stderr = "";
+            if (result.getCompileOutput() != null) {
+                stderr = result.getCompileOutput();
+            } else if (result.getStderr() != null) {
+                stderr = result.getStderr();
+            }
+            testRun.setStderr(formatErrorMessage(testRun.getLanguage(), stderr));
             testRun.setStdout("");
-        } else if (result.getStatus().getId() == 3) { // no errors
+        } else if (result.getStatus().getId() == 3) { // no compile errors
             // everything above the line is stdout, everything below is test results
-            String[] split = result.getStdout().trim().split("----------\n");
-            testRun.setStdout(split[0]);
-            // test results are formatted: {status}|{expected output}|{run output}
+            String[] split = result.getStdout().trim().split("-----------------------------------\n");
             String[] testResult = split[1].split("\\|");
-            testRun.setStatus(TestStatus.valueOf(testResult[0]));
-            testRun.setExpectedOutput(testResult[1]);
-            testRun.setOutput(testResult[2]);
-            testRun.setStderr("");
+            if (testResult.length == 3) { // no errors
+                // test results are formatted: {status}|{expected output}|{run output}
+                testRun.setStatus(TestStatus.valueOf(testResult[0]));
+                testRun.setExpectedOutput(testResult[1]);
+                testRun.setOutput(testResult[2]);
+                testRun.setStdout(split[0]);
+                testRun.setStderr("");
+            } else if (testResult.length == 2) { // runtime errors
+                // runtime error results are formatted: {status}|{error message}
+                testRun.setStatus(TestStatus.ERROR);
+                testRun.setExpectedOutput("");
+                testRun.setOutput("");
+                testRun.setStderr(formatErrorMessage(testRun.getLanguage(), testResult[1]));
+                testRun.setStdout("");
+            }
         }
         // save the test run into the db
         testRun = testRunRepository.save(testRun);

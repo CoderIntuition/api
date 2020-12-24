@@ -52,9 +52,11 @@ public class Solution {
     private String pythonCode;
 
     @Column(name = "java_code", columnDefinition = "TEXT")
+    @NotNull
     private String javaCode;
 
     @Column(name = "javascript_code", columnDefinition = "TEXT")
+    @NotNull
     private String javascriptCode;
 
     @CreationTimestamp
@@ -66,4 +68,17 @@ public class Solution {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private Date updated_at;
+
+    public String getCode(Language language) {
+        switch (language) {
+            case PYTHON:
+                return pythonCode;
+            case JAVA:
+                return javaCode;
+            case JAVASCRIPT:
+                return javascriptCode;
+            default:
+                return "";
+        }
+    }
 }

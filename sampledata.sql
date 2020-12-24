@@ -1,12 +1,12 @@
 USE coderintuition;
 
-DROP TABLE user_activity, user_badge, user_role, activity, badge, problem, problem_step, role, solution, submission, test_case, test_run, user;
-
-INSERT INTO coderintuition.problem (name, url_name, category, difficulty, description, python_code, created_at,
-                                    updated_at)
+INSERT INTO coderintuition.problem (name, url_name, category, difficulty, description, python_code, java_code,
+                                    javascript_code, created_at, updated_at)
 VALUES ('Sort Array', 'sort-array', 'ARRAYS', 1,
         'Given an array of integers, sort the array in non-decreasing order.',
-        'def sort_array(nums):', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
+        'def sort_array(nums):\n\treturn nums',
+        'class Solution {\n\tList<Integer> sortArray(List<Integer> nums) {\n\t\treturn nums;\n\t}\n}',
+        'sortArray(nums) {\n\treturn nums;\n}', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
 
 SET @problem1_id = LAST_INSERT_ID();
 
@@ -71,79 +71,30 @@ INSERT INTO coderintuition.test_case(problem_id, test_case_num, name, is_default
 VALUES (@problem1_id, 2, 'Test 1', false, '[3, 1, 4, 2]', '[1, 2, 3, 4]', 10, 10, 10, '2020-08-29 00:00:00',
         '2020-08-29 00:00:00');
 
-INSERT INTO coderintuition.solution(problem_id, solution_num, name, is_primary, python_code, description, created_at,
-                                    updated_at)
+INSERT INTO coderintuition.solution(problem_id, solution_num, name, is_primary, python_code, java_code,
+                                    javascript_code, description, created_at, updated_at)
 VALUES (@problem1_id, 1, 'Approach 1: Manually sort the array', false, 'def sort_array(nums):\n    return []',
-        'Go through each element and compare', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
+        '', '', 'Go through each element and compare', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
 
-INSERT INTO coderintuition.solution(problem_id, solution_num, name, is_primary, python_code, description, created_at,
-                                    updated_at)
-VALUES (@problem1_id, 2, 'Approach 2: Use built-in sorted', true, 'def sort_array(nums):\n    return sorted(nums)',
-        'Use the built-in function', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
+INSERT INTO coderintuition.solution(problem_id, solution_num, name, is_primary, python_code, java_code,
+                                    javascript_code, description, created_at, updated_at)
+VALUES (@problem1_id, 2, 'Approach 2: Use built-in sorted', true,
+        'def sort_array(nums):\n    return sorted(nums)',
+        'class ActualSolution {\n\tList<Integer> sortArray(List<Integer> nums) {\n\t\tCollections.sort(nums);\n\t\treturn nums\n\t}\n}',
+        '', 'Use the built-in function', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
 
-INSERT INTO coderintuition.problem(name, url_name, category, difficulty, description, python_code, created_at,
-                                   updated_at)
-VALUES ('Maximum Subarray', 'maximum-subarray', 'ARRAYS', 1,
-        'Given an array of integers return the contiguous subarray that has the largest sum',
-        'def max_subarray(nums):', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
+INSERT INTO coderintuition.argument(problem_id, argument_num, type, underlying_type, underlying_type_2)
+VALUES (@problem1_id, 1, 'LIST', 'INTEGER', 'NONE');
 
-INSERT INTO coderintuition.problem(name, url_name, category, difficulty, description, python_code, created_at,
-                                   updated_at)
-VALUES ('Subsets', 'subsets', 'ARRAYS', 3,
-        'Given a set of distinct integers, nums, return all possible subsets (the power set).',
-        'def subsets(nums):', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
+INSERT INTO coderintuition.return_type(problem_id, type, underlying_type, underlying_type_2, order_matters)
+VALUES (@problem1_id, 'LIST', 'INTEGER', 'NONE', true);
 
-INSERT INTO coderintuition.problem (name, url_name, category, difficulty, description, python_code, created_at,
-                                    updated_at)
-VALUES ('Move Zeros', 'move-zeros', 'ARRAYS', 2,
-        'Given an array nums, write a function to move all 0''s to the end of it while maintaining the relative order of the non-zero elements.',
-        'def move_zeros(nums):', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
-
-INSERT INTO coderintuition.problem (name, url_name, category, difficulty, description, python_code, created_at,
-                                    updated_at)
-VALUES ('Product of Array Except Self', 'product-of-array-except-self', 'ARRAYS', 4,
-        'Given an array nums of n integers where n > 1,  return an array output such that output[i] is equal to the product of all the elements of nums except nums[i].',
-        'def product_of_array_except_self(nums):', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
-
-INSERT INTO coderintuition.problem (name, url_name, category, difficulty, description, python_code, created_at,
-                                    updated_at)
-VALUES ('Trapping Rain Water', 'trapping-rain-water', 'ARRAYS', 5,
-        'Given n non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it is able to trap after raining.',
-        'def trapping_rain_water(nums):', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
-
-INSERT INTO coderintuition.problem (name, url_name, category, difficulty, description, python_code, created_at,
-                                    updated_at)
-VALUES ('Majority Element', 'majority-element', 'ARRAYS', 2,
-        'Given an array of size n, find the majority element. The majority element is the element that appears more than ⌊ n/2 ⌋ times.',
-        'def majority_element(nums):', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
-
-INSERT INTO coderintuition.problem (name, url_name, category, difficulty, description, python_code, created_at,
-                                    updated_at)
-VALUES ('Contains Duplicate', 'contains-duplicate', 'ARRAYS', 1,
-        'Given an array of integers, find if the array contains any duplicates.',
-        'def contains_duplicate(nums):', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
-
-INSERT INTO coderintuition.problem (name, url_name, category, difficulty, description, python_code, created_at,
-                                    updated_at)
-VALUES ('Pascals Triangle', 'pascals-triangle', 'ARRAYS', 3,
-        'Given a non-negative integer numRows, generate the first numRows of Pascals triangle.',
-        'def pascals_triangle(nums):', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
-
-INSERT INTO coderintuition.problem (name, url_name, category, difficulty, description, python_code, created_at,
-                                    updated_at)
-VALUES ('Word Search', 'word-search', 'ARRAYS', 4,
-        'Given a 2D board and a word, find if the word exists in the grid.',
-        'def exist(self, board: List[List[str]], word: str) -> bool:', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
-
-INSERT INTO role(name)
-VALUES ('ROLE_USER');
-INSERT INTO role(name)
-VALUES ('ROLE_PLUS');
-INSERT INTO role(name)
-VALUES ('ROLE_MODERATOR');
+INSERT INTO role(name) VALUES ('ROLE_USER');
+SET @user_id = LAST_INSERT_ID();
+INSERT INTO role(name) VALUES ('ROLE_PLUS');
+INSERT INTO role(name) VALUES ('ROLE_MODERATOR');
 SET @moderator_id = LAST_INSERT_ID();
-INSERT INTO role(name)
-VALUES ('ROLE_ADMIN');
+INSERT INTO role(name) VALUES ('ROLE_ADMIN');
 SET @admin_id = LAST_INSERT_ID();
 
 INSERT INTO user(name, email, password, language, auth_provider, verified, username)
@@ -152,7 +103,6 @@ VALUES ('David Zhang', 'davidhqr@gmail.com', '$2a$10$ygD6H1LrE7erEV8FrLrQfeVnNYC
 
 SET @user1_id = LAST_INSERT_ID();
 
-INSERT INTO user_role(user_id, role_id)
-VALUES (@user1_id, @moderator_id);
-INSERT INTO user_role(user_id, role_id)
-VALUES (@user1_id, @admin_id);
+INSERT INTO user_role(user_id, role_id) VALUES (@user1_id, @user_id);
+INSERT INTO user_role(user_id, role_id) VALUES (@user1_id, @moderator_id);
+INSERT INTO user_role(user_id, role_id) VALUES (@user1_id, @admin_id);

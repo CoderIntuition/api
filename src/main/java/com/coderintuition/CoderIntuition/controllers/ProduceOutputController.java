@@ -23,7 +23,7 @@ public class ProduceOutputController {
 
     // wrap the code with the test harness and the solution code
     private String wrapCode(String code, String input) {
-        String functionName = Utils.getFunctionName(code);
+        String functionName = Utils.getFunctionName(Language.PYTHON, code);
         // TODO: support multiple params
         String param = Utils.formatParam(input, Language.PYTHON);
         // TODO: put this into a text file with args

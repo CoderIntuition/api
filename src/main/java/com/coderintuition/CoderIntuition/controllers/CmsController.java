@@ -1,16 +1,10 @@
 package com.coderintuition.CoderIntuition.controllers;
 
+import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
+import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.pojos.request.cms.*;
 import com.coderintuition.CoderIntuition.pojos.response.MessageResponse;
-import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
-import com.coderintuition.CoderIntuition.models.Problem;
-import com.coderintuition.CoderIntuition.models.ProblemStep;
-import com.coderintuition.CoderIntuition.models.Solution;
-import com.coderintuition.CoderIntuition.models.TestCase;
-import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
-import com.coderintuition.CoderIntuition.repositories.ProblemStepRepository;
-import com.coderintuition.CoderIntuition.repositories.SolutionRepository;
-import com.coderintuition.CoderIntuition.repositories.TestCaseRepository;
+import com.coderintuition.CoderIntuition.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,10 +30,16 @@ public class CmsController {
     @Autowired
     SolutionRepository solutionRepository;
 
+    @Autowired
+    ArgumentRepository argumentRepository;
+
+    @Autowired
+    ReturnTypeRepository returnTypeRepository;
+
     // test
     @PostMapping("/update")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ResponseEntity updateProblem(@Valid @RequestBody UpdateProblemRequest updateProblemRequest) throws Exception {
+    public ResponseEntity<?> updateProblem(@Valid @RequestBody UpdateProblemRequest updateProblemRequest) throws Exception {
         ProblemDto problemDto = updateProblemRequest.getProblem();
         if (problemDto.getTestCases().stream().filter(TestCaseDto::getIsDefault).count() != 1) {
             throw new Exception("There must be exactly one default test case");
@@ -131,13 +131,42 @@ public class CmsController {
             solutionRepository.delete(solution);
         }
 
+        // update arguments
+        for (int i = 0; i < problemDto.getArguments().size(); i++) {
+            var argumentDto = problemDto.getArguments().get(i);
+            Argument argument;
+            if (i < problem.getArguments().size()) {
+                argument = argumentRepository.findByProblemAndArgumentNum(problem, i + 1).orElseThrow();
+            } else {
+                argument = new Argument();
+                argument.setProblem(problem);
+                argument.setArgumentNum(i + 1);
+            }
+            argument.setType(argumentDto.getType());
+            argument.setUnderlyingType(argumentDto.getUnderlyingType());
+            argument.setUnderlyingType2(argumentDto.getUnderlyingType2());
+            argumentRepository.save(argument);
+        }
+        // delete remaining solutions
+        for (int i = problemDto.getArguments().size(); i < problem.getArguments().size(); i++) {
+            Argument argument = argumentRepository.findByProblemAndArgumentNum(problem, i + 1).orElseThrow();
+            argumentRepository.delete(argument);
+        }
+
+        // update return type
+        ReturnType returnType = returnTypeRepository.findByProblem(problem).orElseThrow();
+        returnType.setType(problemDto.getReturnType().getType());
+        returnType.setUnderlyingType(problemDto.getReturnType().getUnderlyingType());
+        returnType.setUnderlyingType2(problemDto.getReturnType().getUnderlyingType2());
+        returnTypeRepository.save(returnType);
+
         return ResponseEntity.ok().body(new MessageResponse("Problem updated successfully"));
     }
 
 
     @PostMapping("/add")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ResponseEntity addProblem(@Valid @RequestBody ProblemDto problemDto) throws Exception {
+    public ResponseEntity<?> addProblem(@Valid @RequestBody ProblemDto problemDto) throws Exception {
         if (problemDto.getTestCases().stream().filter(TestCaseDto::getIsDefault).count() != 1) {
             throw new Exception("There must be exactly one default test case");
         }
@@ -204,6 +233,28 @@ public class CmsController {
         }
         problem.setSolutions(solutions);
 
+        // process arguments
+        List<Argument> arguments = new ArrayList<>();
+        for (int i = 0; i < problemDto.getArguments().size(); i++) {
+            var argumentDto = problemDto.getArguments().get(i);
+            Argument argument = new Argument();
+            argument.setProblem(problem);
+            argument.setArgumentNum(i + 1);
+            argument.setType(argumentDto.getType());
+            argument.setUnderlyingType(argumentDto.getUnderlyingType());
+            argument.setUnderlyingType2(argumentDto.getUnderlyingType2());
+
+            arguments.add(argument);
+        }
+        problem.setArguments(arguments);
+
+        // process return type
+        ReturnType returnType = new ReturnType();
+        returnType.setProblem(problem);
+        returnType.setType(problemDto.getReturnType().getType());
+        returnType.setUnderlyingType(problemDto.getReturnType().getUnderlyingType());
+        returnType.setUnderlyingType2(problemDto.getReturnType().getUnderlyingType2());
+
         problemRepository.save(problem);
         for (var problemStep : problemSteps) {
             problemStepRepository.save(problemStep);
@@ -214,13 +265,16 @@ public class CmsController {
         for (var solution : solutions) {
             solutionRepository.save(solution);
         }
+        for (var argument : arguments) {
+            argumentRepository.save(argument);
+        }
 
         return ResponseEntity.ok().body(new MessageResponse("Problem saved successfully"));
     }
 
     @PostMapping("/delete")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity deleteProblem(@Valid @RequestBody DeleteProblemRequest deleteProblemRequest) {
+    public ResponseEntity<?> deleteProblem(@Valid @RequestBody DeleteProblemRequest deleteProblemRequest) {
         Problem problem = problemRepository.findById(deleteProblemRequest.getId()).orElseThrow(() -> new RecordNotFoundException("Problem not found"));
         problem.setDeleted(true);
         problemRepository.save(problem);

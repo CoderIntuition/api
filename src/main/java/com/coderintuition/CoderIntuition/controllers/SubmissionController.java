@@ -39,7 +39,7 @@ public class SubmissionController {
     private String wrapCode(Problem problem, String userCode, Language language, List<TestCase> testCases) {
         // TODO: support different languages
         if (language == Language.PYTHON) {
-            String functionName = Utils.getFunctionName(problem.getPythonCode());
+            String functionName = Utils.getFunctionName(Language.PYTHON, problem.getPythonCode());
             List<String> codeLines = new ArrayList<String>(Arrays.asList(
                     userCode,
                     "",

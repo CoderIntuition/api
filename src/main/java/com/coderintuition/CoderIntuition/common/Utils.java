@@ -25,8 +25,22 @@ public class Utils {
         return -1;
     }
 
-    public static String getFunctionName(String defaultCode) {
-        return defaultCode.substring(4, defaultCode.indexOf("("));
+    public static String getFunctionName(Language language, String defaultCode) {
+        switch (language) {
+            case PYTHON:
+                int startIndex = defaultCode.indexOf("def ") + 4;
+                int endIndex = defaultCode.indexOf("(", startIndex);
+                return defaultCode.substring(startIndex, endIndex);
+            case JAVA:
+                endIndex = defaultCode.indexOf("(");
+                int cur = endIndex - 1;
+                while (defaultCode.charAt(cur) != ' ') {
+                    cur--;
+                }
+                return defaultCode.substring(cur + 1, endIndex);
+            default:
+                return "test";
+        }
     }
 
     public static String formatParam(String param, Language language) {

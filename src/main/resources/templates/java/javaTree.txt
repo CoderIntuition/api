@@ -16,6 +16,16 @@ class TreeNode {
         this.right = right;
     }
 
+    public static boolean same(TreeNode node1, TreeNode node2) {
+        if (node1 == null && node2 == null) {
+            return true;
+        }
+        if (node1.val != node2.val) {
+            return false;
+        }
+        return same(node1.left, node2.left) && same(node1.right, node2.right);
+    }
+
     private static TreeNode listToTreeHelper(List<Integer> lst, TreeNode cur, int i) {
         if (i < lst.size()) {
             cur = new TreeNode(lst.get(i));

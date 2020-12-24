@@ -1,5 +1,5 @@
 public static List<${underlyingType}> stringToList${i}(String str) throws Exception {
-    if (str.charAt(0) != '[' || str.charAt(str.length() - 1) != ']') {
+    if (!str.startsWith("[") || !str.endsWith("]")) {
         throw new Exception("Input " + str + " is not a valid list (missing brackets)");
     }
     if (str.equals("[]")) {

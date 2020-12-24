@@ -1,6 +1,6 @@
 package com.coderintuition.CoderIntuition.pojos.request.cms;
 
-import com.coderintuition.CoderIntuition.models.*;
+import com.coderintuition.CoderIntuition.models.Category;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -33,7 +33,10 @@ public class ProblemDto {
     @NotBlank
     private String pythonCode;
 
+    @NotNull
     private String javaCode;
+
+    @NotNull
     private String javascriptCode;
 
     @NotEmpty
@@ -44,4 +47,10 @@ public class ProblemDto {
 
     @NotEmpty
     private List<SolutionDto> solutions;
+
+    @NotEmpty
+    private List<ArgumentDto> arguments;
+
+    @NotNull
+    private ReturnTypeDto returnType;
 }
