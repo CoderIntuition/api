@@ -21,7 +21,7 @@ public class CodeTemplateFillerTest {
         List<Argument> args = Collections.singletonList(arg1);
         ReturnType returnType = new ReturnType(ArgumentType.STRING, UnderlyingType.NONE, UnderlyingType.NONE, true);
         try {
-            String code = filler.fillTestRun(language, userCode, solutionCode, functionName, args, returnType);
+            String code = filler.getTestRunCode(language, userCode, solutionCode, functionName, args, returnType);
             assertTrue(code.contains("String userResult = new Solution().test(\"hi\");"));
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -39,7 +39,7 @@ public class CodeTemplateFillerTest {
         List<Argument> args = Collections.singletonList(arg1);
         ReturnType returnType = new ReturnType(ArgumentType.STRING, UnderlyingType.NONE, UnderlyingType.NONE, true);
         try {
-            String code = filler.fillTestRun(language, userCode, solutionCode, functionName, args, returnType);
+            String code = filler.getTestRunCode(language, userCode, solutionCode, functionName, args, returnType);
             assertTrue(code.contains("String userResult = new Solution().test(\"\");"));
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -57,7 +57,7 @@ public class CodeTemplateFillerTest {
         List<Argument> args = Collections.singletonList(arg1);
         ReturnType returnType = new ReturnType(ArgumentType.STRING, UnderlyingType.NONE, UnderlyingType.NONE, true);
         try {
-            String code = filler.fillTestRun(language, userCode, solutionCode, functionName, args, returnType);
+            String code = filler.getTestRunCode(language, userCode, solutionCode, functionName, args, returnType);
             System.out.println(code);
             assertTrue(code.contains("switch (\"String\") {"));
             assertTrue(code.contains("String userResult = new Solution().test(stringToList1D0([\"hi\", \"there\"]));"));

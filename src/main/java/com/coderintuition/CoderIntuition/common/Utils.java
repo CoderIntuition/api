@@ -52,6 +52,17 @@ public class Utils {
         return param;
     }
 
+    public static String formatErrorMessage(Language language, String err) {
+        switch (language) {
+            case PYTHON:
+                return err.replaceAll("File .* line \\d+ *\\n", "");
+            case JAVA:
+                return err.replaceAll("Main\\.java:\\d+: ", "");
+            default:
+                return err;
+        }
+    }
+
     public static JzSubmissionCheckResponseDto callJudgeZero(JZSubmissionRequestDto requestDto, ExecutorService scheduler) {
         Map<String, String> header = new HashMap<>();
         header.put("content-type", "application/json");

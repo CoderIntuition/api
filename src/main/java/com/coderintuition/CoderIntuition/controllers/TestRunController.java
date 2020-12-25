@@ -1,6 +1,7 @@
 package com.coderintuition.CoderIntuition.controllers;
 
 import com.coderintuition.CoderIntuition.common.CodeTemplateFiller;
+import com.coderintuition.CoderIntuition.common.Constants;
 import com.coderintuition.CoderIntuition.common.Utils;
 import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
@@ -32,30 +33,18 @@ public class TestRunController {
 
     private final ExecutorService scheduler = Executors.newFixedThreadPool(5);
 
-    private String formatErrorMessage(Language language, String err) {
-        switch (language) {
-            case PYTHON:
-                return err.replaceAll("File .* line \\d+ *\\n", "");
-            case JAVA:
-                return err.replaceAll("Main\\.java:\\d+: ", "");
-            default:
-                return err;
-        }
-    }
-
     @PostMapping("/testrun")
     public TestRun createTestRun(@RequestBody RunRequestDto runRequestDto) {
         // retrieve the problem
         Problem problem = problemRepository.findById(runRequestDto.getProblemId()).orElseThrow();
 
-        // wrap the code with the test run template
+        // wrap the code into the test run template
         CodeTemplateFiller filler = CodeTemplateFiller.getInstance();
         String functionName = Utils.getFunctionName(runRequestDto.getLanguage(), problem.getCode(runRequestDto.getLanguage()));
-        Solution primarySolution = problem.getSolutions().stream().filter(Solution::getIsPrimary).findFirst().orElseThrow();
-        List<Argument> args = problem.getArguments();
+        String primarySolution = problem.getSolutions().stream().filter(Solution::getIsPrimary).findFirst().orElseThrow().getCode(runRequestDto.getLanguage());
         // fill in the test run template with the arguments/return type for this test run
-        String code = filler.fillTestRun(runRequestDto.getLanguage(), runRequestDto.getCode(), primarySolution.getCode(runRequestDto.getLanguage()),
-                functionName, args, problem.getReturnType());
+        String code = filler.getTestRunCode(runRequestDto.getLanguage(), runRequestDto.getCode(), primarySolution,
+                functionName, problem.getArguments(), problem.getReturnType());
 
         // create request to JudgeZero
         JZSubmissionRequestDto requestDto = new JZSubmissionRequestDto();
@@ -84,12 +73,14 @@ public class TestRunController {
             } else if (result.getStderr() != null) {
                 stderr = result.getStderr();
             }
-            testRun.setStderr(formatErrorMessage(testRun.getLanguage(), stderr));
+            testRun.setStderr(Utils.formatErrorMessage(runRequestDto.getLanguage(), stderr));
             testRun.setStdout("");
+
         } else if (result.getStatus().getId() == 3) { // no compile errors
             // everything above the line is stdout, everything below is test results
-            String[] split = result.getStdout().trim().split("-----------------------------------\n");
+            String[] split = result.getStdout().trim().split(Constants.IO_SEPARATOR);
             String[] testResult = split[1].split("\\|");
+
             if (testResult.length == 3) { // no errors
                 // test results are formatted: {status}|{expected output}|{run output}
                 testRun.setStatus(TestStatus.valueOf(testResult[0]));
@@ -97,15 +88,17 @@ public class TestRunController {
                 testRun.setOutput(testResult[2]);
                 testRun.setStdout(split[0]);
                 testRun.setStderr("");
+
             } else if (testResult.length == 2) { // runtime errors
                 // runtime error results are formatted: {status}|{error message}
                 testRun.setStatus(TestStatus.ERROR);
                 testRun.setExpectedOutput("");
                 testRun.setOutput("");
-                testRun.setStderr(formatErrorMessage(testRun.getLanguage(), testResult[1]));
+                testRun.setStderr(Utils.formatErrorMessage(runRequestDto.getLanguage(), testResult[1]));
                 testRun.setStdout("");
             }
         }
+
         // save the test run into the db
         testRun = testRunRepository.save(testRun);
 

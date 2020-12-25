@@ -4,6 +4,7 @@ import com.coderintuition.CoderIntuition.models.Argument;
 import com.coderintuition.CoderIntuition.models.Language;
 import com.coderintuition.CoderIntuition.models.ReturnType;
 import com.coderintuition.CoderIntuition.models.UnderlyingType;
+import lombok.AllArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -12,13 +13,35 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+@AllArgsConstructor
+class DefinitionArgsCode {
+    String definitionCode;
+    String argsCode;
+}
+
+@AllArgsConstructor
+class SetupDefinitionArgsCode {
+    String setupCode;
+    String definitionCode;
+    String argsCode;
+}
+
+@AllArgsConstructor
+class EqualsUserSolCode {
+    String equalsCode;
+    String userResultFormatCode;
+    String solResultFormatCode;
+}
+
 public class CodeTemplateFiller {
     private static CodeTemplateFiller instance = null;
-    private String pythonTemplate;
+    private String pythonTestRunTemplate;
+    private String pythonSubmissionTemplate;
     private String pythonTree;
     private String pythonLinkedList;
     private String pythonString;
-    private String javaTemplate;
+    private String javaTestRunTemplate;
+    private String javaSubmissionTemplate;
     private String javaList;
     private String javaArray2D;
     private String javaListOfLists;
@@ -26,7 +49,7 @@ public class CodeTemplateFiller {
     private String javaTree;
     private String javaLinkedList;
     private String javaString;
-    private String javaScriptTemplate;
+    private String javascriptTestRunTemplate;
 
     public static CodeTemplateFiller getInstance() {
         if (instance == null) {
@@ -37,11 +60,13 @@ public class CodeTemplateFiller {
 
     private CodeTemplateFiller() {
         try {
-            pythonTemplate = fileToString("python/pythonTestRun.txt");
+            pythonTestRunTemplate = fileToString("python/pythonTestRunTemplate.txt");
+            pythonSubmissionTemplate = fileToString("python/pythonSubmissionTemplate.txt");
             pythonTree = fileToString("python/pythonTree.txt");
             pythonLinkedList = fileToString("python/pythonLinkedList.txt");
             pythonString = fileToString("python/pythonString.txt");
-            javaTemplate = fileToString("java/javaTestRun.txt");
+            javaTestRunTemplate = fileToString("java/javaTestRunTemplate.txt");
+            javaSubmissionTemplate = fileToString("java/javaSubmissionTemplate.txt");
             javaList = fileToString("java/javaList.txt");
             javaArray2D = fileToString("java/javaArray2D.txt");
             javaListOfLists = fileToString("java/javaListOfLists.txt");
@@ -49,22 +74,9 @@ public class CodeTemplateFiller {
             javaTree = fileToString("java/javaTree.txt");
             javaLinkedList = fileToString("java/javaLinkedList.txt");
             javaString = fileToString("java/javaString.txt");
-            javaScriptTemplate = fileToString("javascript/javascriptTestRun.txt");
+            javascriptTestRunTemplate = fileToString("javascript/javascriptTestRun.txt");
         } catch (IOException ex) {
             ex.printStackTrace();
-        }
-    }
-
-    public String fillTestRun(Language language, String userCode, String solutionCode, String functionName, List<Argument> args, ReturnType returnType) {
-        switch (language) {
-            case PYTHON:
-                return fillPython(userCode, solutionCode, functionName, args, returnType);
-            case JAVA:
-                return fillJava(userCode, solutionCode, functionName, args, returnType);
-            case JAVASCRIPT:
-                return fillJavaScript(userCode, solutionCode, functionName, args, returnType);
-            default:
-                return "";
         }
     }
 
@@ -74,24 +86,70 @@ public class CodeTemplateFiller {
         return FileUtils.readFileToString(file, "UTF-8");
     }
 
-    private String fillPython(String userCode, String solutionCode, String functionName, List<Argument> args, ReturnType returnType) {
+    public String getTestRunCode(Language language, String userCode, String solutionCode, String functionName,
+                                 List<Argument> args, ReturnType returnType) {
+        return getFilledCode(language, userCode, solutionCode, functionName, args,
+                returnType, pythonTestRunTemplate, javaTestRunTemplate);
+    }
+
+    public String getSubmissionCode(Language language, String userCode, String solutionCode, String functionName,
+                                    List<Argument> args, ReturnType returnType) {
+        return getFilledCode(language, userCode, solutionCode, functionName, args,
+                returnType, pythonSubmissionTemplate, javaSubmissionTemplate);
+    }
+
+    private String getFilledCode(Language language, String userCode, String solutionCode, String functionName, List<Argument> args,
+                                 ReturnType returnType, String pythonSubmissionTemplate, String javaSubmissionTemplate) {
+        switch (language) {
+            case PYTHON:
+                return getFilledPythonCode(pythonSubmissionTemplate, userCode, solutionCode, functionName, args, returnType);
+            case JAVA:
+                return getFilledJavaCode(javaSubmissionTemplate, userCode, solutionCode, functionName, args, returnType);
+            case JAVASCRIPT:
+                return fillJavaScript(userCode, solutionCode, functionName, args, returnType);
+            default:
+                return "";
+        }
+    }
+
+    // ====================================== PYTHON ======================================
+
+    private String getFilledPythonCode(String template, String userCode, String solutionCode, String functionName,
+                                       List<Argument> args, ReturnType returnType) {
+
+        DefinitionArgsCode definitionArgsCode = getPythonDefinitionArgsCode(args);
+        EqualsUserSolCode equalsUserSolCode = getPythonEqualsUserSolCode(returnType);
+
+        return template
+                .replaceAll("\\$\\{definitionCode}", definitionArgsCode.definitionCode)
+                .replaceAll("\\$\\{userCode}", userCode)
+                .replaceAll("\\$\\{solutionCode}", solutionCode.replace(functionName, functionName + "_sol"))
+                .replaceAll("\\$\\{functionName}", functionName)
+                .replaceAll("\\$\\{args}", definitionArgsCode.argsCode)
+                .replaceAll("\\$\\{userResultFormatCode}", equalsUserSolCode.userResultFormatCode)
+                .replaceAll("\\$\\{solResultFormatCode}", equalsUserSolCode.solResultFormatCode)
+                .replaceAll("\\$\\{equalsCode}", equalsUserSolCode.equalsCode);
+    }
+
+    private DefinitionArgsCode getPythonDefinitionArgsCode(List<Argument> args) {
         boolean usingTree = false;
         boolean usingLinkedList = false;
         boolean usingString = false;
-        StringBuilder argsStr = new StringBuilder();
+        StringBuilder argsCode = new StringBuilder();
+
         for (int i = 0; i < args.size(); i++) {
             Argument arg = args.get(i);
             switch (arg.getType()) {
                 case TREE:
-                    argsStr.append("___list_to_tree(ast.literal_eval(input[").append(i).append("]))");
+                    argsCode.append("___list_to_tree(ast.literal_eval(input[").append(i).append("]))");
                     usingTree = true;
                     break;
                 case LINKED_LIST:
-                    argsStr.append("___list_to_linked_list(ast.literal_eval(input[").append(i).append("]))");
+                    argsCode.append("___list_to_linked_list(ast.literal_eval(input[").append(i).append("]))");
                     usingLinkedList = true;
                     break;
                 case STRING:
-                    argsStr.append("___string_to_string(ast.literal_eval(input[").append(i).append("]))");
+                    argsCode.append("___string_to_string(ast.literal_eval(input[").append(i).append("]))");
                     usingString = true;
                     break;
                 case INTEGER:
@@ -99,11 +157,11 @@ public class CodeTemplateFiller {
                 case LIST:
                 case ARRAY_2D:
                 case DICTIONARY:
-                    argsStr.append("ast.literal_eval(input[").append(i).append("])");
+                    argsCode.append("ast.literal_eval(input[").append(i).append("])");
                     break;
             }
             if (i < args.size() - 1) {
-                argsStr.append(", ");
+                argsCode.append(", ");
             }
         }
 
@@ -118,6 +176,10 @@ public class CodeTemplateFiller {
             definitionCode.append(pythonString);
         }
 
+        return new DefinitionArgsCode(definitionCode.toString(), argsCode.toString());
+    }
+
+    private EqualsUserSolCode getPythonEqualsUserSolCode(ReturnType returnType) {
         StringBuilder equalsCode = new StringBuilder();
         StringBuilder userResultFormatCode = new StringBuilder();
         StringBuilder solResultFormatCode = new StringBuilder();
@@ -159,18 +221,74 @@ public class CodeTemplateFiller {
                 break;
         }
 
-        return pythonTemplate
-                .replaceAll("\\$\\{definitionCode}", definitionCode.toString())
-                .replaceAll("\\$\\{userCode}", userCode)
-                .replaceAll("\\$\\{solutionCode}", solutionCode.replace(functionName, functionName + "_sol"))
-                .replaceAll("\\$\\{functionName}", functionName)
-                .replaceAll("\\$\\{args}", argsStr.toString())
-                .replaceAll("\\$\\{userResultFormatCode}", userResultFormatCode.toString())
-                .replaceAll("\\$\\{solResultFormatCode}", solResultFormatCode.toString())
-                .replaceAll("\\$\\{equalsCode}", equalsCode.toString());
+        return new EqualsUserSolCode(equalsCode.toString(), userResultFormatCode.toString(), solResultFormatCode.toString());
     }
 
-    private String fillJava(String userCode, String solutionCode, String functionName, List<Argument> args, ReturnType returnType) {
+    // ====================================== JAVA ======================================
+
+    private String getFilledJavaCode(String template, String userCode, String solutionCode, String functionName,
+                                     List<Argument> args, ReturnType returnType) {
+
+        SetupDefinitionArgsCode setupDefinitionArgsCode = getJavaSetupDefinitionArgsCode(args);
+        EqualsUserSolCode equalsUserSolCode = getJavaEqualsUserSolCode(returnType);
+
+        return template
+                .replaceAll("\\$\\{definitionCode}", setupDefinitionArgsCode.definitionCode)
+                .replaceAll("\\$\\{userCode}", userCode)
+                .replaceAll("\\$\\{solutionCode}", solutionCode)
+                .replaceAll("\\$\\{setupCode}", setupDefinitionArgsCode.setupCode)
+                .replaceAll("\\$\\{functionName}", functionName)
+                .replaceAll("\\$\\{args}", setupDefinitionArgsCode.argsCode)
+                .replaceAll("\\$\\{retType}", getJavaType(returnType))
+                .replaceAll("\\$\\{userResultFormatCode}", equalsUserSolCode.userResultFormatCode)
+                .replaceAll("\\$\\{solResultFormatCode}", equalsUserSolCode.solResultFormatCode)
+                .replaceAll("\\$\\{equalsCode}", equalsUserSolCode.equalsCode);
+    }
+
+    private String getJavaType(UnderlyingType type, boolean primitive) {
+        switch (type) {
+            case STRING:
+                return "String";
+            case INTEGER:
+                return primitive ? "int" : "Integer";
+            case FLOAT:
+                return primitive ? "double" : "Double";
+            case BOOLEAN:
+                return primitive ? "boolean" : "Boolean";
+            default:
+                return "";
+        }
+    }
+
+    private String getJavaType(ReturnType returnType) {
+        switch (returnType.getType()) {
+            case STRING:
+                return "String";
+            case INTEGER:
+                return "int";
+            case FLOAT:
+                return "double";
+            case BOOLEAN:
+                return "boolean";
+            case LIST:
+                return "List<" + getJavaType(returnType.getUnderlyingType(), false) + ">";
+            case ARRAY_2D:
+                return getJavaType(returnType.getUnderlyingType(), true) + "[][]";
+            case LIST_OF_LISTS:
+                return "List<List<" + getJavaType(returnType.getUnderlyingType(), false) + ">>";
+            case DICTIONARY:
+                return "Map<" + getJavaType(returnType.getUnderlyingType(), false) + ", "
+                        + getJavaType(returnType.getUnderlyingType2(), false) + ">";
+            case TREE:
+                return "TreeNode";
+            case LINKED_LIST:
+                return "ListNode";
+            default:
+                return "";
+        }
+    }
+
+    private SetupDefinitionArgsCode getJavaSetupDefinitionArgsCode(List<Argument> args) {
         boolean usingTree = false;
         boolean usingLinkedList = false;
         boolean usingString = false;
@@ -236,134 +354,7 @@ public class CodeTemplateFiller {
             setupCode.append(javaString);
         }
 
-        StringBuilder equalsCode = new StringBuilder();
-        StringBuilder userResultFormatCode = new StringBuilder();
-        StringBuilder solResultFormatCode = new StringBuilder();
-        switch (returnType.getType()) {
-            case LIST:
-                if (returnType.getOrderMatters()) {
-                    equalsCode.append("if (userResult.equals(solResult)) {").append("\n");
-                } else {
-                    equalsCode.append("if (userResult.size() == solResult.size() && Collections.sort(userResult).equals(Collections.sort(solResult))) {").append("\n");
-                }
-                userResultFormatCode.append("String userResultStr = userResult == null ? \"null\" : userResult.toString();").append("\n");
-                solResultFormatCode.append("String solResultStr = solResult == null ? \"null\" : solResult.toString();").append("\n");
-                break;
-            case ARRAY_2D:
-                equalsCode.append("if (Arrays.deepEquals(userResult, solResult)) {").append("\n");
-                userResultFormatCode.append("String userResultStr = Arrays.deepToString(userResult);").append("\n");
-                solResultFormatCode.append("String solResultStr = Arrays.deepToString(solResult);").append("\n");
-                break;
-            case LIST_OF_LISTS:
-                equalsCode.append("if (userResult.equals(solResult)) {").append("\n");
-                userResultFormatCode.append("String userResultStr = userResult == null ? \"null\" : userResult.toString();").append("\n");
-                solResultFormatCode.append("String solResultStr = solResult == null ? \"null\" : solResult.toString();").append("\n");
-                break;
-            case DICTIONARY:
-                equalsCode.append("if (userResult.equals(solResult)) {").append("\n");
-                userResultFormatCode.append("String userResultStr = userResult.keySet().stream()").append("\n");
-                solResultFormatCode.append("String solResultStr = solResult.keySet().stream()").append("\n");
-                if (returnType.getUnderlyingType() == UnderlyingType.STRING) {
-                    userResultFormatCode.append("\t.map(key -> \"\\\"\" + key + \"\\\": \"");
-                    solResultFormatCode.append("\t.map(key -> \"\\\"\" + key + \"\\\": \"");
-                } else {
-                    userResultFormatCode.append("\t.map(key -> key + \": \"");
-                    solResultFormatCode.append("\t.map(key -> key + \": \"");
-                }
-                if (returnType.getUnderlyingType2() == UnderlyingType.STRING) {
-                    userResultFormatCode.append("+ \"\\\"\" + map.get(key) + \"\\\"\")").append("\n");
-                    solResultFormatCode.append("+ \"\\\"\" + map.get(key) + \"\\\"\")").append("\n");
-                } else {
-                    userResultFormatCode.append("+ map.get(key))").append("\n");
-                    solResultFormatCode.append("+ map.get(key))").append("\n");
-                }
-                userResultFormatCode.append(".collect(Collectors.joining(\", \", \"{\", \"}\"));").append("\n");
-                solResultFormatCode.append(".collect(Collectors.joining(\", \", \"{\", \"}\"));").append("\n");
-                break;
-            case TREE:
-                equalsCode.append("if (TreeNode.same(userResult, solResult)) {").append("\n");
-                userResultFormatCode.append("String userResultStr = TreeNode.treeToList(userResult).toString();").append("\n");
-                solResultFormatCode.append("String solResultStr = TreeNode.treeToList(solResult).toString();").append("\n");
-                break;
-            case LINKED_LIST:
-                equalsCode.append("if (ListNode.same(userResult, solResult)) {").append("\n");
-                userResultFormatCode.append("String userResultStr = ListNode.linkedListToList(userResult).toString();").append("\n");
-                solResultFormatCode.append("String solResultStr = ListNode.linkedListToList(solResult).toString();").append("\n");
-                break;
-            case STRING:
-                equalsCode.append("if (userResult.equals(solResult)) {").append("\n");
-                userResultFormatCode.append("String userResultStr = \"\\\"\" + userResult + \"\\\"\";").append("\n");
-                solResultFormatCode.append("String solResultStr = \"\\\"\" + solResult + \"\\\"\";").append("\n");
-                break;
-            case INTEGER:
-                // fall through
-            case FLOAT:
-                // fall through
-            case BOOLEAN:
-                equalsCode.append("if (userResult == solResult) {").append("\n");
-                userResultFormatCode.append("String userResultStr = \"\" + userResult;").append("\n");
-                solResultFormatCode.append("String solResultStr = \"\" + solResult;").append("\n");
-                break;
-        }
-
-        return javaTemplate
-                .replaceAll("\\$\\{definitionCode}", definitionCode.toString())
-                .replaceAll("\\$\\{userCode}", userCode)
-                .replaceAll("\\$\\{solutionCode}", solutionCode)
-                .replaceAll("\\$\\{setupCode}", setupCode.toString())
-                .replaceAll("\\$\\{functionName}", functionName)
-                .replaceAll("\\$\\{args}", argsCode.toString())
-                .replaceAll("\\$\\{retType}", getJavaType(returnType))
-                .replaceAll("\\$\\{userResultFormatCode}", userResultFormatCode.toString())
-                .replaceAll("\\$\\{solResultFormatCode}", solResultFormatCode.toString())
-                .replaceAll("\\$\\{equalsCode}", equalsCode.toString());
-    }
-
-    private String fillJavaScript(String userCode, String solutionCode, String functionName, List<Argument> args, ReturnType returnType) {
-        return "";
-    }
-
-    private String getJavaType(UnderlyingType type, boolean primitive) {
-        switch (type) {
-            case STRING:
-                return "String";
-            case INTEGER:
-                return primitive ? "int" : "Integer";
-            case FLOAT:
-                return primitive ? "double" : "Double";
-            case BOOLEAN:
-                return primitive ? "boolean" : "Boolean";
-            default:
-                return "";
-        }
-    }
-
-    private String getJavaType(ReturnType returnType) {
-        switch (returnType.getType()) {
-            case STRING:
-                return "String";
-            case INTEGER:
-                return "int";
-            case FLOAT:
-                return "double";
-            case BOOLEAN:
-                return "boolean";
-            case LIST:
-                return "List<" + getJavaType(returnType.getUnderlyingType(), false) + ">";
-            case ARRAY_2D:
-                return getJavaType(returnType.getUnderlyingType(), true) + "[][]";
-            case LIST_OF_LISTS:
-                return "List<List<" + getJavaType(returnType.getUnderlyingType(), false) + ">>";
-            case DICTIONARY:
-                return "Map<" + getJavaType(returnType.getUnderlyingType(), false) + ", "
-                        + getJavaType(returnType.getUnderlyingType2(), false) + ">";
-            case TREE:
-                return "TreeNode";
-            case LINKED_LIST:
-                return "ListNode";
-            default:
-                return "";
-        }
+        return new SetupDefinitionArgsCode(setupCode.toString(), definitionCode.toString(), argsCode.toString());
     }
 
     private String getJavaListCode(Argument arg, int i) {
@@ -511,5 +502,86 @@ public class CodeTemplateFiller {
         return fillDictionaryFunction
                 .replaceAll("\\$\\{parseUnderlyingTypeCode}", parseUnderlyingTypeCode.toString())
                 .replaceAll("\\$\\{parseUnderlyingType2Code}", parseUnderlyingType2Code.toString());
+    }
+
+    private EqualsUserSolCode getJavaEqualsUserSolCode(ReturnType returnType) {
+        StringBuilder equalsCode = new StringBuilder();
+        StringBuilder userResultFormatCode = new StringBuilder();
+        StringBuilder solResultFormatCode = new StringBuilder();
+        switch (returnType.getType()) {
+            case LIST:
+                if (returnType.getOrderMatters()) {
+                    equalsCode.append("if (userResult.equals(solResult)) {").append("\n");
+                } else {
+                    equalsCode.append("if (userResult.size() == solResult.size() && Collections.sort(userResult).equals(Collections.sort(solResult))) {").append("\n");
+                }
+                userResultFormatCode.append("String userResultStr = userResult == null ? \"null\" : userResult.toString();").append("\n");
+                solResultFormatCode.append("String solResultStr = solResult == null ? \"null\" : solResult.toString();").append("\n");
+                break;
+            case ARRAY_2D:
+                equalsCode.append("if (Arrays.deepEquals(userResult, solResult)) {").append("\n");
+                userResultFormatCode.append("String userResultStr = Arrays.deepToString(userResult);").append("\n");
+                solResultFormatCode.append("String solResultStr = Arrays.deepToString(solResult);").append("\n");
+                break;
+            case LIST_OF_LISTS:
+                equalsCode.append("if (userResult.equals(solResult)) {").append("\n");
+                userResultFormatCode.append("String userResultStr = userResult == null ? \"null\" : userResult.toString();").append("\n");
+                solResultFormatCode.append("String solResultStr = solResult == null ? \"null\" : solResult.toString();").append("\n");
+                break;
+            case DICTIONARY:
+                equalsCode.append("if (userResult.equals(solResult)) {").append("\n");
+                userResultFormatCode.append("String userResultStr = userResult.keySet().stream()").append("\n");
+                solResultFormatCode.append("String solResultStr = solResult.keySet().stream()").append("\n");
+                if (returnType.getUnderlyingType() == UnderlyingType.STRING) {
+                    userResultFormatCode.append("\t.map(key -> \"\\\"\" + key + \"\\\": \"");
+                    solResultFormatCode.append("\t.map(key -> \"\\\"\" + key + \"\\\": \"");
+                } else {
+                    userResultFormatCode.append("\t.map(key -> key + \": \"");
+                    solResultFormatCode.append("\t.map(key -> key + \": \"");
+                }
+                if (returnType.getUnderlyingType2() == UnderlyingType.STRING) {
+                    userResultFormatCode.append("+ \"\\\"\" + map.get(key) + \"\\\"\")").append("\n");
+                    solResultFormatCode.append("+ \"\\\"\" + map.get(key) + \"\\\"\")").append("\n");
+                } else {
+                    userResultFormatCode.append("+ map.get(key))").append("\n");
+                    solResultFormatCode.append("+ map.get(key))").append("\n");
+                }
+                userResultFormatCode.append(".collect(Collectors.joining(\", \", \"{\", \"}\"));").append("\n");
+                solResultFormatCode.append(".collect(Collectors.joining(\", \", \"{\", \"}\"));").append("\n");
+                break;
+            case TREE:
+                equalsCode.append("if (TreeNode.same(userResult, solResult)) {").append("\n");
+                userResultFormatCode.append("String userResultStr = TreeNode.treeToList(userResult).toString();").append("\n");
+                solResultFormatCode.append("String solResultStr = TreeNode.treeToList(solResult).toString();").append("\n");
+                break;
+            case LINKED_LIST:
+                equalsCode.append("if (ListNode.same(userResult, solResult)) {").append("\n");
+                userResultFormatCode.append("String userResultStr = ListNode.linkedListToList(userResult).toString();").append("\n");
+                solResultFormatCode.append("String solResultStr = ListNode.linkedListToList(solResult).toString();").append("\n");
+                break;
+            case STRING:
+                equalsCode.append("if (userResult.equals(solResult)) {").append("\n");
+                userResultFormatCode.append("String userResultStr = \"\\\"\" + userResult + \"\\\"\";").append("\n");
+                solResultFormatCode.append("String solResultStr = \"\\\"\" + solResult + \"\\\"\";").append("\n");
+                break;
+            case INTEGER:
+                // fall through
+            case FLOAT:
+                // fall through
+            case BOOLEAN:
+                equalsCode.append("if (userResult == solResult) {").append("\n");
+                userResultFormatCode.append("String userResultStr = \"\" + userResult;").append("\n");
+                solResultFormatCode.append("String solResultStr = \"\" + solResult;").append("\n");
+                break;
+        }
+
+        return new EqualsUserSolCode(equalsCode.toString(), userResultFormatCode.toString(), solResultFormatCode.toString());
+    }
+
+    // ====================================== JAVASCRIPT ======================================
+
+    private String fillJavaScript(String userCode, String solutionCode, String functionName, List<Argument> args, ReturnType returnType) {
+        // TODO: Implement javascript
+        return "";
     }
 }

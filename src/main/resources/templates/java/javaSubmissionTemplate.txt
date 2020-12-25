@@ -1,0 +1,56 @@
+import java.util.*;
+import java.io.*;
+
+${definitionCode}
+
+${userCode}
+
+${solutionCode}
+
+public class Main {
+    ${setupCode}
+
+    public static void main(String[] args) {
+        try {
+            Scanner sc = new Scanner(System.in);
+            List<List<String>> inputs = new ArrayList<>();
+            List<String> cur = new ArrayList<>();
+            while (sc.hasNextLine()) {
+                String line = sc.nextLine();
+                if (line.equals("-----------------------------------")) {
+                    inputs.add(cur);
+                    cur = new ArrayList<>();
+                    continue;
+                }
+                cur.add(line);
+            }
+
+            Solution solution = new Solution();
+            ActualSolution actualSolution = new ActualSolution();
+            List<String> results = new ArrayList<>();
+            for (int i = 0; i < inputs.size(); i++) {
+                List<String> input = inputs.get(i);
+                ${retType} userResult = solution.${functionName}(${args});
+                ${retType} solResult = actualSolution.${functionName}(${args});
+
+                ${userResultFormatCode}
+                ${solResultFormatCode}
+
+                ${equalsCode}
+                    results.add(String.format("%d|PASSED|%s|%s\n", i, solResultStr, userResultStr));
+                } else {
+                    results.add(String.format("%d|FAILED|%s|%s\n", i, solResultStr, userResultStr));
+                }
+            }
+
+            System.out.println("-----------------------------------");
+            for (String result : results) {
+                System.out.println(result);
+            }
+
+        } catch (Exception ex) {
+            System.out.println("-----------------------------------");
+            System.out.printf("ERROR|%s\n", ex.toString());
+        }
+    }
+}

@@ -1,12 +1,14 @@
 package com.coderintuition.CoderIntuition.controllers;
 
+import com.coderintuition.CoderIntuition.common.CodeTemplateFiller;
+import com.coderintuition.CoderIntuition.common.Constants;
 import com.coderintuition.CoderIntuition.common.Utils;
+import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.pojos.request.RunRequestDto;
 import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
 import com.coderintuition.CoderIntuition.pojos.response.SubmissionResponseDto;
 import com.coderintuition.CoderIntuition.pojos.response.TestResult;
-import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.SubmissionRepository;
 import com.coderintuition.CoderIntuition.repositories.TestRunRepository;
@@ -16,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,79 +34,59 @@ public class SubmissionController {
     @Autowired
     SubmissionRepository submissionRepository;
 
-    private ExecutorService scheduler = Executors.newFixedThreadPool(5);
-
-    // wrap the code with the test harness
-    private String wrapCode(Problem problem, String userCode, Language language, List<TestCase> testCases) {
-        // TODO: support different languages
-        if (language == Language.PYTHON) {
-            String functionName = Utils.getFunctionName(Language.PYTHON, problem.getPythonCode());
-            List<String> codeLines = new ArrayList<String>(Arrays.asList(
-                    userCode,
-                    "",
-                    "",
-                    "def test_harness(outputs, test_num, user_input, expected_output):",
-                    "    result = " + functionName + "(user_input)",
-                    "    if result == expected_output:",
-                    "        outputs.append(\"{}|PASSED\".format(test_num))",
-                    "    else:",
-                    "        outputs.append(\"{}|FAILED|{}\".format(test_num, result))",
-                    "",
-                    "",
-                    "outputs = []"
-            ));
-
-            // add code for each test case
-            for (TestCase testCase : testCases) {
-                String input = Utils.formatParam(testCase.getInput(), language);
-                String output = Utils.formatParam(testCase.getOutput(), language);
-                int num = testCase.getTestCaseNum();
-                codeLines.add("input" + num + " = " + input);
-                codeLines.add("output" + num + " = " + output);
-                codeLines.add("test_harness(outputs, " + num + ", input" + num + ", output" + num + ")");
-                codeLines.add("");
-            }
-            codeLines.add("print(\"----------\")");
-            codeLines.add("print(\"\\n\".join(outputs))");
-
-            return String.join("\n", codeLines);
-        }
-        return "";
-    }
+    private final ExecutorService scheduler = Executors.newFixedThreadPool(5);
 
     @PostMapping("/submission")
-    public SubmissionResponseDto createSubmission(@RequestBody RunRequestDto runRequestDto) {
+    public SubmissionResponseDto createSubmission(@RequestBody RunRequestDto submissionRequestDto) {
         // retrieve the problem
-        Problem problem = problemRepository.findById(runRequestDto.getProblemId()).orElseThrow();
-        // warp the code with the test harness
-        String code = wrapCode(problem, runRequestDto.getCode(), runRequestDto.getLanguage(), problem.getTestCases());
+        Problem problem = problemRepository.findById(submissionRequestDto.getProblemId()).orElseThrow();
+
+        // wrap the code into the submission template
+        CodeTemplateFiller filler = CodeTemplateFiller.getInstance();
+        String functionName = Utils.getFunctionName(submissionRequestDto.getLanguage(), problem.getCode(submissionRequestDto.getLanguage()));
+        String primarySolution = problem.getSolutions().stream().filter(Solution::getIsPrimary).findFirst().orElseThrow().getCode(submissionRequestDto.getLanguage());
+        // fill in the submission template with the arguments/return type for this test run
+        String code = filler.getSubmissionCode(submissionRequestDto.getLanguage(), submissionRequestDto.getCode(), primarySolution,
+                functionName, problem.getArguments(), problem.getReturnType());
+
+        // setup stdin
+        StringBuilder stdin = new StringBuilder();
+        for (TestCase testCase : problem.getTestCases()) {
+            stdin.append(testCase.getInput()).append("\n");
+            stdin.append(Constants.IO_SEPARATOR);
+        }
 
         // create request to JudgeZero
         JZSubmissionRequestDto requestDto = new JZSubmissionRequestDto();
         requestDto.setSourceCode(code);
-        requestDto.setLanguageId(Utils.getLanguageId(runRequestDto.getLanguage()));
-        requestDto.setStdin("");
+        requestDto.setLanguageId(Utils.getLanguageId(submissionRequestDto.getLanguage()));
+        requestDto.setStdin(stdin.toString());
         JzSubmissionCheckResponseDto result = Utils.callJudgeZero(requestDto, scheduler);
 
         // create the submission to be saved into the db
         Submission submission = new Submission();
-        submission.setCode(runRequestDto.getCode());
-        submission.setLanguage(runRequestDto.getLanguage());
+        submission.setCode(submissionRequestDto.getCode());
+        submission.setLanguage(submissionRequestDto.getLanguage());
         submission.setProblem(problem);
         submission.setToken(result.getToken());
 
         // create the submission response dto to be sent back through the api
         SubmissionResponseDto response = new SubmissionResponseDto();
         if (result.getStatus().getId() >= 6) { // error
-            response.setStatus(TestStatus.ERROR);
             submission.setStatus(TestStatus.ERROR);
-            String[] error = result.getStderr().split("\n");
-            submission.setOutput(error[error.length - 1]);
-            response.setStderr(error[error.length - 1]);
+            response.setStatus(TestStatus.ERROR);
+            String stderr = "";
+            if (result.getCompileOutput() != null) {
+                stderr = result.getCompileOutput();
+            } else if (result.getStderr() != null) {
+                stderr = result.getStderr();
+            }
+            submission.setOutput(Utils.formatErrorMessage(submissionRequestDto.getLanguage(), stderr));
+            response.setStderr(Utils.formatErrorMessage(submissionRequestDto.getLanguage(), stderr));
 
         } else if (result.getStatus().getId() == 3) { // no errors
             // everything above the line is stdout, everything below is test results
-            String[] split = result.getStdout().trim().split("----------\n");
+            String[] split = result.getStdout().trim().split(Constants.IO_SEPARATOR);
             submission.setOutput(split[1]);
             // set status as passed at first and overwrite if any test failed
             submission.setStatus(TestStatus.PASSED);
@@ -113,27 +94,44 @@ public class SubmissionController {
             List<TestResult> testResults = new ArrayList<>();
 
             for (String str : split[1].split("\n")) {
-                // test results are formatted: {test num}|{status}|{run output}
+                // test results are formatted: {test num}|{status}|{expected output}|{run output}
+                // runtime error results are formatted: {test num}|{status}|{error message}
                 String[] testResult = str.split("\\|");
-                String num = testResult[0];
-                String status = testResult[1];
-                // create the test result object to be saved into the db
-                TestResult testResultObj = new TestResult();
-                testResultObj.setStatus(status);
-                // retrieve the test case for this test result
-                TestCase testCase = problem.getTestCases().get(Integer.parseInt(num) - 1);
-                testResultObj.setInput(testCase.getInput());
-                testResultObj.setExpectedOutput(testCase.getOutput());
-                if (status.equals("FAILED")) {
-                    testResultObj.setOutput(testResult[2]);
-                    response.setStatus(TestStatus.FAILED);
-                    submission.setStatus(TestStatus.FAILED);
+
+                if (testResult.length == 4) { // no errors
+                    String num = testResult[0];
+                    String status = testResult[1];
+                    // create the test result object to be saved into the db
+                    TestResult testResultObj = new TestResult();
+                    testResultObj.setStatus(status);
+                    // retrieve the test case for this test result
+                    TestCase testCase = problem.getTestCases().get(Integer.parseInt(num));
+                    testResultObj.setInput(testCase.getInput());
+                    testResultObj.setExpectedOutput(testResult[2]);
+
+                    // test case failed
+                    if (status.equals(TestStatus.FAILED.toString())) {
+                        testResultObj.setOutput(testResult[3]);
+                        // set overall submission status to failed if the status is not already ERROR
+                        if (submission.getStatus() != TestStatus.ERROR) {
+                            submission.setStatus(TestStatus.FAILED);
+                            response.setStatus(TestStatus.FAILED);
+                        }
+                    }
+
+                    // add the test result to the list of test results
+                    testResults.add(testResultObj);
+
+                } else if (testResult.length == 2) { // runtime errors
+                    submission.setStatus(TestStatus.ERROR);
+                    response.setStatus(TestStatus.ERROR);
+                    submission.setOutput(Utils.formatErrorMessage(submissionRequestDto.getLanguage(), testResult[1]));
+                    response.setStderr(Utils.formatErrorMessage(submissionRequestDto.getLanguage(), testResult[1]));
                 }
-                // add the test result to the list of test results
-                testResults.add(testResultObj);
             }
             response.setTestResults(testResults);
         }
+
         // save the submission into the db
         submissionRepository.save(submission);
 
