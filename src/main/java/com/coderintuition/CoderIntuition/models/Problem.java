@@ -45,7 +45,7 @@ public class Problem {
 
     @JsonIgnoreProperties("problem")
     @OneToOne(mappedBy = "problem")
-    @NotEmpty
+    @NotNull
     private ReturnType returnType;
 
     @Column(name = "name")

@@ -22,8 +22,15 @@ def ___tree_to_list(root):
     while len(queue) > 0:
         node = queue.pop(0)
         lst.append(node.val)
-        if node.left is not None:
+        if node.left:
             queue.append(node.left)
-        if node.right is not None:
+        if node.right:
             queue.append(node.right)
     return lst
+
+def ___tree_same(node1, node2):
+    if not node1 and not node2:
+        return True
+    if not node1 or not node2 or node1.val != node2.val:
+        return False
+    return ___tree_same(node1.left, node2.left) and ___tree_same(node1.right, node2.right)

@@ -18,7 +18,7 @@ class ListNode {
         if (node1 == null && node2 == null) {
             return true;
         }
-        if (node1.val != node2.val) {
+        if (node1 == null || node2 == null || node1.val != node2.val) {
             return false;
         }
         return same(node1.next, node2.next);

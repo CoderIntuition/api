@@ -1,0 +1,39 @@
+class ListNode {
+    constructor(val=0, next=null) {
+        this.val = val;
+        this.next = next;
+    }
+
+    static listToLinkedList(lst) {
+        if (lst.length === 0) {
+            return null;
+        }
+        const first = new ListNode(lst[0]);
+        const cur = first;
+        for (int i = 0; i < lst.length; i++) {
+            cur.next = new ListNode(lst[i]);
+            cur = cur.next;
+        }
+        return first;
+    }
+
+    static linkedListToList(node) {
+        const lst = [];
+        const cur = node;
+        while (cur) {
+            lst.push(cur.val);
+            cur = cur.next;
+        }
+        return lst;
+    }
+
+    static linkedListSame(node1, node2) {
+        if (!node1 && !node2) {
+            return true;
+        }
+        if (!node1 || !node2 || node1.val != node2.val) {
+            return false;
+        }
+        return linkedListSame(node1.next, node2.next);
+    }
+}

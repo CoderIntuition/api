@@ -1,0 +1,69 @@
+function ___arraysEqual(a, b) {
+    if (a === b) return true;
+    if (a == null || b == null) return false;
+    if (a.length !== b.length) return false;
+
+    for (var i = 0; i < a.length; ++i) {
+        if (a[i] !== b[i]) return false;
+    }
+    return true;
+}
+
+${definitionCode}
+
+${userCode}
+
+${solutionCode}
+
+const main = async () => {
+    try {
+        const inputs = [];
+        let cur = [];
+        const readline = require('readline');
+        const rl = readline.createInterface({
+          input: process.stdin,
+          output: process.stdout,
+          terminal: false
+        });
+        for await (const line of rl) {
+            if (line === "-----------------------------------") {
+                inputs.push(cur);
+                cur = [];
+            } else {
+                cur.push(line);
+            }
+        }
+
+        const results = [];
+
+        for (let i = 0; i < inputs.length; i++) {
+            const input = inputs[i];
+            const userResult = ${functionName}(${args});
+            const solResult = ${functionName}Sol(${args});
+
+            ${userResultFormatCode}
+            ${solResultFormatCode}
+
+            ${equalsCode}
+                results.push(i + "|PASSED|" + solResultStr + "|" + userResultStr);
+            } else {
+                results.push(i + "|FAILED|" + solResultStr + "|" + userResultStr);
+            }
+        }
+
+        console.log("-----------------------------------");
+        results.forEach((result, idx) => {
+            console.log(result);
+        });
+    } catch (err) {
+        console.log("-----------------------------------");
+        console.log(err.stack);
+        if (err.stack.includes("JSON.parse")) {
+            console.log("ERROR|%s", "Invalid input");
+        } else {
+            console.log("ERROR|%s", err.toString());
+        }
+    }
+}
+
+main();

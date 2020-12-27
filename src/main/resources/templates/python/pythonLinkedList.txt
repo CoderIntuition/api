@@ -20,3 +20,10 @@ def ___linked_list_to_list(node):
         lst.append(cur.val)
         cur = cur.next
     return lst
+
+def ___linked_list_same(node1, node2):
+    if not node1 and not node2:
+        return True
+    if not node1 or not node2 or node1.val != node2.val:
+        return False
+    return ___linked_list_same(node1.next, node2.next);

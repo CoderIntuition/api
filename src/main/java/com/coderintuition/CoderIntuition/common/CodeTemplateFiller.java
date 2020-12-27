@@ -49,7 +49,11 @@ public class CodeTemplateFiller {
     private String javaTree;
     private String javaLinkedList;
     private String javaString;
-    private String javascriptTestRunTemplate;
+    private String javaScriptTestRunTemplate;
+    private String javaScriptSubmissionTemplate;
+    private String javaScriptTree;
+    private String javaScriptLinkedList;
+    private String javaScriptString;
 
     public static CodeTemplateFiller getInstance() {
         if (instance == null) {
@@ -74,7 +78,11 @@ public class CodeTemplateFiller {
             javaTree = fileToString("java/javaTree.txt");
             javaLinkedList = fileToString("java/javaLinkedList.txt");
             javaString = fileToString("java/javaString.txt");
-            javascriptTestRunTemplate = fileToString("javascript/javascriptTestRun.txt");
+            javaScriptTestRunTemplate = fileToString("javascript/javaScriptTestRunTemplate.txt");
+            javaScriptSubmissionTemplate = fileToString("javascript/javaScriptSubmissionTemplate.txt");
+            javaScriptTree = fileToString("javascript/javaScriptTree.txt");
+            javaScriptLinkedList = fileToString("javascript/javaScriptLinkedList.txt");
+            javaScriptString = fileToString("javascript/javaScriptString.txt");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -89,24 +97,24 @@ public class CodeTemplateFiller {
     public String getTestRunCode(Language language, String userCode, String solutionCode, String functionName,
                                  List<Argument> args, ReturnType returnType) {
         return getFilledCode(language, userCode, solutionCode, functionName, args,
-                returnType, pythonTestRunTemplate, javaTestRunTemplate);
+                returnType, pythonTestRunTemplate, javaTestRunTemplate, javaScriptTestRunTemplate);
     }
 
     public String getSubmissionCode(Language language, String userCode, String solutionCode, String functionName,
                                     List<Argument> args, ReturnType returnType) {
         return getFilledCode(language, userCode, solutionCode, functionName, args,
-                returnType, pythonSubmissionTemplate, javaSubmissionTemplate);
+                returnType, pythonSubmissionTemplate, javaSubmissionTemplate, javaScriptSubmissionTemplate);
     }
 
     private String getFilledCode(Language language, String userCode, String solutionCode, String functionName, List<Argument> args,
-                                 ReturnType returnType, String pythonSubmissionTemplate, String javaSubmissionTemplate) {
+                                 ReturnType returnType, String pythonTemplate, String javaTemplate, String javaScriptTemplate) {
         switch (language) {
             case PYTHON:
-                return getFilledPythonCode(pythonSubmissionTemplate, userCode, solutionCode, functionName, args, returnType);
+                return getFilledPythonCode(pythonTemplate, userCode, solutionCode, functionName, args, returnType);
             case JAVA:
-                return getFilledJavaCode(javaSubmissionTemplate, userCode, solutionCode, functionName, args, returnType);
+                return getFilledJavaCode(javaTemplate, userCode, solutionCode, functionName, args, returnType);
             case JAVASCRIPT:
-                return fillJavaScript(userCode, solutionCode, functionName, args, returnType);
+                return getFilledJavaScriptCode(javaScriptTemplate, userCode, solutionCode, functionName, args, returnType);
             default:
                 return "";
         }
@@ -116,7 +124,6 @@ public class CodeTemplateFiller {
 
     private String getFilledPythonCode(String template, String userCode, String solutionCode, String functionName,
                                        List<Argument> args, ReturnType returnType) {
-
         DefinitionArgsCode definitionArgsCode = getPythonDefinitionArgsCode(args);
         EqualsUserSolCode equalsUserSolCode = getPythonEqualsUserSolCode(returnType);
 
@@ -154,6 +161,7 @@ public class CodeTemplateFiller {
                     break;
                 case INTEGER:
                 case FLOAT:
+                case BOOLEAN:
                 case LIST:
                 case ARRAY_2D:
                 case DICTIONARY:
@@ -228,7 +236,6 @@ public class CodeTemplateFiller {
 
     private String getFilledJavaCode(String template, String userCode, String solutionCode, String functionName,
                                      List<Argument> args, ReturnType returnType) {
-
         SetupDefinitionArgsCode setupDefinitionArgsCode = getJavaSetupDefinitionArgsCode(args);
         EqualsUserSolCode equalsUserSolCode = getJavaEqualsUserSolCode(returnType);
 
@@ -580,8 +587,129 @@ public class CodeTemplateFiller {
 
     // ====================================== JAVASCRIPT ======================================
 
-    private String fillJavaScript(String userCode, String solutionCode, String functionName, List<Argument> args, ReturnType returnType) {
-        // TODO: Implement javascript
-        return "";
+    private String getFilledJavaScriptCode(String template, String userCode, String solutionCode, String functionName,
+                                           List<Argument> args, ReturnType returnType) {
+        DefinitionArgsCode definitionArgsCode = getJavaScriptDefinitionArgsCode(args);
+        EqualsUserSolCode equalsUserSolCode = getJavaScriptEqualsUserSolCode(returnType);
+
+        return template
+                .replaceAll("\\$\\{definitionCode}", definitionArgsCode.definitionCode)
+                .replaceAll("\\$\\{userCode}", userCode)
+                .replaceAll("\\$\\{solutionCode}", solutionCode.replace(functionName, functionName + "Sol"))
+                .replaceAll("\\$\\{functionName}", functionName)
+                .replaceAll("\\$\\{args}", definitionArgsCode.argsCode)
+                .replaceAll("\\$\\{userResultFormatCode}", equalsUserSolCode.userResultFormatCode)
+                .replaceAll("\\$\\{solResultFormatCode}", equalsUserSolCode.solResultFormatCode)
+                .replaceAll("\\$\\{equalsCode}", equalsUserSolCode.equalsCode);
+    }
+
+    private DefinitionArgsCode getJavaScriptDefinitionArgsCode(List<Argument> args) {
+        boolean usingTree = false;
+        boolean usingLinkedList = false;
+        boolean usingString = false;
+        StringBuilder argsCode = new StringBuilder();
+
+        for (int i = 0; i < args.size(); i++) {
+            Argument arg = args.get(i);
+            switch (arg.getType()) {
+                case TREE:
+                    argsCode.append("TreeNode.listToTree(JSON.parse(input[").append(i).append("]))");
+                    usingTree = true;
+                    break;
+                case LINKED_LIST:
+                    argsCode.append("ListNode.listToLinkedList(JSON.parse(input[").append(i).append("]))");
+                    usingLinkedList = true;
+                    break;
+                case STRING:
+                    argsCode.append("___stringToString(JSON.parse(input[").append(i).append("]))");
+                    usingString = true;
+                    break;
+                case LIST:
+                case ARRAY_2D:
+                case DICTIONARY:
+                    argsCode.append("JSON.parse(input[").append(i).append("])");
+                    break;
+                case INTEGER:
+                    argsCode.append("parseInt(input[").append(i).append("])");
+                    break;
+                case FLOAT:
+                    argsCode.append("parseFloat(input[").append(i).append("])");
+                    break;
+                case BOOLEAN:
+                    argsCode.append("input.toLowerCase() === \"true\"");
+                    break;
+            }
+            if (i < args.size() - 1) {
+                argsCode.append(", ");
+            }
+        }
+
+        StringBuilder definitionCode = new StringBuilder();
+        if (usingTree) {
+            definitionCode.append(javaScriptTree);
+        }
+        if (usingLinkedList) {
+            definitionCode.append(javaScriptLinkedList);
+        }
+        if (usingString) {
+            definitionCode.append(javaScriptString);
+        }
+
+        return new DefinitionArgsCode(definitionCode.toString(), argsCode.toString());
+    }
+
+    private EqualsUserSolCode getJavaScriptEqualsUserSolCode(ReturnType returnType) {
+        StringBuilder equalsCode = new StringBuilder();
+        StringBuilder userResultFormatCode = new StringBuilder();
+        StringBuilder solResultFormatCode = new StringBuilder();
+        switch (returnType.getType()) {
+            case LIST:
+                if (returnType.getOrderMatters()) {
+                    equalsCode.append("if (___arraysEqual(userResult, solResult)) {");
+                } else {
+                    equalsCode.append("const userResultSorted = userResult.slice(0);").append("\n");
+                    equalsCode.append("userResultSorted.sort();").append("\n");
+                    equalsCode.append("const solResultSorted = solResult.slice(0);").append("\n");
+                    equalsCode.append("solResultSorted.sort();").append("\n");
+                    equalsCode.append("if (___arraysEqual(userResultSorted, solResultSorted)) {");
+                }
+                userResultFormatCode.append("const userResultStr = JSON.stringify(userResult);");
+                solResultFormatCode.append("const solResultStr = JSON.stringify(solResult);");
+                break;
+            case TREE:
+                equalsCode.append("if (TreeNode.treeSame(userResult, solResult)) {");
+                userResultFormatCode.append("const userResultStr = JSON.stringify(TreeNode.treeToList(userResult));");
+                solResultFormatCode.append("const solResultStr = JSON.stringify(TreeNode.treeToList(solResult));");
+                break;
+            case LINKED_LIST:
+                equalsCode.append("if (ListNode.linkedListSame(userResult, solResult)) {");
+                userResultFormatCode.append("const userResultStr = JSON.stringify(ListNode.linkedListToList(userResult));");
+                solResultFormatCode.append("const solResultStr = JSON.stringify(ListNode.linkedListToList(solResult));");
+                break;
+            case ARRAY_2D:
+                // fall through
+            case DICTIONARY:
+                equalsCode.append("if (JSON.stringify(userResult) === JSON.stringify(solResult)) {");
+                userResultFormatCode.append("const userResultStr = JSON.stringify(userResult);");
+                solResultFormatCode.append("const solResultStr = JSON.stringify(solResult);");
+                break;
+            case STRING:
+                equalsCode.append("if (userResult === solResult) {");
+                userResultFormatCode.append("const userResultStr = \"\\\"\" + userResult + \"\\\"\";");
+                solResultFormatCode.append("const solResultStr = \"\\\"\" + solResult + \"\\\"\";");
+                break;
+            case INTEGER:
+                // fall through
+            case FLOAT:
+                // fall through
+            case BOOLEAN:
+                // fall through
+                equalsCode.append("if (userResult === solResult) {");
+                userResultFormatCode.append("const userResultStr = userResult;");
+                solResultFormatCode.append("const solResultStr = solResult;");
+                break;
+        }
+
+        return new EqualsUserSolCode(equalsCode.toString(), userResultFormatCode.toString(), solResultFormatCode.toString());
     }
 }

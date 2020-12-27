@@ -38,8 +38,12 @@ public class Utils {
                     cur--;
                 }
                 return defaultCode.substring(cur + 1, endIndex);
+            case JAVASCRIPT:
+                startIndex = defaultCode.indexOf("function ") + 9;
+                endIndex = defaultCode.indexOf("(", startIndex);
+                return defaultCode.substring(startIndex, endIndex);
             default:
-                return "test";
+                return "";
         }
     }
 
