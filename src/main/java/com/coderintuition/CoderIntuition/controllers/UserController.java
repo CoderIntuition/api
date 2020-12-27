@@ -1,5 +1,6 @@
 package com.coderintuition.CoderIntuition.controllers;
 
+import com.coderintuition.CoderIntuition.dtos.request.UserGeneralSettingsRequest;
 import com.coderintuition.CoderIntuition.dtos.response.UserProfileResponseDto;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
 import com.coderintuition.CoderIntuition.exceptions.ResourceNotFoundException;
@@ -9,9 +10,7 @@ import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class UserController {
@@ -42,5 +41,19 @@ public class UserController {
                 user.getLinkedinLink(),
                 user.getWebsiteLink(),
                 user.getCreated_at());
+    }
+
+    @PostMapping("/user/me")
+    @PreAuthorize("hasRole('USER')")
+    public void saveUserGeneralInfo(@CurrentUser UserPrincipal userPrincipal,
+                                    @RequestBody UserGeneralSettingsRequest settingsRequest) {
+        User userResult = userRepository.findById(userPrincipal.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+        userResult.setName(settingsRequest.getName());
+        userResult.setUsername(settingsRequest.getUsername());
+        userResult.setGithubLink(settingsRequest.getGithubLink());
+        userResult.setLinkedinLink(settingsRequest.getLinkedinLink());
+        userResult.setWebsiteLink(settingsRequest.getWebsiteLink());
+        userRepository.save(userResult);
     }
 }
