@@ -1,0 +1,6 @@
+public static String stringToString(String str) throws Exception {
+    if (str.length() < 2 || !str.startsWith("\"") || !str.endsWith("\"")) {
+        throw new Exception("Input " + str + " is not a valid string (missing quotes)");
+    }
+    return str.substring(1, str.length() - 1);
+}

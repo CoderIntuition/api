@@ -1,0 +1,11 @@
+public static ${underlyingType}[][] stringToArray2D${i}(String str) throws Exception {
+    if (!str.startsWith("[") || !str.endsWith("]")) {
+        throw new Exception("Input " + str + " is not a valid 2D array (missing brackets)");
+    }
+    if (!str.startsWith("[[") || !str.endsWith("]]")) {
+        throw new Exception("Input " + str + " is not a valid 2D array (must have a dimension greater than 0)");
+    }
+    ${parseUnderlyingTypeCode}
+
+    return convertedArray2D;
+}

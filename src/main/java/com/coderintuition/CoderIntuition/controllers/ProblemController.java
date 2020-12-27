@@ -1,7 +1,7 @@
 package com.coderintuition.CoderIntuition.controllers;
 
-import com.coderintuition.CoderIntuition.dtos.response.ProblemsResponse;
-import com.coderintuition.CoderIntuition.dtos.response.SimpleProblemDto;
+import com.coderintuition.CoderIntuition.pojos.response.ProblemsResponse;
+import com.coderintuition.CoderIntuition.pojos.response.SimpleProblemDto;
 import com.coderintuition.CoderIntuition.models.Category;
 import com.coderintuition.CoderIntuition.models.Problem;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;

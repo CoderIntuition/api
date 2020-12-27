@@ -3,7 +3,7 @@ package com.coderintuition.CoderIntuition.security.oauth2;
 import com.coderintuition.CoderIntuition.config.AppProperties;
 import com.coderintuition.CoderIntuition.exceptions.BadRequestException;
 import com.coderintuition.CoderIntuition.security.TokenProvider;
-import com.coderintuition.CoderIntuition.util.CookieUtils;
+import com.coderintuition.CoderIntuition.common.CookieUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;

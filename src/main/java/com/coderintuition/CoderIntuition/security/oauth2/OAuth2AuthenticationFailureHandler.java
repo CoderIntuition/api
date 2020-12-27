@@ -1,6 +1,6 @@
 package com.coderintuition.CoderIntuition.security.oauth2;
 
-import com.coderintuition.CoderIntuition.util.CookieUtils;
+import com.coderintuition.CoderIntuition.common.CookieUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;

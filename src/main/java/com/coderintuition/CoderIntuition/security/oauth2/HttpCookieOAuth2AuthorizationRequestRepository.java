@@ -1,6 +1,6 @@
 package com.coderintuition.CoderIntuition.security.oauth2;
 
-import com.coderintuition.CoderIntuition.util.CookieUtils;
+import com.coderintuition.CoderIntuition.common.CookieUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;

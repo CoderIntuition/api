@@ -1,10 +1,10 @@
 package com.coderintuition.CoderIntuition.controllers;
 
-import com.coderintuition.CoderIntuition.util.Utils;
-import com.coderintuition.CoderIntuition.dtos.request.JZSubmissionRequestDto;
-import com.coderintuition.CoderIntuition.dtos.request.ProduceOutputDto;
-import com.coderintuition.CoderIntuition.dtos.response.JzSubmissionCheckResponseDto;
-import com.coderintuition.CoderIntuition.dtos.response.ProduceOutputResponse;
+import com.coderintuition.CoderIntuition.common.Utils;
+import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
+import com.coderintuition.CoderIntuition.pojos.request.ProduceOutputDto;
+import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
+import com.coderintuition.CoderIntuition.pojos.response.ProduceOutputResponse;
 import com.coderintuition.CoderIntuition.models.Language;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +23,7 @@ public class ProduceOutputController {
 
     // wrap the code with the test harness and the solution code
     private String wrapCode(String code, String input) {
-        String functionName = Utils.getFunctionName(code);
+        String functionName = Utils.getFunctionName(Language.PYTHON, code);
         // TODO: support multiple params
         String param = Utils.formatParam(input, Language.PYTHON);
         // TODO: put this into a text file with args

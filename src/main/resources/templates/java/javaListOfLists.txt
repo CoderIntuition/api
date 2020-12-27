@@ -1,0 +1,24 @@
+public static List<List<${underlyingType}>> stringToListOfLists${i}(String str) throws Exception {
+    if (!str.startsWith("[") || !str.endsWith("]")) {
+        throw new Exception("Input " + str + " is not a valid list of lists (missing brackets)");
+    }
+    if (str.equals("[]")) {
+        return new ArrayList<>();
+    }
+    if (!str.startsWith("[[") || !str.endsWith("]]")) {
+        throw new Exception("Input " + str + " is not a valid list of lists");
+    }
+
+    List<List<${underlyingType}>> convertedListOfLists = new ArrayList<>();
+    String[] lstStrs = str.substring(2, str.length() - 2).split("] *, *\\[");
+    for (String lstStr : lstStrs) {
+        String[] innerLstStrs = lstStr.split("\\s* *, *\\s*");
+        List<${underlyingType}> innerLst = new ArrayList<>();
+        for (String innerLstStr : innerLstStrs) {
+            ${parseUnderlyingTypeCode}
+        }
+        convertedListOfLists.add(innerLst);
+    }
+
+    return convertedListOfLists;
+}

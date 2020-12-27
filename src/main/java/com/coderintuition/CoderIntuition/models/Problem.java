@@ -2,6 +2,7 @@ package com.coderintuition.CoderIntuition.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -15,6 +16,7 @@ import java.util.List;
 @Table(name = "problem")
 @Getter
 @Setter
+@NoArgsConstructor
 public class Problem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +37,16 @@ public class Problem {
     @OneToMany(mappedBy = "problem")
     @NotEmpty
     private List<Solution> solutions;
+
+    @JsonIgnoreProperties("problem")
+    @OneToMany(mappedBy = "problem")
+    @NotEmpty
+    private List<Argument> arguments;
+
+    @JsonIgnoreProperties("problem")
+    @OneToOne(mappedBy = "problem")
+    @NotNull
+    private ReturnType returnType;
 
     @Column(name = "name")
     @NotBlank
@@ -65,9 +77,11 @@ public class Problem {
     private String pythonCode;
 
     @Column(name = "java_code", columnDefinition = "TEXT")
+    @NotNull
     private String javaCode;
 
     @Column(name = "javascript_code", columnDefinition = "TEXT")
+    @NotNull
     private String javascriptCode;
 
     @Column(name = "deleted")
@@ -82,4 +96,17 @@ public class Problem {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private Date updated_at;
+
+    public String getCode(Language language) {
+        switch (language) {
+            case PYTHON:
+                return pythonCode;
+            case JAVA:
+                return javaCode;
+            case JAVASCRIPT:
+                return javascriptCode;
+            default:
+                return "";
+        }
+    }
 }

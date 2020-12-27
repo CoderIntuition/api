@@ -1,0 +1,19 @@
+public static List<${underlyingType}> stringToList${i}(String str) throws Exception {
+    if (!str.startsWith("[") || !str.endsWith("]")) {
+        throw new Exception("Input " + str + " is not a valid list (missing brackets)");
+    }
+    if (str.equals("[]")) {
+        return new ArrayList<>();
+    }
+    List<String> strList = Arrays.asList(str.substring(1, str.length() - 1).split(" *, *"));
+    List<${underlyingType}> convertedList = new ArrayList<>();
+    for (String item : strList) {
+        try {
+            ${parseUnderlyingTypeCode}
+            convertedList.add(val);
+        } catch (Exception ex) {
+            throw new Exception("Input " + str + " is not a valid list (all elements must be of type ${underlyingType})");
+        }
+    }
+    return convertedList;
+}

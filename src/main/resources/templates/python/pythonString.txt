@@ -1,0 +1,4 @@
+def ___string_to_string(s):
+    if len(s) < 2 or not s.startswith("\"") or not s.endswith("\""):
+        raise Exception("Input " + str + " is not a valid string (missing quotes)")
+    return s[1:-1];

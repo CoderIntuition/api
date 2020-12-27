@@ -1,0 +1,27 @@
+public static Map<${underlyingType}, ${underlyingType2}> stringToDictionary${i}(String str) throws Exception {
+    if (!str.startsWith("{") || !str.endsWith("}")) {
+        throw Exception("Input " + str + " is not a valid dictionary");
+    }
+    if (str.equals("{}") {
+        return new HashMap<>();
+    }
+    List<String> strList = Arrays.asList(str.substring(1, str.length() - 1).split(" *, *"));
+    Map<${underlyingType}, ${underlyingType2}> convertedMap = new HashMap<>();
+    for (String item : strList) {
+        try {
+            String[] keyVal = item.split(" *: *");
+            if (keyVal.length != 2) {
+                throw new Exception();
+            }
+            String keyStr = keyVal[0];
+            String valStr = keyVal[1];
+            ${parseKeyCode}
+            ${parseValCode}
+            convertedMap.put(key, val);
+        } catch (Exception ex) {
+            throw new Exception("Input " + str + " is not a valid dictionary (keys must be of type ${underlyingType} and values must be of type ${underlyingType2})");
+        }
+    }
+
+    return convertedMap;
+}

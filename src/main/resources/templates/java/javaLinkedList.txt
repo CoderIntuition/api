@@ -1,0 +1,49 @@
+class ListNode {
+    int val;
+    ListNode next;
+
+    ListNode() {
+    }
+
+    ListNode(int val) {
+        this.val = val;
+    }
+
+    ListNode(int val, ListNode next) {
+        this.val = val;
+        this.next = next;
+    }
+
+    public static boolean same(ListNode node1, ListNode node2) {
+        if (node1 == null && node2 == null) {
+            return true;
+        }
+        if (node1 == null || node2 == null || node1.val != node2.val) {
+            return false;
+        }
+        return same(node1.next, node2.next);
+    }
+
+    public static ListNode listToLinkedList(List<Integer> lst) {
+        if (lst.isEmpty()) {
+            return null;
+        }
+        ListNode first = new ListNode(lst.get(0));
+        ListNode cur = first;
+        for (int i = 0; i < lst.size(); i++) {
+            cur.next = new ListNode(lst.get(i));
+            cur = cur.next;
+        }
+        return first;
+    }
+
+    public static List<Integer> linkedListToList(ListNode node) {
+        List<Integer> lst = new ArrayList<>();
+        ListNode cur = node;
+        while (cur != null) {
+            lst.add(cur.val);
+            cur = cur.next;
+        }
+        return lst;
+    }
+}

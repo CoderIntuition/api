@@ -1,0 +1,36 @@
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+def ___list_to_tree(lst):
+    def list_to_tree_helper(cur, i):
+        if i < len(lst):
+            cur = TreeNode(lst[i])
+            cur.left = list_to_tree_helper(cur.left, 2 * i + 1)
+            cur.right = list_to_tree_helper(cur.right, 2 * i + 2)
+        return cur
+
+    return list_to_tree_helper(None, 0)
+
+def ___tree_to_list(root):
+    if not root:
+        return []
+    lst = []
+    queue = [root]
+    while len(queue) > 0:
+        node = queue.pop(0)
+        lst.append(node.val)
+        if node.left:
+            queue.append(node.left)
+        if node.right:
+            queue.append(node.right)
+    return lst
+
+def ___tree_same(node1, node2):
+    if not node1 and not node2:
+        return True
+    if not node1 or not node2 or node1.val != node2.val:
+        return False
+    return ___tree_same(node1.left, node2.left) and ___tree_same(node1.right, node2.right)

@@ -1,0 +1,51 @@
+import sys
+import ast
+
+${definitionCode}
+
+${userCode}
+
+${solutionCode}
+
+def main():
+    try:
+        inputs = []
+        cur = []
+        for line in sys.stdin:
+            if line == "-----------------------------------\n":
+                inputs.append(cur)
+                cur = []
+                continue
+            cur.append(line)
+
+        results = []
+        for i in range(len(inputs)):
+            input = inputs[i]
+            user_result = ${functionName}(${args})
+            sol_result = ${functionName}_sol(${args})
+
+            ${userResultFormatCode}
+            ${solResultFormatCode}
+
+            ${equalsCode}
+                results.append("{}|PASSED|{}|{}\n".format(i, sol_result_str, user_result_str));
+            else:
+                results.append("{}|FAILED|{}|{}\n".format(i, sol_result_str, user_result_str));
+
+        print("-----------------------------------");
+        for result in results:
+            print(result);
+
+    except ValueError as e:
+        print("-----------------------------------")
+        if e.message == "malformed string":
+            print("ERROR|{}".format("Invalid input"))
+        else:
+            print("ERROR|{}".format(type(e).__name__ + ": " + str(e)))
+
+    except Exception as e:
+        print("-----------------------------------")
+        print("ERROR|{}".format(type(e).__name__ + ": " + str(e)))
+
+if __name__ == "__main__":
+    main()
