@@ -1,6 +1,7 @@
 package com.coderintuition.CoderIntuition.pojos.request.cms;
 
 import com.coderintuition.CoderIntuition.models.Category;
+import com.coderintuition.CoderIntuition.models.Difficulty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,10 +23,7 @@ public class ProblemDto {
 
     private Category category;
 
-    @NotNull
-    @Min(1)
-    @Max(5)
-    private Integer difficulty;
+    private Difficulty difficulty;
 
     @NotBlank
     private String description;
