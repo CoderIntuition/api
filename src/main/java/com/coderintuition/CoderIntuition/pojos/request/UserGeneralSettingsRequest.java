@@ -1,4 +1,4 @@
-package com.coderintuition.CoderIntuition.dtos.request;
+package com.coderintuition.CoderIntuition.pojos.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
