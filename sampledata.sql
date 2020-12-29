@@ -2,7 +2,7 @@ USE coderintuition;
 
 INSERT INTO coderintuition.problem (name, url_name, category, difficulty, description, python_code, java_code,
                                     javascript_code, created_at, updated_at)
-VALUES ('Sort Array', 'sort-array', 'ARRAYS', 1,
+VALUES ('Sort Array', 'sort-array', 'ARRAYS', 'BEGINNER',
         'Given an array of integers, sort the array in non-decreasing order.',
         'def sort_array(nums):\n\treturn nums',
         'class Solution {\n\tList<Integer> sortArray(List<Integer> nums) {\n\t\treturn nums;\n\t}\n}',
@@ -81,7 +81,8 @@ INSERT INTO coderintuition.solution(problem_id, solution_num, name, is_primary, 
 VALUES (@problem1_id, 2, 'Approach 2: Use built-in sorted', true,
         'def sort_array(nums):\n    return sorted(nums)',
         'class ActualSolution {\n\tList<Integer> sortArray(List<Integer> nums) {\n\t\tCollections.sort(nums);\n\t\treturn nums\n\t}\n}',
-        '', 'Use the built-in function', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
+        'function sortArray(nums) {\n\tnums.sort();\n\treturn nums;\n}',
+        'Use the built-in function', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
 
 INSERT INTO coderintuition.argument(problem_id, argument_num, type, underlying_type, underlying_type_2)
 VALUES (@problem1_id, 1, 'LIST', 'INTEGER', 'NONE');

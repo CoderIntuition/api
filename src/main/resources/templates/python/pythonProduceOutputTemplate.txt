@@ -1,0 +1,32 @@
+import sys
+import ast
+
+${definitionCode}
+
+${userCode}
+
+def main():
+    try:
+        input = []
+        for line in sys.stdin:
+            input.append(line)
+
+        user_result = ${functionName}(${args})
+
+        ${userResultFormatCode}
+
+        print("-----------------------------------")
+        print("SUCCESS|{}".format(user_result_str))
+    except ValueError as e:
+        print("-----------------------------------")
+        if e.message == "malformed string":
+            print("ERROR|{}".format("Invalid input"))
+        else:
+            print("ERROR|{}".format(type(e).__name__ + ": " + str(e)))
+
+    except Exception as e:
+        print("-----------------------------------")
+        print("ERROR|{}".format(type(e).__name__ + ": " + str(e)))
+
+if __name__ == "__main__":
+    main()

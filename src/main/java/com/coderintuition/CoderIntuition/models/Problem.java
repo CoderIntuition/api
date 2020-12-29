@@ -63,10 +63,8 @@ public class Problem {
     private Category category;
 
     @Column(name = "difficulty")
-    @NotNull
-    @Min(1)
-    @Max(5)
-    private Integer difficulty;
+    @Enumerated(EnumType.STRING)
+    private Difficulty difficulty;
 
     @Column(name = "description", columnDefinition = "TEXT")
     @NotBlank
