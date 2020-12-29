@@ -37,6 +37,7 @@ public class CodeTemplateFiller {
     private static CodeTemplateFiller instance = null;
     private String pythonTestRunTemplate;
     private String pythonSubmissionTemplate;
+    private String pythonProduceOutputTemplate;
     private String pythonTree;
     private String pythonLinkedList;
     private String pythonString;
@@ -66,6 +67,7 @@ public class CodeTemplateFiller {
         try {
             pythonTestRunTemplate = fileToString("python/pythonTestRunTemplate.txt");
             pythonSubmissionTemplate = fileToString("python/pythonSubmissionTemplate.txt");
+            pythonProduceOutputTemplate = fileToString("python/pythonProduceOutputTemplate.txt");
             pythonTree = fileToString("python/pythonTree.txt");
             pythonLinkedList = fileToString("python/pythonLinkedList.txt");
             pythonString = fileToString("python/pythonString.txt");
@@ -104,6 +106,11 @@ public class CodeTemplateFiller {
                                     List<Argument> args, ReturnType returnType) {
         return getFilledCode(language, userCode, solutionCode, functionName, args,
                 returnType, pythonSubmissionTemplate, javaSubmissionTemplate, javaScriptSubmissionTemplate);
+    }
+
+    public String getProduceOutputCode(Language language, String userCode, String functionName, List<Argument> args, ReturnType returnType) {
+        return getFilledCode(language, userCode, "", functionName, args, returnType, pythonProduceOutputTemplate,
+                javaSubmissionTemplate, javaScriptSubmissionTemplate);
     }
 
     private String getFilledCode(Language language, String userCode, String solutionCode, String functionName, List<Argument> args,
