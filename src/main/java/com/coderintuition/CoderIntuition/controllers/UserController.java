@@ -1,22 +1,29 @@
 package com.coderintuition.CoderIntuition.controllers;
 
-import com.coderintuition.CoderIntuition.pojos.response.UserProfileResponseDto;
-import com.coderintuition.CoderIntuition.pojos.request.UserGeneralSettingsRequest;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
 import com.coderintuition.CoderIntuition.exceptions.ResourceNotFoundException;
+import com.coderintuition.CoderIntuition.models.AuthProvider;
 import com.coderintuition.CoderIntuition.models.User;
+import com.coderintuition.CoderIntuition.pojos.request.ChangePasswordRequest;
+import com.coderintuition.CoderIntuition.pojos.request.UserGeneralSettingsRequest;
+import com.coderintuition.CoderIntuition.pojos.response.UserProfileResponseDto;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import reactor.util.StringUtils;
 
 @RestController
 public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @GetMapping("/user/me")
     @PreAuthorize("hasRole('USER')")
@@ -55,5 +62,23 @@ public class UserController {
         userResult.setLinkedinLink(settingsRequest.getLinkedinLink());
         userResult.setWebsiteLink(settingsRequest.getWebsiteLink());
         userRepository.save(userResult);
+    }
+
+    @PostMapping("/user/me/changepassword")
+    @PreAuthorize("hasRole('USER')")
+    public void changePassword(@CurrentUser UserPrincipal userPrincipal,
+                               @RequestBody ChangePasswordRequest changePasswordRequest) throws Exception {
+        User user = userRepository.findById(userPrincipal.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+        if (user.getAuthProvider() != AuthProvider.LOCAL) {
+            String provider = StringUtils.capitalize(user.getAuthProvider().toString().toLowerCase());
+            throw new Exception("Your account is with " + provider + ". Please change your password on "
+                    + provider + "'s website instead.");
+        }
+        if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())) {
+            throw new Exception("The old password that you entered in not correct.");
+        }
+        user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
+        userRepository.save(user);
     }
 }
