@@ -1,5 +1,6 @@
 package com.coderintuition.CoderIntuition.controllers;
 
+import com.coderintuition.CoderIntuition.exceptions.BadRequestException;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
 import com.coderintuition.CoderIntuition.exceptions.ResourceNotFoundException;
 import com.coderintuition.CoderIntuition.models.AuthProvider;
@@ -67,16 +68,16 @@ public class UserController {
     @PostMapping("/user/me/changepassword")
     @PreAuthorize("hasRole('USER')")
     public void changePassword(@CurrentUser UserPrincipal userPrincipal,
-                               @RequestBody ChangePasswordRequest changePasswordRequest) throws Exception {
+                               @RequestBody ChangePasswordRequest changePasswordRequest) {
         User user = userRepository.findById(userPrincipal.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
         if (user.getAuthProvider() != AuthProvider.LOCAL) {
             String provider = StringUtils.capitalize(user.getAuthProvider().toString().toLowerCase());
-            throw new Exception("Your account is with " + provider + ". Please change your password on "
+            throw new BadRequestException("Your account is with " + provider + ". Please change your password on "
                     + provider + "'s website instead.");
         }
-        if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())) {
-            throw new Exception("The old password that you entered in not correct.");
+        if (!passwordEncoder.matches(changePasswordRequest.getCurrentPassword(), user.getPassword())) {
+            throw new BadRequestException("Current password is incorrect");
         }
         user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         userRepository.save(user);
