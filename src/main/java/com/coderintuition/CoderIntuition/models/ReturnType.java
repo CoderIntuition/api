@@ -1,5 +1,7 @@
 package com.coderintuition.CoderIntuition.models;
 
+import com.coderintuition.CoderIntuition.enums.ArgumentType;
+import com.coderintuition.CoderIntuition.enums.UnderlyingType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,13 +16,6 @@ import javax.validation.constraints.NotNull;
 @Setter
 @NoArgsConstructor
 public class ReturnType {
-    public ReturnType(ArgumentType type, UnderlyingType underlyingType, UnderlyingType underlyingType2, boolean orderMatters) {
-        this.type = type;
-        this.underlyingType = underlyingType;
-        this.underlyingType2 = underlyingType2;
-        this.orderMatters = orderMatters;
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

@@ -1,5 +1,7 @@
 package com.coderintuition.CoderIntuition.models;
 
+import com.coderintuition.CoderIntuition.enums.Language;
+import com.coderintuition.CoderIntuition.enums.SubmissionStatus;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -33,7 +35,7 @@ public class Submission {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private TestStatus status;
+    private SubmissionStatus status;
 
     @Column(name = "code", columnDefinition = "TEXT")
     @NotBlank

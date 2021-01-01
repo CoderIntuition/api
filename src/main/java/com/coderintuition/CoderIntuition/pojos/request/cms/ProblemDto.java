@@ -1,7 +1,7 @@
 package com.coderintuition.CoderIntuition.pojos.request.cms;
 
-import com.coderintuition.CoderIntuition.models.Category;
-import com.coderintuition.CoderIntuition.models.Difficulty;
+import com.coderintuition.CoderIntuition.enums.Category;
+import com.coderintuition.CoderIntuition.enums.Difficulty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

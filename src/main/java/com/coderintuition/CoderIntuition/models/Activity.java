@@ -1,5 +1,6 @@
 package com.coderintuition.CoderIntuition.models;
 
+import com.coderintuition.CoderIntuition.enums.ActivityType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

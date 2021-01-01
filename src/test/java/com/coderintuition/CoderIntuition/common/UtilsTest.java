@@ -1,6 +1,6 @@
 package com.coderintuition.CoderIntuition.common;
 
-import com.coderintuition.CoderIntuition.models.Language;
+import com.coderintuition.CoderIntuition.enums.Language;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

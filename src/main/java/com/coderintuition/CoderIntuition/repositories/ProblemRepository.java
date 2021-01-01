@@ -1,6 +1,6 @@
 package com.coderintuition.CoderIntuition.repositories;
 
-import com.coderintuition.CoderIntuition.models.Category;
+import com.coderintuition.CoderIntuition.enums.Category;
 import com.coderintuition.CoderIntuition.models.Problem;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

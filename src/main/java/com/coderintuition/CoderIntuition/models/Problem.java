@@ -1,5 +1,8 @@
 package com.coderintuition.CoderIntuition.models;
 
+import com.coderintuition.CoderIntuition.enums.Category;
+import com.coderintuition.CoderIntuition.enums.Difficulty;
+import com.coderintuition.CoderIntuition.enums.Language;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,5 +1,6 @@
 package com.coderintuition.CoderIntuition.pojos.response;
 
+import com.coderintuition.CoderIntuition.enums.TestStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class TestResult {
-    private String status;
+    private TestStatus status;
     private String input;
     private String expectedOutput;
     private String output;

@@ -1,6 +1,6 @@
 package com.coderintuition.CoderIntuition.pojos.response;
 
-import com.coderintuition.CoderIntuition.models.TestStatus;
+import com.coderintuition.CoderIntuition.enums.SubmissionStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class SubmissionResponseDto {
-    private TestStatus status;
+    private SubmissionStatus status;
     private String stderr;
     private List<TestResult> testResults;
 }

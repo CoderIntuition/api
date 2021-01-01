@@ -1,6 +1,6 @@
 package com.coderintuition.CoderIntuition.pojos.request;
 
-import com.coderintuition.CoderIntuition.models.Language;
+import com.coderintuition.CoderIntuition.enums.Language;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

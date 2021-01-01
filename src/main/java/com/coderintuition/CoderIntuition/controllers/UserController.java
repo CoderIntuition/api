@@ -3,7 +3,8 @@ package com.coderintuition.CoderIntuition.controllers;
 import com.coderintuition.CoderIntuition.exceptions.BadRequestException;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
 import com.coderintuition.CoderIntuition.exceptions.ResourceNotFoundException;
-import com.coderintuition.CoderIntuition.models.AuthProvider;
+import com.coderintuition.CoderIntuition.enums.AuthProvider;
+import com.coderintuition.CoderIntuition.models.Submission;
 import com.coderintuition.CoderIntuition.models.User;
 import com.coderintuition.CoderIntuition.pojos.request.ChangePasswordRequest;
 import com.coderintuition.CoderIntuition.pojos.request.UserGeneralSettingsRequest;
@@ -16,6 +17,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import reactor.util.StringUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class UserController {
@@ -82,4 +86,15 @@ public class UserController {
         user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         userRepository.save(user);
     }
+
+    @GetMapping("/user/me/submissions/{problemId}")
+    @PreAuthorize("hasRole('USER')")
+    public List<Submission> getSubmissions(@CurrentUser UserPrincipal userPrincipal,
+                                           @PathVariable Long problemId) {
+        User user = userRepository.findById(userPrincipal.getId()).orElseThrow();
+        return user.getSubmissions().stream()
+                .filter((x) -> x.getProblem().getId().equals(problemId))
+                .collect(Collectors.toList());
+    }
+
 }

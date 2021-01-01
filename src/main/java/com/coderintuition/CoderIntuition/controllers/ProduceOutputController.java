@@ -4,13 +4,11 @@ import com.coderintuition.CoderIntuition.common.CodeTemplateFiller;
 import com.coderintuition.CoderIntuition.common.Constants;
 import com.coderintuition.CoderIntuition.common.Utils;
 import com.coderintuition.CoderIntuition.models.Problem;
-import com.coderintuition.CoderIntuition.models.Solution;
-import com.coderintuition.CoderIntuition.models.TestStatus;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.pojos.request.ProduceOutputDto;
 import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
 import com.coderintuition.CoderIntuition.pojos.response.ProduceOutputResponse;
-import com.coderintuition.CoderIntuition.models.Language;
+import com.coderintuition.CoderIntuition.enums.Language;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,8 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 

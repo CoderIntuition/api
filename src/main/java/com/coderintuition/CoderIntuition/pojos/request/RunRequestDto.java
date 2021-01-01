@@ -1,6 +1,6 @@
 package com.coderintuition.CoderIntuition.pojos.request;
 
-import com.coderintuition.CoderIntuition.models.Language;
+import com.coderintuition.CoderIntuition.enums.Language;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class RunRequestDto {
+    private Long userId;
     private Long problemId;
     private Language language;
     private String input;
