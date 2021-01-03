@@ -2,8 +2,8 @@ package com.coderintuition.CoderIntuition.security.oauth2;
 
 import com.coderintuition.CoderIntuition.pojos.response.GithubEmailResponse;
 import com.coderintuition.CoderIntuition.exceptions.OAuth2AuthenticationProcessingException;
-import com.coderintuition.CoderIntuition.models.AuthProvider;
-import com.coderintuition.CoderIntuition.models.ERole;
+import com.coderintuition.CoderIntuition.enums.AuthProvider;
+import com.coderintuition.CoderIntuition.enums.ERole;
 import com.coderintuition.CoderIntuition.models.Role;
 import com.coderintuition.CoderIntuition.models.User;
 import com.coderintuition.CoderIntuition.repositories.RoleRepository;

@@ -3,7 +3,7 @@ package com.coderintuition.CoderIntuition.common;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.pojos.response.JZSubmissionResponseDto;
 import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
-import com.coderintuition.CoderIntuition.models.Language;
+import com.coderintuition.CoderIntuition.enums.Language;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 

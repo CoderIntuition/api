@@ -2,7 +2,7 @@ package com.coderintuition.CoderIntuition.controllers;
 
 import com.coderintuition.CoderIntuition.pojos.response.ProblemsResponse;
 import com.coderintuition.CoderIntuition.pojos.response.SimpleProblemDto;
-import com.coderintuition.CoderIntuition.models.Category;
+import com.coderintuition.CoderIntuition.enums.ProblemCategory;
 import com.coderintuition.CoderIntuition.models.Problem;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.ProblemStepRepository;
@@ -35,7 +35,7 @@ public class ProblemController {
                                                   @RequestParam("page") int page,
                                                   @RequestParam("size") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Problem> problems = problemRepository.findByCategory(Category.valueOf(category.toUpperCase()), pageable);
+        Page<Problem> problems = problemRepository.findByCategory(ProblemCategory.valueOf(category.toUpperCase()), pageable);
         List<SimpleProblemDto> simpleProblemDtos = new ArrayList<>();
         // convert Problem to SimpleProblemDto
         for (Problem problem : problems) {

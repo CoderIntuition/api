@@ -1,6 +1,6 @@
 package com.coderintuition.CoderIntuition.pojos.request.cms;
 
-import com.coderintuition.CoderIntuition.models.ProblemStepType;
+import com.coderintuition.CoderIntuition.enums.ProblemStepType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

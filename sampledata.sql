@@ -15,51 +15,38 @@ VALUES (@problem1_id, 1, 'Step 1: Understand the Problem', 'TEXT', 'Read the pro
         '2020-08-29 00:00:00', '2020-08-29 00:00:00');
 
 INSERT INTO coderintuition.problem_step (problem_id, step_num, name, type, content, time, created_at, updated_at)
-VALUES (@problem1_id, 2, 'Step 2: Problem Understanding Quiz', 'QUIZ', '{
-	"quizTitle": "",
-	"quizSynopsis": "",
-	"appLocale": {
-		"landingHeaderText": "",
-		"question": "Question",
-		"startQuizBtn": "Start Quiz",
-		"resultFilterAll": "All",
-		"resultFilterCorrect": "Correct",
-		"resultFilterIncorrect": "Incorrect",
-		"nextQuestionBtn": "Next",
-		"resultPageHeaderText": "Results:"
-	},
-	"questions": [{
-			"question": "How can you access the state of a component from inside of a member function?",
-			"questionType": "text",
-			"answerSelectionType": "single",
-			"answers": [
-				"this.getState()",
-				"this.prototype.stateValue",
-				"this.state",
-				"this.values"
-			],
-			"correctAnswer": "3",
-			"messageForCorrectAnswer": "Correct answer. Good job.",
-			"messageForIncorrectAnswer": "Incorrect answer. Please try again.",
-			"explanation": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-			"point": "1"
-		},
-		{
-			"question": "ReactJS is developed by _____?",
-			"questionType": "text",
-			"answerSelectionType": "single",
-			"answers": [
-				"Google Engineers",
-				"Facebook Engineers"
-			],
-			"correctAnswer": "2",
-			"messageForCorrectAnswer": "Correct answer. Good job.",
-			"messageForIncorrectAnswer": "Incorrect answer. Please try again.",
-			"explanation": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-			"point": "1"
-		}
-	]
-}', 5, '2020-08-29 00:00:00', '2020-08-29 00:00:00');
+VALUES (@problem1_id, 2, 'Step 2: Problem Understanding Quiz', 'QUIZ', '
+    [{
+        "question": "How can you access the state of a component from inside of a member function?",
+        "questionType": "text",
+        "answerSelectionType": "single",
+        "answers": [
+            "this.getState()",
+            "this.prototype.stateValue",
+            "this.state",
+            "this.values"
+        ],
+        "correctAnswer": "3",
+        "messageForCorrectAnswer": "Correct answer. Good job.",
+        "messageForIncorrectAnswer": "Incorrect answer. Please try again.",
+        "explanation": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "point": "1"
+    },
+    {
+        "question": "ReactJS is developed by _____?",
+        "questionType": "text",
+        "answerSelectionType": "single",
+        "answers": [
+            "Google Engineers",
+            "Facebook Engineers"
+        ],
+        "correctAnswer": "2",
+        "messageForCorrectAnswer": "Correct answer. Good job.",
+        "messageForIncorrectAnswer": "Incorrect answer. Please try again.",
+        "explanation": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "point": "1"
+    }]
+', 5, '2020-08-29 00:00:00', '2020-08-29 00:00:00');
 
 INSERT INTO coderintuition.test_case(problem_id, test_case_num, name, is_default, input, output, time_limit,
                                      memory_limit, stack_limit, created_at, updated_at)

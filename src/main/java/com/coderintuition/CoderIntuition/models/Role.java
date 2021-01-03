@@ -1,13 +1,11 @@
 package com.coderintuition.CoderIntuition.models;
 
+import com.coderintuition.CoderIntuition.enums.ERole;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Entity
 @Table(name = "role")
@@ -22,8 +20,4 @@ public class Role {
     @Column(name = "name")
     @Enumerated(EnumType.STRING)
     private ERole name;
-
-    public Role(ERole name) {
-        this.name = name;
-    }
 }

@@ -1,7 +1,7 @@
 package com.coderintuition.CoderIntuition.pojos.request.cms;
 
-import com.coderintuition.CoderIntuition.models.Category;
-import com.coderintuition.CoderIntuition.models.Difficulty;
+import com.coderintuition.CoderIntuition.enums.ProblemCategory;
+import com.coderintuition.CoderIntuition.enums.Difficulty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,7 +21,7 @@ public class ProblemDto {
     @Size(max = 300)
     private String urlName;
 
-    private Category category;
+    private ProblemCategory category;
 
     private Difficulty difficulty;
 

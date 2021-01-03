@@ -1,7 +1,7 @@
 package com.coderintuition.CoderIntuition.security.oauth2.user;
 
 import com.coderintuition.CoderIntuition.exceptions.OAuth2AuthenticationProcessingException;
-import com.coderintuition.CoderIntuition.models.AuthProvider;
+import com.coderintuition.CoderIntuition.enums.AuthProvider;
 
 import java.util.Map;
 

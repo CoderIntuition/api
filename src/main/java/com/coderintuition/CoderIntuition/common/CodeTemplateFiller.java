@@ -1,9 +1,9 @@
 package com.coderintuition.CoderIntuition.common;
 
 import com.coderintuition.CoderIntuition.models.Argument;
-import com.coderintuition.CoderIntuition.models.Language;
+import com.coderintuition.CoderIntuition.enums.Language;
 import com.coderintuition.CoderIntuition.models.ReturnType;
-import com.coderintuition.CoderIntuition.models.UnderlyingType;
+import com.coderintuition.CoderIntuition.enums.UnderlyingType;
 import lombok.AllArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.ClassPathResource;
