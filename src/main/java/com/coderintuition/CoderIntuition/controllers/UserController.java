@@ -3,6 +3,7 @@ package com.coderintuition.CoderIntuition.controllers;
 import com.coderintuition.CoderIntuition.exceptions.BadRequestException;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
 import com.coderintuition.CoderIntuition.exceptions.ResourceNotFoundException;
+import com.coderintuition.CoderIntuition.models.ERole;
 import com.coderintuition.CoderIntuition.enums.AuthProvider;
 import com.coderintuition.CoderIntuition.models.Submission;
 import com.coderintuition.CoderIntuition.models.User;
@@ -42,8 +43,13 @@ public class UserController {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RecordNotFoundException("Username " + username + " not found"));
 
+        Boolean plusRole = user.getRoles()
+                .stream()
+                .anyMatch(role -> role.getName().equals(ERole.ROLE_PLUS));
+
         return new UserProfileResponseDto(user.getName(),
                 user.getUsername(),
+                plusRole,
                 user.getImageUrl(),
                 user.getBadges(),
                 user.getActivities(),
