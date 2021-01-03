@@ -1,16 +1,17 @@
 package com.coderintuition.CoderIntuition.common;
 
-import com.coderintuition.CoderIntuition.models.Argument;
 import com.coderintuition.CoderIntuition.enums.Language;
-import com.coderintuition.CoderIntuition.models.ReturnType;
 import com.coderintuition.CoderIntuition.enums.UnderlyingType;
+import com.coderintuition.CoderIntuition.models.Argument;
+import com.coderintuition.CoderIntuition.models.ReturnType;
 import lombok.AllArgsConstructor;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @AllArgsConstructor
@@ -92,8 +93,8 @@ public class CodeTemplateFiller {
 
     private String fileToString(String fileName) throws IOException {
         Resource resource = new ClassPathResource("templates/" + fileName);
-        File file = resource.getFile();
-        return FileUtils.readFileToString(file, "UTF-8");
+        InputStream inputStream = resource.getInputStream();
+        return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
     }
 
     public String getTestRunCode(Language language, String userCode, String solutionCode, String functionName,
