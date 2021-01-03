@@ -2,7 +2,7 @@ package com.coderintuition.CoderIntuition.enums;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public enum Category {
+public enum ProblemCategory {
     @JsonProperty("ARRAYS") ARRAYS,
     @JsonProperty("STRINGS") STRINGS,
     @JsonProperty("LINKED_LISTS") LINKED_LISTS,

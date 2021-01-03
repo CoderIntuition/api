@@ -1,6 +1,6 @@
 package com.coderintuition.CoderIntuition.models;
 
-import com.coderintuition.CoderIntuition.enums.Category;
+import com.coderintuition.CoderIntuition.enums.ProblemCategory;
 import com.coderintuition.CoderIntuition.enums.Difficulty;
 import com.coderintuition.CoderIntuition.enums.Language;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -63,7 +63,7 @@ public class Problem {
 
     @Column(name = "category")
     @Enumerated(EnumType.STRING)
-    private Category category;
+    private ProblemCategory category;
 
     @Column(name = "difficulty")
     @Enumerated(EnumType.STRING)

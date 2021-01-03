@@ -9,12 +9,7 @@ import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.pojos.request.RunRequestDto;
 import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
-import com.coderintuition.CoderIntuition.pojos.response.SubmissionResponseDto;
-import com.coderintuition.CoderIntuition.pojos.response.TestResult;
-import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
-import com.coderintuition.CoderIntuition.repositories.SubmissionRepository;
-import com.coderintuition.CoderIntuition.repositories.TestRunRepository;
-import com.coderintuition.CoderIntuition.repositories.UserRepository;
+import com.coderintuition.CoderIntuition.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,11 +36,14 @@ public class SubmissionController {
     @Autowired
     SubmissionRepository submissionRepository;
 
+    @Autowired
+    TestResultRepository testResultRepository;
+
     private final ExecutorService scheduler = Executors.newFixedThreadPool(5);
 
     @PostMapping("/submission")
     @PreAuthorize("hasRole('USER')")
-    public SubmissionResponseDto createSubmission(@RequestBody RunRequestDto submissionRequestDto) {
+    public Submission createSubmission(@RequestBody RunRequestDto submissionRequestDto) {
         // retrieve the problem
         Problem problem = problemRepository.findById(submissionRequestDto.getProblemId()).orElseThrow();
 
@@ -77,20 +75,18 @@ public class SubmissionController {
         submission.setLanguage(submissionRequestDto.getLanguage());
         submission.setProblem(problem);
         submission.setToken(result.getToken());
+        List<TestResult> testResults = new ArrayList<>();
 
-        // create the submission response dto to be sent back through the api
-        SubmissionResponseDto response = new SubmissionResponseDto();
+        // set the results of the submission
         if (result.getStatus().getId() >= 6) { // error
             submission.setStatus(SubmissionStatus.ERROR);
-            response.setStatus(SubmissionStatus.ERROR);
             String stderr = "";
             if (result.getCompileOutput() != null) {
                 stderr = result.getCompileOutput();
             } else if (result.getStderr() != null) {
                 stderr = result.getStderr();
             }
-            submission.setOutput(Utils.formatErrorMessage(submissionRequestDto.getLanguage(), stderr));
-            response.setStderr(Utils.formatErrorMessage(submissionRequestDto.getLanguage(), stderr));
+            submission.setStderr(Utils.formatErrorMessage(submissionRequestDto.getLanguage(), stderr));
 
         } else if (result.getStatus().getId() == 3) { // no errors
             // everything above the line is stdout, everything below is test results
@@ -98,8 +94,6 @@ public class SubmissionController {
             submission.setOutput(split[1]);
             // set status as passed at first and overwrite if any test failed
             submission.setStatus(SubmissionStatus.ACCEPTED);
-            response.setStatus(SubmissionStatus.ACCEPTED);
-            List<TestResult> testResults = new ArrayList<>();
 
             for (String str : split[1].split("\n")) {
                 // test results are formatted: {test num}|{status}|{expected output}|{run output}
@@ -111,6 +105,7 @@ public class SubmissionController {
                     String status = testResult[1];
                     // create the test result object to be saved into the db
                     TestResult testResultObj = new TestResult();
+                    testResultObj.setSubmission(submission);
                     testResultObj.setStatus(TestStatus.valueOf(status.toUpperCase()));
                     // retrieve the test case for this test result
                     TestCase testCase = problem.getTestCases().get(Integer.parseInt(num));
@@ -123,8 +118,9 @@ public class SubmissionController {
                         // set overall submission status to failed if the status is not already ERROR
                         if (submission.getStatus() != SubmissionStatus.ERROR) {
                             submission.setStatus(SubmissionStatus.REJECTED);
-                            response.setStatus(SubmissionStatus.REJECTED);
                         }
+                    } else {
+                        testResultObj.setOutput("");
                     }
 
                     // add the test result to the list of test results
@@ -132,16 +128,19 @@ public class SubmissionController {
 
                 } else if (testResult.length == 2) { // runtime errors
                     submission.setStatus(SubmissionStatus.ERROR);
-                    response.setStatus(SubmissionStatus.ERROR);
-                    submission.setOutput(Utils.formatErrorMessage(submissionRequestDto.getLanguage(), testResult[1]));
-                    response.setStderr(Utils.formatErrorMessage(submissionRequestDto.getLanguage(), testResult[1]));
+                    submission.setStderr(Utils.formatErrorMessage(submissionRequestDto.getLanguage(), testResult[1]));
                 }
             }
-            response.setTestResults(testResults);
+            submission.setTestResults(testResults);
         }
 
         // save the submission into the db
         submissionRepository.save(submission);
+
+        // save the test results
+        for (TestResult testResult : testResults) {
+            testResultRepository.save(testResult);
+        }
 
         // save the submission to the user
         User user = userRepository.findById(submissionRequestDto.getUserId()).orElseThrow();
@@ -150,6 +149,6 @@ public class SubmissionController {
         user.setSubmissions(userSubmissions);
         userRepository.save(user);
 
-        return response;
+        return submission;
     }
 }
