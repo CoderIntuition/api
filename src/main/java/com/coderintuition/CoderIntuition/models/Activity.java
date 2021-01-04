@@ -1,6 +1,7 @@
 package com.coderintuition.CoderIntuition.models;
 
 import com.coderintuition.CoderIntuition.enums.ActivityType;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
@@ -32,6 +34,12 @@ public class Activity {
     @ManyToOne
     @JoinColumn(name = "badge_id")
     private Badge badge;
+
+    @JsonIgnoreProperties("activities")
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @NotNull
+    private User user;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

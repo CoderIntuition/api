@@ -59,6 +59,12 @@ public class Submission {
     @NotEmpty
     private List<TestResult> testResults;
 
+    @JsonIgnoreProperties("submissions")
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @NotNull
+    private User user;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", updatable = false)
