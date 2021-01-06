@@ -10,6 +10,7 @@ import com.coderintuition.CoderIntuition.models.User;
 import com.coderintuition.CoderIntuition.pojos.request.ChangePasswordRequest;
 import com.coderintuition.CoderIntuition.pojos.request.UserGeneralSettingsRequest;
 import com.coderintuition.CoderIntuition.pojos.response.UserProfileResponseDto;
+import com.coderintuition.CoderIntuition.repositories.SubmissionRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
@@ -27,6 +28,9 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private SubmissionRepository submissionRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -101,6 +105,14 @@ public class UserController {
         return user.getSubmissions().stream()
                 .filter((x) -> x.getProblem().getId().equals(problemId))
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/user/{username}/completedProblems")
+    int getStatsSubmission(@PathVariable String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RecordNotFoundException("Username " + username + " not found"));
+
+        return submissionRepository.findNumOfCompletedProblemsByUser(user);
     }
 
 }
