@@ -8,6 +8,7 @@ import com.coderintuition.CoderIntuition.enums.TestStatus;
 import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.pojos.request.RunRequestDto;
+import com.coderintuition.CoderIntuition.pojos.response.JZSubmissionResponseDto;
 import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
 import com.coderintuition.CoderIntuition.pojos.response.TokenResponse;
 import com.coderintuition.CoderIntuition.repositories.*;
@@ -15,14 +16,19 @@ import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @Controller
@@ -57,9 +63,19 @@ public class SubmissionController {
     }
 
     @PutMapping("/submission/judge0callback")
-    public void submissionCallback(@RequestBody JzSubmissionCheckResponseDto result) throws JsonProcessingException {
+    public void submissionCallback(@RequestBody JzSubmissionCheckResponseDto data) throws IOException {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://judge0-ce.p.rapidapi.com/submissions/" + data.getToken())
+                .addHeader("x-rapidapi-host", "judge0-ce.p.rapidapi.com")
+                .addHeader("x-rapidapi-key", "570c3ea12amsh7d718c55ca5d164p153fd5jsnfca4d3b2f9f9")
+                .get()
+                .build();
+
+        Response response = client.newCall(request).execute();
         ObjectMapper mapper = new ObjectMapper();
-        System.out.println(mapper.writeValueAsString(result));
+        JzSubmissionCheckResponseDto result = mapper.readValue(Objects.requireNonNull(response.body()).string(),
+                JzSubmissionCheckResponseDto.class);
 
         // update the submission in the db
         Submission submission = submissionRepository.findByToken(result.getToken());
