@@ -13,6 +13,8 @@ import com.coderintuition.CoderIntuition.pojos.response.TokenResponse;
 import com.coderintuition.CoderIntuition.repositories.*;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -55,7 +57,10 @@ public class SubmissionController {
     }
 
     @PutMapping("/submission/judge0callback")
-    public void submissionCallback(@RequestBody JzSubmissionCheckResponseDto result) {
+    public void submissionCallback(@RequestBody JzSubmissionCheckResponseDto result) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        System.out.println(mapper.writeValueAsString(result));
+
         // update the submission in the db
         Submission submission = submissionRepository.findByToken(result.getToken());
         List<TestResult> testResults = new ArrayList<>();
