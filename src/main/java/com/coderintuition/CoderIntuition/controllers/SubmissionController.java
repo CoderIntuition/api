@@ -9,16 +9,15 @@ import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.pojos.request.RunRequestDto;
 import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
+import com.coderintuition.CoderIntuition.pojos.response.TokenResponse;
 import com.coderintuition.CoderIntuition.repositories.*;
+import com.coderintuition.CoderIntuition.security.CurrentUser;
+import com.coderintuition.CoderIntuition.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,15 +44,89 @@ public class SubmissionController {
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
 
+    @GetMapping("/submission/{token}")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public Submission getSubmission(@CurrentUser UserPrincipal userPrincipal, @PathVariable String token) throws Exception {
+        Submission submission = submissionRepository.findByToken(token);
+        if (!submission.getUser().getId().equals(userPrincipal.getId())) {
+            throw new Exception("Unauthorized");
+        }
+        return submission;
+    }
+
     @PutMapping("/submission/judge0callback")
-    public void submissionCallback(@RequestBody JzSubmissionCheckResponseDto jzSubmissionCheckResponseDto) {
-        User user = submissionRepository.findByToken(jzSubmissionCheckResponseDto.getToken()).get;
-        this.simpMessagingTemplate.convertAndSendToUser("", ""/topic/submissions", jzSubmissionCheckResponseDto.getToken());
+    public void submissionCallback(@RequestBody JzSubmissionCheckResponseDto result) {
+        // update the submission in the db
+        Submission submission = submissionRepository.findByToken(result.getToken());
+        List<TestResult> testResults = new ArrayList<>();
+
+        // set the results of the submission
+        if (result.getStatus().getId() >= 6) { // error
+            submission.setStatus(SubmissionStatus.ERROR);
+            String stderr = "";
+            if (result.getCompileOutput() != null) {
+                stderr = result.getCompileOutput();
+            } else if (result.getStderr() != null) {
+                stderr = result.getStderr();
+            }
+            submission.setStderr(Utils.formatErrorMessage(submission.getLanguage(), stderr));
+
+        } else if (result.getStatus().getId() == 3) { // no errors
+            // everything above the line is stdout, everything below is test results
+            String[] split = result.getStdout().trim().split(Constants.IO_SEPARATOR);
+            submission.setOutput(split[1]);
+            // set status as passed at first and overwrite if any test failed
+            submission.setStatus(SubmissionStatus.ACCEPTED);
+
+            for (String str : split[1].split("\n")) {
+                // test results are formatted: {test num}|{status}|{expected output}|{run output}
+                // runtime error results are formatted: {test num}|{status}|{error message}
+                String[] testResult = str.split("\\|");
+
+                if (testResult.length == 4) { // no errors
+                    String num = testResult[0];
+                    String status = testResult[1];
+                    // create the test result object to be saved into the db
+                    TestResult testResultObj = new TestResult();
+                    testResultObj.setSubmission(submission);
+                    testResultObj.setStatus(TestStatus.valueOf(status.toUpperCase()));
+                    // retrieve the test case for this test result
+                    TestCase testCase = submission.getProblem().getTestCases().get(Integer.parseInt(num));
+                    testResultObj.setInput(testCase.getInput());
+                    testResultObj.setExpectedOutput(testResult[2]);
+
+                    // test case failed
+                    if (status.equals(TestStatus.FAILED.toString())) {
+                        testResultObj.setOutput(testResult[3]);
+                        // set overall submission status to failed if the status is not already ERROR
+                        if (submission.getStatus() != SubmissionStatus.ERROR) {
+                            submission.setStatus(SubmissionStatus.REJECTED);
+                        }
+                    } else {
+                        testResultObj.setOutput("");
+                    }
+
+                    // add the test result to the list of test results
+                    testResults.add(testResultObj);
+
+                } else if (testResult.length == 2) { // runtime errors
+                    submission.setStatus(SubmissionStatus.ERROR);
+                    submission.setStderr(Utils.formatErrorMessage(submission.getLanguage(), testResult[1]));
+                }
+            }
+            submission.setTestResults(testResults);
+        }
+
+        // save the submission into the db
+        submissionRepository.save(submission);
+
+        // send message to frontend
+        this.simpMessagingTemplate.convertAndSend("/topic/submission", result.getToken());
     }
 
     @PostMapping("/submission")
-    @PreAuthorize("hasRole('USER')")
-    public Submission createSubmission(@RequestBody RunRequestDto submissionRequestDto) throws Exception {
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public TokenResponse createSubmission(@CurrentUser UserPrincipal userPrincipal, @RequestBody RunRequestDto submissionRequestDto) throws Exception {
         // retrieve the problem
         Problem problem = problemRepository.findById(submissionRequestDto.getProblemId()).orElseThrow();
 
@@ -77,90 +150,19 @@ public class SubmissionController {
         requestDto.setSourceCode(code);
         requestDto.setLanguageId(Utils.getLanguageId(submissionRequestDto.getLanguage()));
         requestDto.setStdin(stdin.toString());
-        if (!Utils.callJudgeZero(requestDto)) {
-            throw new Exception("Error while sending code for judging");
-        }
+        requestDto.setCallbackUrl("https://api.coderintuition.com/submission/judge0callback");
+        // send request to JudgeZero
+        String token = Utils.callJudgeZero(requestDto);
 
-        // create the submission to be saved into the db
+        // save submission to db
         Submission submission = new Submission();
+        submission.setUser(userRepository.findById(userPrincipal.getId()).orElseThrow());
         submission.setCode(submissionRequestDto.getCode());
         submission.setLanguage(submissionRequestDto.getLanguage());
         submission.setProblem(problem);
-        submission.setToken(result.getToken());
-        List<TestResult> testResults = new ArrayList<>();
-
-        // set the results of the submission
-        if (result.getStatus().getId() >= 6) { // error
-            submission.setStatus(SubmissionStatus.ERROR);
-            String stderr = "";
-            if (result.getCompileOutput() != null) {
-                stderr = result.getCompileOutput();
-            } else if (result.getStderr() != null) {
-                stderr = result.getStderr();
-            }
-            submission.setStderr(Utils.formatErrorMessage(submissionRequestDto.getLanguage(), stderr));
-
-        } else if (result.getStatus().getId() == 3) { // no errors
-            // everything above the line is stdout, everything below is test results
-            String[] split = result.getStdout().trim().split(Constants.IO_SEPARATOR);
-            submission.setOutput(split[1]);
-            // set status as passed at first and overwrite if any test failed
-            submission.setStatus(SubmissionStatus.ACCEPTED);
-
-            for (String str : split[1].split("\n")) {
-                // test results are formatted: {test num}|{status}|{expected output}|{run output}
-                // runtime error results are formatted: {test num}|{status}|{error message}
-                String[] testResult = str.split("\\|");
-
-                if (testResult.length == 4) { // no errors
-                    String num = testResult[0];
-                    String status = testResult[1];
-                    // create the test result object to be saved into the db
-                    TestResult testResultObj = new TestResult();
-                    testResultObj.setSubmission(submission);
-                    testResultObj.setStatus(TestStatus.valueOf(status.toUpperCase()));
-                    // retrieve the test case for this test result
-                    TestCase testCase = problem.getTestCases().get(Integer.parseInt(num));
-                    testResultObj.setInput(testCase.getInput());
-                    testResultObj.setExpectedOutput(testResult[2]);
-
-                    // test case failed
-                    if (status.equals(TestStatus.FAILED.toString())) {
-                        testResultObj.setOutput(testResult[3]);
-                        // set overall submission status to failed if the status is not already ERROR
-                        if (submission.getStatus() != SubmissionStatus.ERROR) {
-                            submission.setStatus(SubmissionStatus.REJECTED);
-                        }
-                    } else {
-                        testResultObj.setOutput("");
-                    }
-
-                    // add the test result to the list of test results
-                    testResults.add(testResultObj);
-
-                } else if (testResult.length == 2) { // runtime errors
-                    submission.setStatus(SubmissionStatus.ERROR);
-                    submission.setStderr(Utils.formatErrorMessage(submissionRequestDto.getLanguage(), testResult[1]));
-                }
-            }
-            submission.setTestResults(testResults);
-        }
-
-        // save the submission into the db
+        submission.setToken(token);
         submissionRepository.save(submission);
-//
-//        // save the test results
-//        for (TestResult testResult : testResults) {
-//            testResultRepository.save(testResult);
-//        }
 
-        // save the submission to the user
-        User user = userRepository.findById(submissionRequestDto.getUserId()).orElseThrow();
-        List<Submission> userSubmissions = user.getSubmissions();
-        userSubmissions.add(submission);
-        user.setSubmissions(userSubmissions);
-        userRepository.save(user);
-
-        return submission;
+        return new TokenResponse(token);
     }
 }

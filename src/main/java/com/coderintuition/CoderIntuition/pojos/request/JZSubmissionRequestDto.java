@@ -18,5 +18,5 @@ public class JZSubmissionRequestDto {
     private String stdin;
 
     @JsonProperty("callback_url")
-    private String callbackUrl = "https://api.coderintuition.com/submission/judge0callback";
+    private String callbackUrl;
 }

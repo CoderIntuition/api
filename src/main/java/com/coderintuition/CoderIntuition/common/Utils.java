@@ -3,13 +3,11 @@ package com.coderintuition.CoderIntuition.common;
 import com.coderintuition.CoderIntuition.enums.Language;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.pojos.response.JZSubmissionResponseDto;
-import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.sargue.mailgun.Configuration;
 import net.sargue.mailgun.Mail;
 import net.sargue.mailgun.Response;
 import okhttp3.*;
-import okio.Buffer;
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -67,7 +65,7 @@ public class Utils {
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    public static boolean callJudgeZero(JZSubmissionRequestDto requestDto) throws IOException {
+    public static String callJudgeZero(JZSubmissionRequestDto requestDto) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
 
         OkHttpClient client = new OkHttpClient();
@@ -83,8 +81,10 @@ public class Utils {
 
         Call call = client.newCall(request);
         okhttp3.Response response = call.execute();
+        JZSubmissionResponseDto responseDto = mapper.readValue(Objects.requireNonNull(response.body()).string(),
+                JZSubmissionResponseDto.class);
 
-        return response.isSuccessful();
+        return responseDto.getToken();
     }
 
     public static String generateUsername() {

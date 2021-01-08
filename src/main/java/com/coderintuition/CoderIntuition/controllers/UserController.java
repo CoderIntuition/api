@@ -36,7 +36,7 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     @GetMapping("/user/me")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public User getCurrentUser(@CurrentUser UserPrincipal userPrincipal) {
         return userRepository.findById(userPrincipal.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
@@ -66,7 +66,7 @@ public class UserController {
     }
 
     @PostMapping("/user/me")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public void saveUserGeneralInfo(@CurrentUser UserPrincipal userPrincipal,
                                     @RequestBody UserGeneralSettingsRequest settingsRequest) {
         User userResult = userRepository.findById(userPrincipal.getId())
@@ -80,7 +80,7 @@ public class UserController {
     }
 
     @PostMapping("/user/me/changepassword")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public void changePassword(@CurrentUser UserPrincipal userPrincipal,
                                @RequestBody ChangePasswordRequest changePasswordRequest) {
         User user = userRepository.findById(userPrincipal.getId())
@@ -98,7 +98,7 @@ public class UserController {
     }
 
     @GetMapping("/user/me/submissions/{problemId}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public List<Submission> getSubmissions(@CurrentUser UserPrincipal userPrincipal,
                                            @PathVariable Long problemId) {
         User user = userRepository.findById(userPrincipal.getId()).orElseThrow();

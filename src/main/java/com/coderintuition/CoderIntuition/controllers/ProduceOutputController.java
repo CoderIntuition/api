@@ -3,30 +3,89 @@ package com.coderintuition.CoderIntuition.controllers;
 import com.coderintuition.CoderIntuition.common.CodeTemplateFiller;
 import com.coderintuition.CoderIntuition.common.Constants;
 import com.coderintuition.CoderIntuition.common.Utils;
+import com.coderintuition.CoderIntuition.enums.Language;
+import com.coderintuition.CoderIntuition.enums.ProduceOutputStatus;
 import com.coderintuition.CoderIntuition.models.Problem;
+import com.coderintuition.CoderIntuition.models.ProduceOutput;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.pojos.request.ProduceOutputDto;
 import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
-import com.coderintuition.CoderIntuition.pojos.response.ProduceOutputResponse;
-import com.coderintuition.CoderIntuition.enums.Language;
+import com.coderintuition.CoderIntuition.pojos.response.TokenResponse;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
+import com.coderintuition.CoderIntuition.repositories.ProduceOutputRepository;
+import com.coderintuition.CoderIntuition.security.CurrentUser;
+import com.coderintuition.CoderIntuition.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class ProduceOutputController {
     @Autowired
     ProblemRepository problemRepository;
 
+    @Autowired
+    ProduceOutputRepository produceOutputRepository;
+
+    @Autowired
+    SimpMessagingTemplate simpMessagingTemplate;
+
+    @GetMapping("/produceoutput/{token}")
+    @PreAuthorize("hasRole('ROLE_MODERATOR')")
+    public ProduceOutput getProduceOutput(@CurrentUser UserPrincipal userPrincipal, @PathVariable String token) throws Exception {
+        ProduceOutput produceOutput = produceOutputRepository.findByToken(token);
+        if (!produceOutput.getUser().getId().equals(userPrincipal.getId())) {
+            throw new Exception("Unauthorized");
+        }
+        return produceOutput;
+    }
+
+    @PutMapping("/produceoutput/judge0callback")
+    public void submissionCallback(@RequestBody JzSubmissionCheckResponseDto result) {
+        // update the produce output in the db
+        ProduceOutput produceOutput = produceOutputRepository.findByToken(result.getToken());
+
+        // set the results
+        if (result.getStatus().getId() >= 6) { // error
+            produceOutput.setStatus(ProduceOutputStatus.ERROR);
+            String stderr = "";
+            if (result.getCompileOutput() != null) {
+                stderr = result.getCompileOutput();
+            } else if (result.getStderr() != null) {
+                stderr = result.getStderr();
+            }
+            produceOutput.setStderr(Utils.formatErrorMessage(produceOutput.getLanguage(), stderr));
+            produceOutput.setStdout("");
+
+        } else if (result.getStatus().getId() == 3) { // no compile errors
+            // everything above the line is stdout, everything below is test results
+            String[] split = result.getStdout().trim().split(Constants.IO_SEPARATOR);
+            String[] testResult = split[1].split("\\|");
+
+            if (testResult[0].equals("SUCCESS")) { // no errors
+                // test results are formatted: {status}|{run output}
+                produceOutput.setStatus(ProduceOutputStatus.SUCCESS);
+                produceOutput.setOutput(testResult[1]);
+                produceOutput.setStdout(split[0]);
+                produceOutput.setStderr("");
+
+            } else if (testResult[0].equals("ERROR")) { // runtime errors
+                // runtime error results are formatted: {status}|{error message}
+                produceOutput.setStatus(ProduceOutputStatus.ERROR);
+                produceOutput.setOutput("");
+                produceOutput.setStderr(Utils.formatErrorMessage(produceOutput.getLanguage(), testResult[1]));
+                produceOutput.setStdout("");
+            }
+        }
+
+        // send message to frontend
+        this.simpMessagingTemplate.convertAndSend("/topic/produceoutput", result.getToken());
+    }
+
     @PostMapping("/produceoutput")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ProduceOutputResponse produceOutput(@RequestBody ProduceOutputDto produceOutputDto) throws Exception {
+    public TokenResponse produceOutput(@RequestBody ProduceOutputDto produceOutputDto) throws Exception {
         // retrieve the problem
         Problem problem = problemRepository.findById(produceOutputDto.getProblemId()).orElseThrow();
 
@@ -41,45 +100,19 @@ public class ProduceOutputController {
         requestDto.setSourceCode(code);
         requestDto.setLanguageId(Utils.getLanguageId(Language.PYTHON));
         requestDto.setStdin(produceOutputDto.getInput());
+        requestDto.setCallbackUrl("https://api.coderintuition.com/produceoutput/judge0callback");
         // send request to JudgeZero
-        if (!Utils.callJudgeZero(requestDto)) {
-            throw new Exception("Error while sending code for judging");
-        }
+        String token = Utils.callJudgeZero(requestDto);
 
-        // set the results
-        ProduceOutputResponse response = new ProduceOutputResponse();
-        if (result.getStatus().getId() >= 6) { // error
-            response.setStatus("ERROR");
-            String stderr = "";
-            if (result.getCompileOutput() != null) {
-                stderr = result.getCompileOutput();
-            } else if (result.getStderr() != null) {
-                stderr = result.getStderr();
-            }
-            response.setStderr(Utils.formatErrorMessage(produceOutputDto.getLanguage(), stderr));
-            response.setStdout("");
+        // save submission to db
+        ProduceOutput produceOutput = new ProduceOutput();
+        produceOutput.setCode(produceOutputDto.getCode());
+        produceOutput.setInput(produceOutputDto.getInput());
+        produceOutput.setLanguage(produceOutputDto.getLanguage());
+        produceOutput.setProblem(problem);
+        produceOutput.setToken(token);
+        produceOutputRepository.save(produceOutput);
 
-        } else if (result.getStatus().getId() == 3) { // no compile errors
-            // everything above the line is stdout, everything below is test results
-            String[] split = result.getStdout().trim().split(Constants.IO_SEPARATOR);
-            String[] testResult = split[1].split("\\|");
-
-            if (testResult[0].equals("SUCCESS")) { // no errors
-                // test results are formatted: {status}|{run output}
-                response.setStatus("SUCCESS");
-                response.setOutput(testResult[1]);
-                response.setStdout(split[0]);
-                response.setStderr("");
-
-            } else if (testResult[0].equals("ERROR")) { // runtime errors
-                // runtime error results are formatted: {status}|{error message}
-                response.setStatus("ERROR");
-                response.setOutput("");
-                response.setStderr(Utils.formatErrorMessage(produceOutputDto.getLanguage(), testResult[1]));
-                response.setStdout("");
-            }
-        }
-
-        return response;
+        return new TokenResponse(token);
     }
 }
