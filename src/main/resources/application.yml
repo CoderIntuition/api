@@ -2,7 +2,7 @@ server:
   forward-headers-strategy: framework
 logging:
   level:
-    root: INFO
+    root: DEBUG
 spring:
   datasource:
     url: ${CODERINTUITION_DATASOURCE_URL}
