@@ -13,17 +13,12 @@ import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckRespons
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.TestRunRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Objects;
 
 @RestController
 public class TestRunController {
@@ -63,7 +58,6 @@ public class TestRunController {
             // everything above the line is stdout, everything below is test results
             String[] split = result.getStdout().trim().split(Constants.IO_SEPARATOR);
             String[] testResult = split[1].split("\\|");
-
             if (testResult.length == 3) { // no errors
                 // test results are formatted: {status}|{expected output}|{run output}
                 testRun.setStatus(TestStatus.valueOf(testResult[0]));
@@ -119,6 +113,7 @@ public class TestRunController {
         testRun.setLanguage(runRequestDto.getLanguage());
         testRun.setCode(runRequestDto.getCode());
         testRun.setInput(runRequestDto.getInput());
+        testRunRepository.save(testRun);
 
         return testRun;
     }

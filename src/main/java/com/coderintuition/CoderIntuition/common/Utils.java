@@ -89,7 +89,7 @@ public class Utils {
     }
 
     public static JzSubmissionCheckResponseDto retrieveFromJudgeZero(String token) throws IOException {
-        // get test run unfo
+        // get test run info
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url("https://judge0-ce.p.rapidapi.com/submissions/" + token)
@@ -100,6 +100,8 @@ public class Utils {
 
         okhttp3.Response response = client.newCall(request).execute();
         ObjectMapper mapper = new ObjectMapper();
+        System.out.println("--------");
+        System.out.println(Objects.requireNonNull(response.body()).string());
         return mapper.readValue(Objects.requireNonNull(response.body()).string(), JzSubmissionCheckResponseDto.class);
     }
 
