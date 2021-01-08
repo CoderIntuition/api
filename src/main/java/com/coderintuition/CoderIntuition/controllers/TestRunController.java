@@ -12,14 +12,18 @@ import com.coderintuition.CoderIntuition.pojos.request.RunRequestDto;
 import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.TestRunRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Objects;
 
 @RestController
 public class TestRunController {
@@ -34,7 +38,10 @@ public class TestRunController {
     SimpMessagingTemplate simpMessagingTemplate;
 
     @PutMapping("/testrun/judge0callback")
-    public void submissionCallback(@RequestBody JzSubmissionCheckResponseDto result) throws JsonProcessingException {
+    public void testRunCallback(@RequestBody JzSubmissionCheckResponseDto data) throws Exception {
+        // get test run info
+        JzSubmissionCheckResponseDto result = Utils.retrieveFromJudgeZero(data.getToken());
+
         // update the test run in the db
         TestRun testRun = testRunRepository.findByToken(result.getToken());
 
@@ -103,7 +110,7 @@ public class TestRunController {
         requestDto.setStdin(runRequestDto.getInput());
         requestDto.setCallbackUrl("https://api.coderintuition.com/testrun/judge0callback");
         // send request to JudgeZero
-        String token = Utils.callJudgeZero(requestDto);
+        String token = Utils.submitToJudgeZero(requestDto);
 
         // create the test run to be saved into the db
         TestRun testRun = new TestRun();

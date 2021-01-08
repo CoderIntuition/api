@@ -8,13 +8,11 @@ import com.coderintuition.CoderIntuition.enums.TestStatus;
 import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.pojos.request.RunRequestDto;
-import com.coderintuition.CoderIntuition.pojos.response.JZSubmissionResponseDto;
 import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
 import com.coderintuition.CoderIntuition.pojos.response.TokenResponse;
 import com.coderintuition.CoderIntuition.repositories.*;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -64,18 +62,8 @@ public class SubmissionController {
 
     @PutMapping("/submission/judge0callback")
     public void submissionCallback(@RequestBody JzSubmissionCheckResponseDto data) throws IOException {
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url("https://judge0-ce.p.rapidapi.com/submissions/" + data.getToken())
-                .addHeader("x-rapidapi-host", "judge0-ce.p.rapidapi.com")
-                .addHeader("x-rapidapi-key", "570c3ea12amsh7d718c55ca5d164p153fd5jsnfca4d3b2f9f9")
-                .get()
-                .build();
-
-        Response response = client.newCall(request).execute();
-        ObjectMapper mapper = new ObjectMapper();
-        JzSubmissionCheckResponseDto result = mapper.readValue(Objects.requireNonNull(response.body()).string(),
-                JzSubmissionCheckResponseDto.class);
+        // get submission info
+        JzSubmissionCheckResponseDto result = Utils.retrieveFromJudgeZero(data.getToken());
 
         // update the submission in the db
         Submission submission = submissionRepository.findByToken(result.getToken());
@@ -173,7 +161,7 @@ public class SubmissionController {
         requestDto.setStdin(stdin.toString());
         requestDto.setCallbackUrl("https://api.coderintuition.com/submission/judge0callback");
         // send request to JudgeZero
-        String token = Utils.callJudgeZero(requestDto);
+        String token = Utils.submitToJudgeZero(requestDto);
 
         // save submission to db
         Submission submission = new Submission();

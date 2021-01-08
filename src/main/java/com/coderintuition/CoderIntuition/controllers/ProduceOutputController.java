@@ -15,10 +15,17 @@ import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.ProduceOutputRepository;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.util.Objects;
 
 @RestController
 public class ProduceOutputController {
@@ -42,7 +49,10 @@ public class ProduceOutputController {
     }
 
     @PutMapping("/produceoutput/judge0callback")
-    public void submissionCallback(@RequestBody JzSubmissionCheckResponseDto result) {
+    public void submissionCallback(@RequestBody JzSubmissionCheckResponseDto data) throws IOException {
+        // get produce output info
+        JzSubmissionCheckResponseDto result = Utils.retrieveFromJudgeZero(data.getToken());
+
         // update the produce output in the db
         ProduceOutput produceOutput = produceOutputRepository.findByToken(result.getToken());
 
@@ -102,7 +112,7 @@ public class ProduceOutputController {
         requestDto.setStdin(produceOutputDto.getInput());
         requestDto.setCallbackUrl("https://api.coderintuition.com/produceoutput/judge0callback");
         // send request to JudgeZero
-        String token = Utils.callJudgeZero(requestDto);
+        String token = Utils.submitToJudgeZero(requestDto);
 
         // save submission to db
         ProduceOutput produceOutput = new ProduceOutput();

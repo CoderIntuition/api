@@ -3,6 +3,7 @@ package com.coderintuition.CoderIntuition.common;
 import com.coderintuition.CoderIntuition.enums.Language;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.pojos.response.JZSubmissionResponseDto;
+import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.sargue.mailgun.Configuration;
 import net.sargue.mailgun.Mail;
@@ -65,7 +66,7 @@ public class Utils {
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    public static String callJudgeZero(JZSubmissionRequestDto requestDto) throws IOException {
+    public static String submitToJudgeZero(JZSubmissionRequestDto requestDto) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
 
         OkHttpClient client = new OkHttpClient();
@@ -85,6 +86,21 @@ public class Utils {
                 JZSubmissionResponseDto.class);
 
         return responseDto.getToken();
+    }
+
+    public static JzSubmissionCheckResponseDto retrieveFromJudgeZero(String token) throws IOException {
+        // get test run unfo
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://judge0-ce.p.rapidapi.com/submissions/" + token)
+                .addHeader("x-rapidapi-host", "judge0-ce.p.rapidapi.com")
+                .addHeader("x-rapidapi-key", "570c3ea12amsh7d718c55ca5d164p153fd5jsnfca4d3b2f9f9")
+                .get()
+                .build();
+
+        okhttp3.Response response = client.newCall(request).execute();
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(Objects.requireNonNull(response.body()).string(), JzSubmissionCheckResponseDto.class);
     }
 
     public static String generateUsername() {
