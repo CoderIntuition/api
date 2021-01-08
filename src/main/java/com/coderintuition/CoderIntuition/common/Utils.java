@@ -1,17 +1,22 @@
 package com.coderintuition.CoderIntuition.common;
 
+import com.coderintuition.CoderIntuition.enums.Language;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.pojos.response.JZSubmissionResponseDto;
-import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
-import com.coderintuition.CoderIntuition.enums.Language;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.sargue.mailgun.Configuration;
+import net.sargue.mailgun.Mail;
+import net.sargue.mailgun.Response;
+import okhttp3.*;
+import org.apache.commons.io.IOUtils;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Random;
-import java.util.concurrent.*;
 
 public class Utils {
     public static int getLanguageId(Language language) {
@@ -47,15 +52,6 @@ public class Utils {
         }
     }
 
-    public static String formatParam(String param, Language language) {
-        if (language == Language.JAVA) {
-
-        } else if (language == Language.PYTHON) {
-
-        }
-        return param;
-    }
-
     public static String formatErrorMessage(Language language, String err) {
         switch (language) {
             case PYTHON:
@@ -67,61 +63,28 @@ public class Utils {
         }
     }
 
-    public static JzSubmissionCheckResponseDto callJudgeZero(JZSubmissionRequestDto requestDto, ExecutorService scheduler) {
-        Map<String, String> header = new HashMap<>();
-        header.put("content-type", "application/json");
-        header.put("x-rapidapi-host", "judge0.p.rapidapi.com");
-        header.put("x-rapidapi-key", "570c3ea12amsh7d718c55ca5d164p153fd5jsnfca4d3b2f9f9");
+    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-        Mono<JZSubmissionResponseDto> response = WebClient
-                .create("https://judge0.p.rapidapi.com")
-                .post()
-                .uri("/submissions")
-                .headers(httpHeaders -> httpHeaders.setAll(header))
-                .body(Mono.just(requestDto), JZSubmissionRequestDto.class)
-                .retrieve()
-                .bodyToMono(JZSubmissionResponseDto.class);
-        String token = Objects.requireNonNull(response.block()).getToken();
+    public static String callJudgeZero(JZSubmissionRequestDto requestDto) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
 
-        final JzSubmissionCheckResponseDto[] responseData = new JzSubmissionCheckResponseDto[1];
-        Future<?> future = scheduler.submit(() -> {
-            try {
-                while (true) {
-                    Thread.sleep(TimeUnit.SECONDS.toMillis(1));
-                    Map<String, String> header1 = new HashMap<>();
-                    header1.put("x-rapidapi-host", "judge0.p.rapidapi.com");
-                    header1.put("x-rapidapi-key", "570c3ea12amsh7d718c55ca5d164p153fd5jsnfca4d3b2f9f9");
+        OkHttpClient client = new OkHttpClient();
+        RequestBody body = RequestBody.create(mapper.writeValueAsString(requestDto), JSON);
 
-                    Mono<JzSubmissionCheckResponseDto> response1 = WebClient
-                            .create("https://judge0.p.rapidapi.com")
-                            .get()
-                            .uri("/submissions/{token}", token)
-                            .headers(httpHeaders -> httpHeaders.setAll(header1))
-                            .retrieve()
-                            .bodyToMono(JzSubmissionCheckResponseDto.class);
+        Request request = new Request.Builder()
+                .url("https://judge0-ce.p.rapidapi.com/submissions")
+                .addHeader("content-type", "application/json")
+                .addHeader("x-rapidapi-host", "judge0-ce.p.rapidapi.com")
+                .addHeader("x-rapidapi-key", "570c3ea12amsh7d718c55ca5d164p153fd5jsnfca4d3b2f9f9")
+                .post(body)
+                .build();
 
-                    responseData[0] = Objects.requireNonNull(response1.block());
-                    int statusId = responseData[0].getStatus().getId();
-                    if (statusId >= 3) {
-                        break;
-                    }
-                }
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
-            }
-        });
+        Call call = client.newCall(request);
+        okhttp3.Response response = call.execute();
+        JZSubmissionResponseDto responseDto = mapper.readValue(Objects.requireNonNull(response.body()).string(),
+                JZSubmissionResponseDto.class);
 
-        try {
-            try {
-                future.get(20, TimeUnit.SECONDS);
-            } catch (TimeoutException ex) {
-                ex.printStackTrace();
-            }
-        } catch (InterruptedException | ExecutionException ex) {
-            ex.printStackTrace();
-        }
-
-        return responseData[0];
+        return responseDto.getToken();
     }
 
     public static String generateUsername() {
@@ -133,5 +96,33 @@ public class Utils {
             res.append(aToZ.charAt(randIndex));
         }
         return res.toString();
+    }
+
+    public static String fileToString(String fileName) {
+        try {
+            Resource resource = new ClassPathResource(fileName);
+            InputStream inputStream = resource.getInputStream();
+            return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return "Error";
+        }
+    }
+
+    public static void sendEmail(String key, String to, String subject, String html) {
+        Configuration configuration = new Configuration()
+                .domain("coderintuition.com")
+                .apiKey(key)
+                .from("CoderIntuition", "support@coderintuition.com");
+        Response response = Mail.using(configuration)
+                .to(to)
+                .subject(subject)
+                .html(html)
+                .build()
+                .send();
+
+        if (!response.isOk()) {
+            System.out.println("Error sending email to " + to);
+        }
     }
 }

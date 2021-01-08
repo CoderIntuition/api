@@ -49,3 +49,5 @@ app:
     authorizedRedirectUris:
       - https://coderintuition.com/oauth2/redirect
       - http://localhost:3000/oauth2/redirect
+  mailgun:
+    key: ${CODERINTUITION_MAILGUN_KEY}

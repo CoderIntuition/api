@@ -1,19 +1,20 @@
 package com.coderintuition.CoderIntuition.controllers;
 
+import com.coderintuition.CoderIntuition.common.Utils;
+import com.coderintuition.CoderIntuition.config.AppProperties;
+import com.coderintuition.CoderIntuition.enums.AuthProvider;
+import com.coderintuition.CoderIntuition.enums.ERole;
+import com.coderintuition.CoderIntuition.models.Role;
+import com.coderintuition.CoderIntuition.models.User;
 import com.coderintuition.CoderIntuition.pojos.request.LoginRequest;
 import com.coderintuition.CoderIntuition.pojos.request.RenewRequest;
 import com.coderintuition.CoderIntuition.pojos.request.SignupRequest;
 import com.coderintuition.CoderIntuition.pojos.request.ValidateRequest;
 import com.coderintuition.CoderIntuition.pojos.response.AuthResponse;
 import com.coderintuition.CoderIntuition.pojos.response.MessageResponse;
-import com.coderintuition.CoderIntuition.enums.AuthProvider;
-import com.coderintuition.CoderIntuition.enums.ERole;
-import com.coderintuition.CoderIntuition.models.Role;
-import com.coderintuition.CoderIntuition.models.User;
 import com.coderintuition.CoderIntuition.repositories.RoleRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
 import com.coderintuition.CoderIntuition.security.TokenProvider;
-import com.coderintuition.CoderIntuition.common.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,7 @@ import javax.validation.Valid;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -37,6 +39,9 @@ import java.util.Set;
 public class AuthController {
     @Autowired
     AuthenticationManager authenticationManager;
+
+    @Autowired
+    AppProperties appProperties;
 
     @Autowired
     UserRepository userRepository;
@@ -78,7 +83,7 @@ public class AuthController {
         Role userRole = roleRepository.findByName(ERole.ROLE_USER).orElseThrow();
         Set<Role> roles = new HashSet<>();
         roles.add(userRole);
-        User user = new User(signUpRequest.getName(), signUpRequest.getEmail(),
+        User user = new User(UUID.randomUUID().toString(), signUpRequest.getName(), signUpRequest.getEmail(),
                 passwordEncoder.encode(signUpRequest.getPassword()), false,
                 Utils.generateUsername(), AuthProvider.LOCAL, roles);
         userRepository.save(user);
@@ -88,6 +93,22 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         // token and expiration time
         Pair<String, Long> tokenPair = tokenProvider.createToken(authentication);
+
+        // send welcome email
+        String welcomeEmail = Utils.fileToString("email/welcome.html")
+                .replaceAll("\\{\\{name}}", user.getName());
+        Utils.sendEmail(appProperties.getMailgun().getKey(), user.getEmail(),
+                "Welcome to CoderIntuition!",
+                welcomeEmail);
+
+        // send verify email
+        String verifyEmail = Utils.fileToString("email/verify.html")
+                .replaceAll("\\{\\{name}}", user.getName())
+                .replaceAll("\\{\\{action_url}}", "https://coderintuition.com/verify/" + user.getUuid());
+        Utils.sendEmail(appProperties.getMailgun().getKey(), user.getEmail(),
+                "Verify Your CoderIntuition Email",
+                verifyEmail);
+
         return ResponseEntity.ok(new AuthResponse(tokenPair.getFirst()));
     }
 
