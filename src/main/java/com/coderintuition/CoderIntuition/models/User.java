@@ -29,6 +29,10 @@ public class User {
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "uuid")
+    @Size(max = 100)
+    private String uuid;
+
     @Column(name = "username")
     @NotBlank
     @Size(max = 20)
@@ -114,7 +118,8 @@ public class User {
     @Column(name = "updated_at")
     private Date updated_at;
 
-    public User(String name, String email, String password, Boolean verified, String username, AuthProvider authProvider, Set<Role> roles) {
+    public User(String uuid, String name, String email, String password, Boolean verified, String username, AuthProvider authProvider, Set<Role> roles) {
+        this.uuid = uuid;
         this.name = name;
         this.email = email;
         this.password = password;

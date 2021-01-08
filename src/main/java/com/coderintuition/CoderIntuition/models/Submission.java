@@ -55,7 +55,7 @@ public class Submission {
     private String token;
 
     @JsonIgnoreProperties("submission")
-    @OneToMany(mappedBy = "submission")
+    @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL)
     @NotEmpty
     private List<TestResult> testResults;
 

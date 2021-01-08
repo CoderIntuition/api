@@ -31,10 +31,8 @@ public class TestRunController {
     @Autowired
     SubmissionRepository submissionRepository;
 
-    private final ExecutorService scheduler = Executors.newFixedThreadPool(5);
-
     @PostMapping("/testrun")
-    public TestRun createTestRun(@RequestBody RunRequestDto runRequestDto) {
+    public TestRun createTestRun(@RequestBody RunRequestDto runRequestDto) throws Exception {
         // retrieve the problem
         Problem problem = problemRepository.findById(runRequestDto.getProblemId()).orElseThrow();
 
@@ -52,7 +50,9 @@ public class TestRunController {
         requestDto.setLanguageId(Utils.getLanguageId(runRequestDto.getLanguage()));
         requestDto.setStdin(runRequestDto.getInput());
         // send request to JudgeZero
-        JzSubmissionCheckResponseDto result = Utils.callJudgeZero(requestDto, scheduler);
+        if (!Utils.callJudgeZero(requestDto)) {
+            throw new Exception("Error while sending code for judging");
+        }
 
         // create the test run to be saved into the db
         TestRun testRun = new TestRun();

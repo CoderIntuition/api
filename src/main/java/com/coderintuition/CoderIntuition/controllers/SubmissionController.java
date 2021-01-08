@@ -11,17 +11,20 @@ import com.coderintuition.CoderIntuition.pojos.request.RunRequestDto;
 import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
 import com.coderintuition.CoderIntuition.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @RestController
+@Controller
 public class SubmissionController {
 
     @Autowired
@@ -39,11 +42,18 @@ public class SubmissionController {
     @Autowired
     TestResultRepository testResultRepository;
 
-    private final ExecutorService scheduler = Executors.newFixedThreadPool(5);
+    @Autowired
+    SimpMessagingTemplate simpMessagingTemplate;
+
+    @PutMapping("/submission/judge0callback")
+    public void submissionCallback(@RequestBody JzSubmissionCheckResponseDto jzSubmissionCheckResponseDto) {
+        User user = submissionRepository.findByToken(jzSubmissionCheckResponseDto.getToken()).get;
+        this.simpMessagingTemplate.convertAndSendToUser("", ""/topic/submissions", jzSubmissionCheckResponseDto.getToken());
+    }
 
     @PostMapping("/submission")
     @PreAuthorize("hasRole('USER')")
-    public Submission createSubmission(@RequestBody RunRequestDto submissionRequestDto) {
+    public Submission createSubmission(@RequestBody RunRequestDto submissionRequestDto) throws Exception {
         // retrieve the problem
         Problem problem = problemRepository.findById(submissionRequestDto.getProblemId()).orElseThrow();
 
@@ -67,7 +77,9 @@ public class SubmissionController {
         requestDto.setSourceCode(code);
         requestDto.setLanguageId(Utils.getLanguageId(submissionRequestDto.getLanguage()));
         requestDto.setStdin(stdin.toString());
-        JzSubmissionCheckResponseDto result = Utils.callJudgeZero(requestDto, scheduler);
+        if (!Utils.callJudgeZero(requestDto)) {
+            throw new Exception("Error while sending code for judging");
+        }
 
         // create the submission to be saved into the db
         Submission submission = new Submission();
@@ -136,11 +148,11 @@ public class SubmissionController {
 
         // save the submission into the db
         submissionRepository.save(submission);
-
-        // save the test results
-        for (TestResult testResult : testResults) {
-            testResultRepository.save(testResult);
-        }
+//
+//        // save the test results
+//        for (TestResult testResult : testResults) {
+//            testResultRepository.save(testResult);
+//        }
 
         // save the submission to the user
         User user = userRepository.findById(submissionRequestDto.getUserId()).orElseThrow();

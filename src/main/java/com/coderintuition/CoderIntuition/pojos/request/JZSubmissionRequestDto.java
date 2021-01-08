@@ -13,7 +13,10 @@ public class JZSubmissionRequestDto {
     private String sourceCode;
 
     @JsonProperty("language_id")
-    private int languageId;
+    private Integer languageId;
 
     private String stdin;
+
+    @JsonProperty("callback_url")
+    private String callbackUrl = "https://api.coderintuition.com/submission/judge0callback";
 }

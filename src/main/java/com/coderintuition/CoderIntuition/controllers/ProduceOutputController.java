@@ -24,11 +24,9 @@ public class ProduceOutputController {
     @Autowired
     ProblemRepository problemRepository;
 
-    private final ExecutorService scheduler = Executors.newFixedThreadPool(5);
-
     @PostMapping("/produceoutput")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ProduceOutputResponse produceOutput(@RequestBody ProduceOutputDto produceOutputDto) {
+    public ProduceOutputResponse produceOutput(@RequestBody ProduceOutputDto produceOutputDto) throws Exception {
         // retrieve the problem
         Problem problem = problemRepository.findById(produceOutputDto.getProblemId()).orElseThrow();
 
@@ -44,7 +42,9 @@ public class ProduceOutputController {
         requestDto.setLanguageId(Utils.getLanguageId(Language.PYTHON));
         requestDto.setStdin(produceOutputDto.getInput());
         // send request to JudgeZero
-        JzSubmissionCheckResponseDto result = Utils.callJudgeZero(requestDto, scheduler);
+        if (!Utils.callJudgeZero(requestDto)) {
+            throw new Exception("Error while sending code for judging");
+        }
 
         // set the results
         ProduceOutputResponse response = new ProduceOutputResponse();
