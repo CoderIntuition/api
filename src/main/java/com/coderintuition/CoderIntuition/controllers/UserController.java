@@ -1,5 +1,6 @@
 package com.coderintuition.CoderIntuition.controllers;
 
+import com.coderintuition.CoderIntuition.enums.ERole;
 import com.coderintuition.CoderIntuition.exceptions.BadRequestException;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
 import com.coderintuition.CoderIntuition.exceptions.ResourceNotFoundException;
@@ -9,6 +10,7 @@ import com.coderintuition.CoderIntuition.models.User;
 import com.coderintuition.CoderIntuition.pojos.request.ChangePasswordRequest;
 import com.coderintuition.CoderIntuition.pojos.request.UserGeneralSettingsRequest;
 import com.coderintuition.CoderIntuition.pojos.response.UserProfileResponseDto;
+import com.coderintuition.CoderIntuition.repositories.SubmissionRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
@@ -28,6 +30,9 @@ public class UserController {
     private UserRepository userRepository;
 
     @Autowired
+    private SubmissionRepository submissionRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @GetMapping("/user/me")
@@ -42,8 +47,13 @@ public class UserController {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RecordNotFoundException("Username " + username + " not found"));
 
+        Boolean plusRole = user.getRoles()
+                .stream()
+                .anyMatch(role -> role.getName().equals(ERole.ROLE_PLUS));
+
         return new UserProfileResponseDto(user.getName(),
                 user.getUsername(),
+                plusRole,
                 user.getImageUrl(),
                 user.getBadges(),
                 user.getActivities(),
@@ -95,6 +105,14 @@ public class UserController {
         return user.getSubmissions().stream()
                 .filter((x) -> x.getProblem().getId().equals(problemId))
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/user/{username}/completedProblems")
+    int getStatsSubmission(@PathVariable String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RecordNotFoundException("Username " + username + " not found"));
+
+        return submissionRepository.findNumOfCompletedProblemsByUser(user);
     }
 
 }

@@ -2,6 +2,7 @@ package com.coderintuition.CoderIntuition.pojos.response;
 
 import com.coderintuition.CoderIntuition.models.Activity;
 import com.coderintuition.CoderIntuition.models.Badge;
+import com.coderintuition.CoderIntuition.models.Role;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,6 +19,7 @@ import java.util.List;
 public class UserProfileResponseDto {
     private String name;
     private String username;
+    private Boolean plusRole;
     private String profilePicturePath;
     private List<Badge> badges;
     private List<Activity> activities;
