@@ -48,7 +48,8 @@ public class ProduceOutputController {
     }
 
     @PutMapping("/produceoutput/judge0callback")
-    public void submissionCallback(@RequestBody JzSubmissionCheckResponseDto data) throws IOException {
+    public void produceOutputCallback(@RequestBody JzSubmissionCheckResponseDto data) throws IOException {
+        System.out.println("callback");
         // get produce output info
         JzSubmissionCheckResponseDto result = Utils.retrieveFromJudgeZero(data.getToken());
 
