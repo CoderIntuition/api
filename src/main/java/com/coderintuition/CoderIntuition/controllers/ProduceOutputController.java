@@ -88,6 +88,9 @@ public class ProduceOutputController {
             }
         }
 
+        // save the produce output into the db
+        produceOutputRepository.save(produceOutput);
+
         // send message to frontend
         this.simpMessagingTemplate.convertAndSend("/topic/produceoutput", result.getToken());
     }
