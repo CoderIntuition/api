@@ -13,6 +13,7 @@ import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckRespons
 import com.coderintuition.CoderIntuition.pojos.response.TokenResponse;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.ProduceOutputRepository;
+import com.coderintuition.CoderIntuition.repositories.UserRepository;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class ProduceOutputController {
 
     @Autowired
     ProduceOutputRepository produceOutputRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
@@ -90,11 +94,11 @@ public class ProduceOutputController {
 
     @PostMapping("/produceoutput")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public TokenResponse produceOutput(@RequestBody ProduceOutputDto produceOutputDto) throws Exception {
+    public TokenResponse produceOutput(@CurrentUser UserPrincipal userPrincipal, @RequestBody ProduceOutputDto produceOutputDto) throws Exception {
         // retrieve the problem
         Problem problem = problemRepository.findById(produceOutputDto.getProblemId()).orElseThrow();
 
-        // wrap the code into the test run template
+        // wrap the code into the produce output template
         CodeTemplateFiller filler = CodeTemplateFiller.getInstance();
         String functionName = Utils.getFunctionName(produceOutputDto.getLanguage(), problem.getCode(produceOutputDto.getLanguage()));
         String code = filler.getProduceOutputCode(produceOutputDto.getLanguage(), produceOutputDto.getCode(),
@@ -111,6 +115,7 @@ public class ProduceOutputController {
 
         // save submission to db
         ProduceOutput produceOutput = new ProduceOutput();
+        produceOutput.setUser(userRepository.findById(userPrincipal.getId()).orElseThrow());
         produceOutput.setCode(produceOutputDto.getCode());
         produceOutput.setInput(produceOutputDto.getInput());
         produceOutput.setLanguage(produceOutputDto.getLanguage());
