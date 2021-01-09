@@ -100,8 +100,6 @@ public class Utils {
 
         okhttp3.Response response = client.newCall(request).execute();
         ObjectMapper mapper = new ObjectMapper();
-        System.out.println("--------");
-        System.out.println(Objects.requireNonNull(response.body()).string());
         return mapper.readValue(Objects.requireNonNull(response.body()).string(), JzSubmissionCheckResponseDto.class);
     }
 
