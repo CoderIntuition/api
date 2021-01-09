@@ -117,6 +117,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .antMatchers("/testrun/**")
                 .permitAll()
+                .antMatchers("/produceoutput/**")
+                .permitAll()
                 .antMatchers("/user/**")
                 .permitAll()
                 .antMatchers("/issue")
