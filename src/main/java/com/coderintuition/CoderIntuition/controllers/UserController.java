@@ -56,10 +56,13 @@ public class UserController {
                 .stream()
                 .anyMatch(role -> role.getName().equals(ERole.ROLE_PLUS));
 
+        int numCompletedProblems = submissionRepository.findNumOfCompletedProblemsByUser(user);
+
         return new UserProfileResponseDto(user.getName(),
                 user.getUsername(),
                 plusRole,
                 user.getImageUrl(),
+                numCompletedProblems,
                 user.getBadges(),
                 user.getActivities(),
                 // TODO: call level calculation method to calculate level
