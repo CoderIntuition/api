@@ -1,6 +1,7 @@
 package com.coderintuition.CoderIntuition.controllers;
 
 import com.coderintuition.CoderIntuition.enums.ERole;
+import com.coderintuition.CoderIntuition.enums.VerifyEmailStatus;
 import com.coderintuition.CoderIntuition.exceptions.BadRequestException;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
 import com.coderintuition.CoderIntuition.exceptions.ResourceNotFoundException;
@@ -9,7 +10,9 @@ import com.coderintuition.CoderIntuition.models.Submission;
 import com.coderintuition.CoderIntuition.models.User;
 import com.coderintuition.CoderIntuition.pojos.request.ChangePasswordRequest;
 import com.coderintuition.CoderIntuition.pojos.request.UserGeneralSettingsRequest;
+import com.coderintuition.CoderIntuition.pojos.request.VerifyEmailRequest;
 import com.coderintuition.CoderIntuition.pojos.response.UserProfileResponseDto;
+import com.coderintuition.CoderIntuition.pojos.response.VerifyEmailResponse;
 import com.coderintuition.CoderIntuition.repositories.SubmissionRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.util.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -95,6 +99,27 @@ public class UserController {
         }
         user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         userRepository.save(user);
+    }
+
+    @PostMapping("/user/verify")
+    public VerifyEmailResponse verifyEmail(@RequestBody VerifyEmailRequest verifyEmailRequest) {
+        Optional<User> userOptional = userRepository.findByUuid(verifyEmailRequest.getUuid());
+        VerifyEmailResponse response = new VerifyEmailResponse();
+        if (userOptional.isEmpty()) {
+            response.setStatus(VerifyEmailStatus.FAILED);
+            response.setName("");
+        } else {
+            User user = userOptional.get();
+            if (!user.getVerified()) {
+                user.setVerified(true);
+                userRepository.save(user);
+                response.setStatus(VerifyEmailStatus.SUCCESS);
+            } else {
+                response.setStatus(VerifyEmailStatus.ALREADY);
+            }
+            response.setName(user.getName());
+        }
+        return response;
     }
 
     @GetMapping("/user/me/submissions/{problemId}")
