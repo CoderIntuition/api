@@ -1,11 +1,11 @@
 package com.coderintuition.CoderIntuition.controllers;
 
+import com.coderintuition.CoderIntuition.enums.AuthProvider;
 import com.coderintuition.CoderIntuition.enums.ERole;
 import com.coderintuition.CoderIntuition.enums.VerifyEmailStatus;
 import com.coderintuition.CoderIntuition.exceptions.BadRequestException;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
 import com.coderintuition.CoderIntuition.exceptions.ResourceNotFoundException;
-import com.coderintuition.CoderIntuition.enums.AuthProvider;
 import com.coderintuition.CoderIntuition.models.Submission;
 import com.coderintuition.CoderIntuition.models.User;
 import com.coderintuition.CoderIntuition.pojos.request.ChangePasswordRequest;
@@ -38,6 +38,7 @@ public class UserController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
 
     @GetMapping("/user/me")
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -139,5 +140,4 @@ public class UserController {
 
         return submissionRepository.findNumOfCompletedProblemsByUser(user);
     }
-
 }
