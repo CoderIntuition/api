@@ -99,6 +99,7 @@ public class SupportController {
                 .send();
 
         if (!response.isOk()) {
+            System.out.println(appProperties.getMailgun().getKey());
             System.out.println("Error sending email to support@coderintuition.com. Response code: "
                     + response.responseCode() + " with message: " + response.responseMessage());
         }
