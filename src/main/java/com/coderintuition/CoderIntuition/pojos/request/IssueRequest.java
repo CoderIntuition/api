@@ -8,6 +8,7 @@ import lombok.Setter;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @Getter
 @Setter
@@ -23,5 +24,6 @@ public class IssueRequest {
     private IssueCategory category;
 
     @NotBlank
+    @Size(max = 2000)
     private String description;
 }

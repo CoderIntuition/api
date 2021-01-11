@@ -123,6 +123,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .antMatchers("/issue")
                 .permitAll()
+                .antMatchers("/support")
+                .permitAll()
                 .antMatchers("/socket/**")
                 .permitAll()
                 .anyRequest()

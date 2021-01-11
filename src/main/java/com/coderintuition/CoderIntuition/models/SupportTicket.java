@@ -14,19 +14,15 @@ import javax.validation.constraints.Size;
 import java.util.Date;
 
 @Entity
-@Table(name = "issue")
+@Table(name = "contact")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Issue {
+public class SupportTicket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "problem_id")
-    private Problem problem;
 
     @Column(name = "email")
     @NotBlank
@@ -34,14 +30,20 @@ public class Issue {
     @Email
     private String email;
 
-    @Column(name = "category")
-    @Enumerated(EnumType.STRING)
-    private IssueCategory category;
+    @Column(name = "name")
+    @NotBlank
+    @Size(max = 100)
+    private String name;
 
-    @Column(name = "description")
+    @Column(name = "subject")
+    @NotBlank
+    @Size(max = 500)
+    private String subject;
+
+    @Column(name = "message")
     @NotBlank
     @Size(max = 2000)
-    private String description;
+    private String message;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
