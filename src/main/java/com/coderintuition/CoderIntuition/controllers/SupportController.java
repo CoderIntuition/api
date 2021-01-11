@@ -1,14 +1,14 @@
 package com.coderintuition.CoderIntuition.controllers;
 
 import com.coderintuition.CoderIntuition.config.AppProperties;
-import com.coderintuition.CoderIntuition.models.SupportTicket;
 import com.coderintuition.CoderIntuition.models.Issue;
 import com.coderintuition.CoderIntuition.models.Problem;
-import com.coderintuition.CoderIntuition.pojos.request.SupportTicketRequest;
+import com.coderintuition.CoderIntuition.models.SupportTicket;
 import com.coderintuition.CoderIntuition.pojos.request.IssueRequest;
-import com.coderintuition.CoderIntuition.repositories.SupportTicketRepository;
+import com.coderintuition.CoderIntuition.pojos.request.SupportTicketRequest;
 import com.coderintuition.CoderIntuition.repositories.IssueRepository;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
+import com.coderintuition.CoderIntuition.repositories.SupportTicketRepository;
 import net.sargue.mailgun.Configuration;
 import net.sargue.mailgun.Mail;
 import net.sargue.mailgun.Response;
@@ -64,7 +64,8 @@ public class SupportController {
                 .send();
 
         if (!response.isOk()) {
-            System.out.println("Error sending email to support@coderintuition.com");
+            System.out.println("Error sending email to support@coderintuition.com. Response code: "
+                    + response.responseCode() + " with message: " + response.responseMessage());
         }
     }
 
@@ -98,7 +99,8 @@ public class SupportController {
                 .send();
 
         if (!response.isOk()) {
-            System.out.println("Error sending email to support@coderintuition.com");
+            System.out.println("Error sending email to support@coderintuition.com. Response code: "
+                    + response.responseCode() + " with message: " + response.responseMessage());
         }
     }
 }

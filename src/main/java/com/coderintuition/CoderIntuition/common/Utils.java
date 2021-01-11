@@ -138,7 +138,8 @@ public class Utils {
                 .send();
 
         if (!response.isOk()) {
-            System.out.println("Error sending email to " + to);
+            System.out.println("Error sending email to " + to + ". Response code: "
+                    + response.responseCode() + " with message: " + response.responseMessage());
         }
     }
 }
