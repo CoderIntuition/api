@@ -21,6 +21,7 @@ public class UserProfileResponseDto {
     private String username;
     private Boolean plusRole;
     private String profilePicturePath;
+    private int numCompletedProblems;
     private List<Badge> badges;
     private List<Activity> activities;
     private Integer level;
