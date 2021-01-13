@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class SimpleProblemDto {
     private Long id;
-    private String name;
+    private String title;
     private String urlName;
     private ProblemCategory category;
     private Difficulty difficulty;

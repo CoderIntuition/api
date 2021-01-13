@@ -113,6 +113,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .regexMatchers("\\/problems?\\/.*")
                 .permitAll()
+                .regexMatchers("/allproblems")
+                .permitAll()
                 .antMatchers("/submission/**")
                 .permitAll()
                 .antMatchers("/testrun/**")
