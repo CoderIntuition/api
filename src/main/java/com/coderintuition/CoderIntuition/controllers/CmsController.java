@@ -36,8 +36,10 @@ public class CmsController {
     @Autowired
     ReturnTypeRepository returnTypeRepository;
 
-    // test
-    @PostMapping("/update")
+    @Autowired
+    ReadingRepository readingRepository;
+
+    @PostMapping("/problem/update")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
     public ResponseEntity<?> updateProblem(@Valid @RequestBody UpdateProblemRequest updateProblemRequest) throws Exception {
         ProblemDto problemDto = updateProblemRequest.getProblem();
@@ -52,6 +54,7 @@ public class CmsController {
         Problem problem = problemRepository.findById(updateProblemRequest.getId()).orElseThrow();
         problem.setName(problemDto.getName());
         problem.setUrlName(problemDto.getUrlName());
+        problem.setPlusOnly(problemDto.getPlusOnly());
         problem.setCategory(problemDto.getCategory());
         problem.setDifficulty(problemDto.getDifficulty());
         problem.setDescription(problemDto.getDescription());
@@ -164,7 +167,7 @@ public class CmsController {
     }
 
 
-    @PostMapping("/add")
+    @PostMapping("/problem/add")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
     public ResponseEntity<?> addProblem(@Valid @RequestBody ProblemDto problemDto) throws Exception {
         if (problemDto.getTestCases().stream().filter(TestCaseDto::getIsDefault).count() != 1) {
@@ -176,6 +179,7 @@ public class CmsController {
         Problem problem = new Problem();
         problem.setName(problemDto.getName());
         problem.setUrlName(problemDto.getUrlName());
+        problem.setPlusOnly(problemDto.getPlusOnly());
         problem.setCategory(problemDto.getCategory());
         problem.setDifficulty(problemDto.getDifficulty());
         problem.setDescription(problemDto.getDescription());
@@ -272,7 +276,7 @@ public class CmsController {
         return ResponseEntity.ok().body(new MessageResponse("Problem saved successfully"));
     }
 
-    @PostMapping("/delete")
+    @PostMapping("/problem/delete")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteProblem(@Valid @RequestBody DeleteProblemRequest deleteProblemRequest) {
         Problem problem = problemRepository.findById(deleteProblemRequest.getId()).orElseThrow(() -> new RecordNotFoundException("Problem not found"));
@@ -280,5 +284,34 @@ public class CmsController {
         problemRepository.save(problem);
 
         return ResponseEntity.ok().body(new MessageResponse("Problem deleted successfully"));
+    }
+
+    @PostMapping("/reading/add")
+    @PreAuthorize("hasRole('ROLE_MODERATOR')")
+    public ResponseEntity<?> addReading(@Valid @RequestBody ReadingDto readingDto) {
+        Reading reading = new Reading();
+        reading.setName(readingDto.getName());
+        reading.setUrlName(readingDto.getUrlName());
+        reading.setPlusOnly(readingDto.getPlusOnly());
+        reading.setContent(readingDto.getContent());
+        readingRepository.save(reading);
+
+        return ResponseEntity.ok().body(new MessageResponse("Reading saved successfully"));
+    }
+
+    @PostMapping("/reading/update")
+    @PreAuthorize("hasRole('ROLE_MODERATOR')")
+    public ResponseEntity<?> updateReading(@Valid @RequestBody UpdateReadingRequest updateReadingRequest) {
+        ReadingDto readingDto = updateReadingRequest.getReading();
+
+        // update general problem info
+        Reading reading = readingRepository.findById(updateReadingRequest.getId()).orElseThrow();
+        reading.setName(readingDto.getName());
+        reading.setUrlName(readingDto.getUrlName());
+        reading.setPlusOnly(readingDto.getPlusOnly());
+        reading.setContent(readingDto.getContent());
+        readingRepository.save(reading);
+
+        return ResponseEntity.ok().body(new MessageResponse("Reading updated successfully"));
     }
 }

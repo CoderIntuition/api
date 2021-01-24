@@ -1,14 +1,17 @@
 USE coderintuition;
 
-INSERT INTO coderintuition.problem (name, url_name, category, difficulty, description, python_code, java_code,
+INSERT INTO coderintuition.problem (name, url_name, plus_only, category, difficulty, description, python_code, java_code,
                                     javascript_code, created_at, updated_at)
-VALUES ('Sort Array', 'sort-array', 'ARRAYS', 'BEGINNER',
+VALUES ('Sort Array', 'sort-array', false, 'ARRAYS', 'BEGINNER',
         'Given an array of integers, sort the array in non-decreasing order.',
         'def sort_array(nums):\n\treturn nums',
         'class Solution {\n\tList<Integer> sortArray(List<Integer> nums) {\n\t\treturn nums;\n\t}\n}',
         'sortArray(nums) {\n\treturn nums;\n}', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
 
 SET @problem1_id = LAST_INSERT_ID();
+
+INSERT INTO coderintuition.reading (name, url_name, plus_only, content)
+VALUES ('Test Reading', 'test-reading', false, 'I am a meenie test');
 
 INSERT INTO coderintuition.problem_step (problem_id, step_num, name, type, content, time, created_at, updated_at)
 VALUES (@problem1_id, 1, 'Step 1: Understand the Problem', 'TEXT', 'Read the problem and understand it.', 5,
