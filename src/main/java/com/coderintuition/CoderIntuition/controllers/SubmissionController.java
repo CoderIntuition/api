@@ -3,9 +3,11 @@ package com.coderintuition.CoderIntuition.controllers;
 import com.coderintuition.CoderIntuition.common.CodeTemplateFiller;
 import com.coderintuition.CoderIntuition.common.Constants;
 import com.coderintuition.CoderIntuition.common.Utils;
+import com.coderintuition.CoderIntuition.enums.ActivityType;
 import com.coderintuition.CoderIntuition.enums.SubmissionStatus;
 import com.coderintuition.CoderIntuition.enums.TestStatus;
 import com.coderintuition.CoderIntuition.models.*;
+import com.coderintuition.CoderIntuition.pojos.request.ActivityRequestDto;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.pojos.request.RunRequestDto;
 import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
@@ -44,6 +46,9 @@ public class SubmissionController {
 
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
+
+    @Autowired
+    ActivityController activityController;
 
     @GetMapping("/submission/{token}")
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -140,7 +145,7 @@ public class SubmissionController {
         String primarySolution = problem.getSolutions().stream().filter(Solution::getIsPrimary).findFirst().orElseThrow().getCode(submissionRequestDto.getLanguage());
         // fill in the submission template with the arguments/return type for this test run
         String code = filler.getSubmissionCode(submissionRequestDto.getLanguage(), submissionRequestDto.getCode(), primarySolution,
-                functionName, problem.getArguments(), problem.getReturnType());
+            functionName, problem.getArguments(), problem.getReturnType());
 
         // setup stdin
         StringBuilder stdin = new StringBuilder();
@@ -160,12 +165,20 @@ public class SubmissionController {
 
         // save submission to db
         Submission submission = new Submission();
-        submission.setUser(userRepository.findById(userPrincipal.getId()).orElseThrow());
+        User user = userRepository.findById(userPrincipal.getId()).orElseThrow();
+        submission.setUser(user);
         submission.setCode(submissionRequestDto.getCode());
         submission.setLanguage(submissionRequestDto.getLanguage());
         submission.setProblem(problem);
         submission.setToken(token);
         submissionRepository.save(submission);
+
+        // create Activity
+        ActivityRequestDto activityRequestDto = new ActivityRequestDto(
+            ActivityType.SUBMIT_PROBLEM,
+            problem.getId(),
+            null);
+        activityController.createActivity(activityRequestDto, user);
 
         return new TokenResponse(token);
     }
