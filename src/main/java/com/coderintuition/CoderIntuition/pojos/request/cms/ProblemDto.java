@@ -1,12 +1,15 @@
 package com.coderintuition.CoderIntuition.pojos.request.cms;
 
-import com.coderintuition.CoderIntuition.enums.ProblemCategory;
 import com.coderintuition.CoderIntuition.enums.Difficulty;
+import com.coderintuition.CoderIntuition.enums.ProblemCategory;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 @Getter
@@ -20,6 +23,9 @@ public class ProblemDto {
     @NotBlank
     @Size(max = 300)
     private String urlName;
+
+    @NotNull
+    private Boolean plusOnly;
 
     private ProblemCategory category;
 

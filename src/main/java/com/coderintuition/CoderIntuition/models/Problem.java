@@ -61,6 +61,10 @@ public class Problem {
     @Size(max = 300)
     private String urlName;
 
+    @Column(name = "plus_only")
+    @NotNull
+    private Boolean plusOnly;
+
     @Column(name = "category")
     @Enumerated(EnumType.STRING)
     private ProblemCategory category;
