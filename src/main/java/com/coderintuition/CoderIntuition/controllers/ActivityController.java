@@ -16,6 +16,7 @@ import com.coderintuition.CoderIntuition.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -42,6 +43,11 @@ public class ActivityController {
             activityRequestDto.getActivityType() == ActivityType.SUBMIT_PROBLEM) {
             Problem problem = problemRepository.findById(activityRequestDto.getProblemId())
                 .orElseThrow(() -> new RecordNotFoundException("Problem with ID" + activityRequestDto.getProblemId() + " not found."));
+
+            if (activityRequestDto.getActivityType() == ActivityType.LEARN_INTUITION &&
+                activityRepository.findActivity(user, problem, ActivityType.LEARN_INTUITION) > 0) {
+                return;
+            }
             activity.setProblem(problem);
         }
 
@@ -56,7 +62,7 @@ public class ActivityController {
 
     @PostMapping("/activity")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public void postActivity(@CurrentUser UserPrincipal userPrincipal, ActivityRequestDto activityRequestDto) {
+    public void postActivity(@CurrentUser UserPrincipal userPrincipal, @RequestBody ActivityRequestDto activityRequestDto) {
         User user = userRepository.findById(userPrincipal.getId())
             .orElseThrow(() -> new RecordNotFoundException("User with ID" + userPrincipal.getId() + " not found."));
         createActivity(activityRequestDto, user);
