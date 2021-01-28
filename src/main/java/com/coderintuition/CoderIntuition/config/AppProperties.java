@@ -14,6 +14,7 @@ public class AppProperties {
     private final Auth auth = new Auth();
     private final OAuth2 oauth2 = new OAuth2();
     private final Mailgun mailgun = new Mailgun();
+    private final Stripe stripe = new Stripe();
 
     @Getter
     @Setter
@@ -33,11 +34,18 @@ public class AppProperties {
         }
     }
 
-
     @Getter
     @Setter
     @NoArgsConstructor
     public static class Mailgun {
         private String key;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class Stripe {
+        private String testKey;
+        private String liveKey;
     }
 }
