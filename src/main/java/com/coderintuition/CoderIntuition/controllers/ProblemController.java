@@ -61,10 +61,14 @@ public class ProblemController {
     @GetMapping(value = "/problems/{category}", params = {"page", "size"})
     public ProblemsResponse getProblemsByCategory(@PathVariable String category,
                                                   @RequestParam("page") int page,
-                                                  @RequestParam("size") int size) {
+                                                  @RequestParam("size") int size) throws Exception {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Problem> problems = problemRepository.findByCategory(ProblemCategory.valueOf(category.toUpperCase()), pageable);
-        return new ProblemsResponse(problems.getTotalPages(), (int) problems.getTotalElements(), simplifyProblems(problems.toList()));
+        try {
+            Page<Problem> problems = problemRepository.findByCategory(ProblemCategory.valueOf(category.toUpperCase()), pageable);
+            return new ProblemsResponse(problems.getTotalPages(), (int) problems.getTotalElements(), simplifyProblems(problems.toList()));
+        } catch (Exception e) {
+            throw new Exception("Invalid category");
+        }
     }
 
     @GetMapping("/problem/id/{id}")
