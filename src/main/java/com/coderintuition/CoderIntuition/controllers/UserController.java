@@ -6,6 +6,7 @@ import com.coderintuition.CoderIntuition.enums.VerifyEmailStatus;
 import com.coderintuition.CoderIntuition.exceptions.BadRequestException;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
 import com.coderintuition.CoderIntuition.exceptions.ResourceNotFoundException;
+import com.coderintuition.CoderIntuition.models.Role;
 import com.coderintuition.CoderIntuition.models.Submission;
 import com.coderintuition.CoderIntuition.models.User;
 import com.coderintuition.CoderIntuition.pojos.request.ChangePasswordRequest;
@@ -14,6 +15,7 @@ import com.coderintuition.CoderIntuition.pojos.request.VerifyEmailRequest;
 import com.coderintuition.CoderIntuition.pojos.response.UserProfileResponseDto;
 import com.coderintuition.CoderIntuition.pojos.response.UserResponse;
 import com.coderintuition.CoderIntuition.pojos.response.VerifyEmailResponse;
+import com.coderintuition.CoderIntuition.repositories.RoleRepository;
 import com.coderintuition.CoderIntuition.repositories.SubmissionRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
@@ -24,8 +26,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import reactor.util.StringUtils;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -33,6 +37,9 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     private SubmissionRepository submissionRepository;
@@ -46,6 +53,16 @@ public class UserController {
     public UserResponse getCurrentUser(@CurrentUser UserPrincipal userPrincipal) {
         User user = userRepository.findById(userPrincipal.getId())
             .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+
+        // check if plus subscription expired
+        Role plusRole = roleRepository.findByName(ERole.ROLE_PLUS).orElseThrow();
+        if (user.getRoles().contains(plusRole) && user.getPlusExpirationDate().before(new Date())) {
+            Set<Role> roles = user.getRoles();
+            roles.remove(plusRole);
+            user.setRoles(roles);
+            userRepository.save(user);
+        }
+
         return new UserResponse(
             user.getId(),
             user.getUsername(),

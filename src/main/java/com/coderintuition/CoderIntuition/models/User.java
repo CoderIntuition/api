@@ -110,6 +110,13 @@ public class User {
     @Size(max = 200)
     private String websiteLink;
 
+    @Column(name = "stripe_customer_id")
+    @Size(max = 200)
+    private String stripeCustomerId;
+
+    @Column(name = "plus_expiration_date")
+    private Date plusExpirationDate;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", updatable = false)

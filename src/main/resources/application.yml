@@ -51,3 +51,6 @@ app:
       - http://localhost:3000/oauth2/redirect
   mailgun:
     key: ${CODERINTUITION_MAILGUN_KEY}
+  stripe:
+    testKey: ${CODERINTUITION_STRIPE_TESTKEY}
+    liveKey: ${CODERINTUITION_STRIPE_LIVEKEY}
