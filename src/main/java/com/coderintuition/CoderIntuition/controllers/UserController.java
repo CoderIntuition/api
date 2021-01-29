@@ -12,6 +12,7 @@ import com.coderintuition.CoderIntuition.pojos.request.ChangePasswordRequest;
 import com.coderintuition.CoderIntuition.pojos.request.UserGeneralSettingsRequest;
 import com.coderintuition.CoderIntuition.pojos.request.VerifyEmailRequest;
 import com.coderintuition.CoderIntuition.pojos.response.UserProfileResponseDto;
+import com.coderintuition.CoderIntuition.pojos.response.UserResponse;
 import com.coderintuition.CoderIntuition.pojos.response.VerifyEmailResponse;
 import com.coderintuition.CoderIntuition.repositories.SubmissionRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
@@ -42,35 +43,49 @@ public class UserController {
 
     @GetMapping("/user/me")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public User getCurrentUser(@CurrentUser UserPrincipal userPrincipal) {
-        return userRepository.findById(userPrincipal.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+    public UserResponse getCurrentUser(@CurrentUser UserPrincipal userPrincipal) {
+        User user = userRepository.findById(userPrincipal.getId())
+            .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+        return new UserResponse(
+            user.getId(),
+            user.getUsername(),
+            user.getName(),
+            user.getEmail(),
+            user.getVerified(),
+            user.getImageUrl(),
+            user.getLanguage(),
+            user.getRoles(),
+            user.getPoints(),
+            user.getGithubLink(),
+            user.getLinkedinLink(),
+            user.getWebsiteLink()
+        );
     }
 
     @GetMapping(value = "/user/{username}")
     public UserProfileResponseDto getUserProfile(@PathVariable String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RecordNotFoundException("Username " + username + " not found"));
+            .orElseThrow(() -> new RecordNotFoundException("Username " + username + " not found"));
 
         Boolean plusRole = user.getRoles()
-                .stream()
-                .anyMatch(role -> role.getName().equals(ERole.ROLE_PLUS));
+            .stream()
+            .anyMatch(role -> role.getName().equals(ERole.ROLE_PLUS));
 
         int numCompletedProblems = submissionRepository.findNumOfCompletedProblemsByUser(user);
 
         return new UserProfileResponseDto(user.getName(),
-                user.getUsername(),
-                plusRole,
-                user.getImageUrl(),
-                numCompletedProblems,
-                user.getBadges(),
-                user.getActivities(),
-                // TODO: call level calculation method to calculate level
-                0,
-                user.getGithubLink(),
-                user.getLinkedinLink(),
-                user.getWebsiteLink(),
-                user.getCreated_at());
+            user.getUsername(),
+            plusRole,
+            user.getImageUrl(),
+            numCompletedProblems,
+            user.getBadges(),
+            user.getActivities(),
+            // TODO: call level calculation method to calculate level
+            0,
+            user.getGithubLink(),
+            user.getLinkedinLink(),
+            user.getWebsiteLink(),
+            user.getCreated_at());
     }
 
     @PostMapping("/user/me")
@@ -78,7 +93,7 @@ public class UserController {
     public void saveUserGeneralInfo(@CurrentUser UserPrincipal userPrincipal,
                                     @RequestBody UserGeneralSettingsRequest settingsRequest) {
         User userResult = userRepository.findById(userPrincipal.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+            .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
         userResult.setName(settingsRequest.getName());
         userResult.setUsername(settingsRequest.getUsername());
         userResult.setGithubLink(settingsRequest.getGithubLink());
@@ -92,11 +107,11 @@ public class UserController {
     public void changePassword(@CurrentUser UserPrincipal userPrincipal,
                                @RequestBody ChangePasswordRequest changePasswordRequest) {
         User user = userRepository.findById(userPrincipal.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+            .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
         if (user.getAuthProvider() != AuthProvider.LOCAL) {
             String provider = StringUtils.capitalize(user.getAuthProvider().toString().toLowerCase());
             throw new BadRequestException("Your account is with " + provider + ". Please change your password on "
-                    + provider + "'s website instead.");
+                + provider + "'s website instead.");
         }
         if (!passwordEncoder.matches(changePasswordRequest.getCurrentPassword(), user.getPassword())) {
             throw new BadRequestException("Current password is incorrect");
@@ -132,14 +147,14 @@ public class UserController {
                                            @PathVariable Long problemId) {
         User user = userRepository.findById(userPrincipal.getId()).orElseThrow();
         return user.getSubmissions().stream()
-                .filter((x) -> x.getProblem().getId().equals(problemId))
-                .collect(Collectors.toList());
+            .filter((x) -> x.getProblem().getId().equals(problemId))
+            .collect(Collectors.toList());
     }
 
     @GetMapping("/user/{username}/completedProblems")
     int getStatsSubmission(@PathVariable String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RecordNotFoundException("Username " + username + " not found"));
+            .orElseThrow(() -> new RecordNotFoundException("Username " + username + " not found"));
 
         return submissionRepository.findNumOfCompletedProblemsByUser(user);
     }

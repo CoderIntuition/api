@@ -2,6 +2,7 @@ package com.coderintuition.CoderIntuition.models;
 
 import com.coderintuition.CoderIntuition.enums.AuthProvider;
 import com.coderintuition.CoderIntuition.enums.Language;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -70,7 +71,7 @@ public class User {
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
+    private Set<Role> roles;
 
     @Column(name = "auth_provider")
     @NotNull
@@ -82,16 +83,17 @@ public class User {
     private String authProviderId;
 
     @OneToMany(mappedBy = "user")
-    private List<Submission> submissions = new ArrayList<>();
+    private List<Submission> submissions;
 
+    @JsonIgnoreProperties("user")
     @OneToMany(mappedBy = "user")
-    private List<Activity> activities = new ArrayList<>();
+    private List<Activity> activities;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "user_badge",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "badge_id"))
-    private List<Badge> badges = new ArrayList<>();
+    private List<Badge> badges;
 
     @Column(name = "points")
     private Long points;

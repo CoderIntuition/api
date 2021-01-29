@@ -72,8 +72,9 @@ public class ProblemController {
     }
 
     @GetMapping("/problem/id/{id}")
-    public Optional<Problem> getProblemById(@PathVariable Long id) {
-        return problemRepository.findById(id);
+    public Problem getProblemById(@PathVariable Long id) {
+        Problem problem = problemRepository.findById(id).orElseThrow();
+        return problem;
     }
 
     @GetMapping("/problem/{urlName}")
