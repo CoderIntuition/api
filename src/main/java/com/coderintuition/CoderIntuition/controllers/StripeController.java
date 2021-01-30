@@ -87,7 +87,6 @@ public class StripeController {
             .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
             .setSuccessUrl("https://coderintuition.com/checkout-success")
             .setCancelUrl("https://coderintuition.com/plus")
-            .setCustomerEmail(user.getEmail())
             .setCustomer(user.getStripeCustomerId())
             .addLineItem(new SessionCreateParams.LineItem.Builder()
                 .setQuantity(1L)
