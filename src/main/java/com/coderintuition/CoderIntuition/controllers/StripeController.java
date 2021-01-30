@@ -124,6 +124,7 @@ public class StripeController {
 
         logger.info(payload);
         logger.info(sigHeader);
+        logger.info(appProperties.getStripe().getWebhookSecret());
         Event event = Webhook.constructEvent(payload, sigHeader, appProperties.getStripe().getWebhookSecret());
 
         EventDataObjectDeserializer dataObjectDeserializer = event.getDataObjectDeserializer();
