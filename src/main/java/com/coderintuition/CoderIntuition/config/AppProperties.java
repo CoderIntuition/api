@@ -47,5 +47,6 @@ public class AppProperties {
     public static class Stripe {
         private String testKey;
         private String liveKey;
+        private String webhookSecret;
     }
 }
