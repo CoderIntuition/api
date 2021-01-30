@@ -120,13 +120,10 @@ public class StripeController {
     }
 
     @PostMapping(value = "/webhook", consumes = "application/json")
-    public void webhook(@RequestHeader("Stripe-Signature") String sigHeader, TextNode jsonPayload) throws SignatureVerificationException {
+    public void webhook(@RequestHeader("Stripe-Signature") String sigHeader, @RequestBody String payload) throws SignatureVerificationException {
         Stripe.apiKey = appProperties.getStripe().getTestKey();
 
-        String payload = jsonPayload.asText();
         logger.info("payload={}", payload);
-        logger.info("sigHeader={}", sigHeader);
-        logger.info("webhook={}", appProperties.getStripe().getWebhookSecret());
         Event event = Webhook.constructEvent(payload, sigHeader, appProperties.getStripe().getWebhookSecret());
 
         EventDataObjectDeserializer dataObjectDeserializer = event.getDataObjectDeserializer();
