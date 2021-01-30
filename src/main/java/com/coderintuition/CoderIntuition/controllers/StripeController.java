@@ -35,8 +35,6 @@ import java.util.Set;
 @RestController
 @RequestMapping("/stripe")
 public class StripeController {
-    Logger logger = LoggerFactory.getLogger(StripeController.class);
-
     @Autowired
     AppProperties appProperties;
 
@@ -85,7 +83,7 @@ public class StripeController {
         SessionCreateParams params = new SessionCreateParams.Builder()
             .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
             .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
-            .setSuccessUrl("https://coderintuition.com/checkout-success")
+            .setSuccessUrl("https://coderintuition.com/checkout-success?session_id={CHECKOUT_SESSION_ID}")
             .setCancelUrl("https://coderintuition.com/plus")
             .setCustomer(user.getStripeCustomerId())
             .addLineItem(new SessionCreateParams.LineItem.Builder()
@@ -123,7 +121,6 @@ public class StripeController {
     public void webhook(@RequestHeader("Stripe-Signature") String sigHeader, @RequestBody String payload) throws SignatureVerificationException {
         Stripe.apiKey = appProperties.getStripe().getTestKey();
 
-        logger.info("payload={}", payload);
         Event event = Webhook.constructEvent(payload, sigHeader, appProperties.getStripe().getWebhookSecret());
 
         EventDataObjectDeserializer dataObjectDeserializer = event.getDataObjectDeserializer();
@@ -137,8 +134,6 @@ public class StripeController {
                 // Payment is successful and the subscription is created
                 // You should provision the subscription
                 Session session = (Session) stripeObject;
-                logger.info("sessionId={}", session.getId());
-                logger.info("customerId={}", session.getCustomer());
                 CheckoutSession checkoutSession = checkoutSessionRepository.findBySessionId(session.getId()).orElseThrow();
                 User user = checkoutSession.getUser();
                 setUserAsPlus(user);
