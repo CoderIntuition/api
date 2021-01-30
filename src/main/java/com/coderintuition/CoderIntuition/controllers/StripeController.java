@@ -14,6 +14,7 @@ import com.coderintuition.CoderIntuition.repositories.RoleRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.stripe.Stripe;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.*;
@@ -119,12 +120,13 @@ public class StripeController {
     }
 
     @PostMapping(value = "/webhook", consumes = "application/json")
-    public void webhook(@RequestHeader("Stripe-Signature") String sigHeader, String payload) throws SignatureVerificationException {
+    public void webhook(@RequestHeader("Stripe-Signature") String sigHeader, TextNode jsonPayload) throws SignatureVerificationException {
         Stripe.apiKey = appProperties.getStripe().getTestKey();
 
-        logger.info(payload);
-        logger.info(sigHeader);
-        logger.info(appProperties.getStripe().getWebhookSecret());
+        String payload = jsonPayload.asText();
+        logger.info("payload={}", payload);
+        logger.info("sigHeader={}", sigHeader);
+        logger.info("webhook={}", appProperties.getStripe().getWebhookSecret());
         Event event = Webhook.constructEvent(payload, sigHeader, appProperties.getStripe().getWebhookSecret());
 
         EventDataObjectDeserializer dataObjectDeserializer = event.getDataObjectDeserializer();
