@@ -118,7 +118,7 @@ public class StripeController {
         return new PortalSessionResponse(portalSession.getUrl());
     }
 
-    @PostMapping(value = "/webhook", consumes = "text/plain")
+    @PostMapping(value = "/webhook", consumes = "application/json")
     public void webhook(@RequestHeader("Stripe-Signature") String sigHeader, String payload) throws SignatureVerificationException {
         Stripe.apiKey = appProperties.getStripe().getTestKey();
 
