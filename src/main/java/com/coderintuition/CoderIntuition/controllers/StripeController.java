@@ -18,6 +18,7 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
 import com.stripe.model.checkout.Session;
+import com.stripe.net.ApiResource;
 import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,8 +114,10 @@ public class StripeController {
     }
 
     @PostMapping("/webhook")
-    public void webhook(Event event) {
+    public void webhook(String payload) {
         Stripe.apiKey = appProperties.getStripe().getTestKey();
+
+        Event event = ApiResource.GSON.fromJson(payload, Event.class);
 
         EventDataObjectDeserializer dataObjectDeserializer = event.getDataObjectDeserializer();
         StripeObject stripeObject = null;
