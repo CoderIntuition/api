@@ -137,6 +137,8 @@ public class StripeController {
                 // Payment is successful and the subscription is created
                 // You should provision the subscription
                 Session session = (Session) stripeObject;
+                logger.info("sessionId={}", session.getId());
+                logger.info("customerId={}", session.getCustomer());
                 CheckoutSession checkoutSession = checkoutSessionRepository.findBySessionId(session.getId()).orElseThrow();
                 User user = checkoutSession.getUser();
                 setUserAsPlus(user);
