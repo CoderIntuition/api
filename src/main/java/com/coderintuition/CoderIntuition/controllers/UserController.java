@@ -6,6 +6,7 @@ import com.coderintuition.CoderIntuition.enums.VerifyEmailStatus;
 import com.coderintuition.CoderIntuition.exceptions.BadRequestException;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
 import com.coderintuition.CoderIntuition.exceptions.ResourceNotFoundException;
+import com.coderintuition.CoderIntuition.models.Activity;
 import com.coderintuition.CoderIntuition.models.Role;
 import com.coderintuition.CoderIntuition.models.Submission;
 import com.coderintuition.CoderIntuition.models.User;
@@ -15,6 +16,7 @@ import com.coderintuition.CoderIntuition.pojos.request.VerifyEmailRequest;
 import com.coderintuition.CoderIntuition.pojos.response.UserProfileResponseDto;
 import com.coderintuition.CoderIntuition.pojos.response.UserResponse;
 import com.coderintuition.CoderIntuition.pojos.response.VerifyEmailResponse;
+import com.coderintuition.CoderIntuition.repositories.ActivityRepository;
 import com.coderintuition.CoderIntuition.repositories.RoleRepository;
 import com.coderintuition.CoderIntuition.repositories.SubmissionRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
@@ -43,6 +45,9 @@ public class UserController {
 
     @Autowired
     private SubmissionRepository submissionRepository;
+
+    @Autowired
+    private ActivityRepository activityRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -90,13 +95,15 @@ public class UserController {
 
         int numCompletedProblems = submissionRepository.findNumOfCompletedProblemsByUser(user);
 
+        List<Activity> activities = activityRepository.findActivitiesByUser(user);
+
         return new UserProfileResponseDto(user.getName(),
             user.getUsername(),
             plusRole,
             user.getImageUrl(),
             numCompletedProblems,
             user.getBadges(),
-            user.getActivities(),
+            activities,
             // TODO: call level calculation method to calculate level
             0,
             user.getGithubLink(),

@@ -9,8 +9,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ActivityRepository extends JpaRepository<Activity, Long> {
     @Query("SELECT COUNT(a) FROM Activity a WHERE a.user = (:user) AND a.problem = (:problem) AND a.activityType = (:activityType)")
     int findActivity(@Param("user") User user, @Param("problem") Problem problem, @Param("activityType") ActivityType activityType);
+
+    @Query("SELECT a FROM Activity a WHERE a.user = (:user)")
+    List<Activity> findActivitiesByUser(@Param("user") User user);
 }
