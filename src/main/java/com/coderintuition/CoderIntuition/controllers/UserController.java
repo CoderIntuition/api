@@ -1,18 +1,17 @@
 package com.coderintuition.CoderIntuition.controllers;
 
+import com.coderintuition.CoderIntuition.enums.ActivityType;
 import com.coderintuition.CoderIntuition.enums.AuthProvider;
 import com.coderintuition.CoderIntuition.enums.ERole;
 import com.coderintuition.CoderIntuition.enums.VerifyEmailStatus;
 import com.coderintuition.CoderIntuition.exceptions.BadRequestException;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
 import com.coderintuition.CoderIntuition.exceptions.ResourceNotFoundException;
-import com.coderintuition.CoderIntuition.models.Activity;
-import com.coderintuition.CoderIntuition.models.Role;
-import com.coderintuition.CoderIntuition.models.Submission;
-import com.coderintuition.CoderIntuition.models.User;
+import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.pojos.request.ChangePasswordRequest;
 import com.coderintuition.CoderIntuition.pojos.request.UserGeneralSettingsRequest;
 import com.coderintuition.CoderIntuition.pojos.request.VerifyEmailRequest;
+import com.coderintuition.CoderIntuition.pojos.response.ActivityResponseDto;
 import com.coderintuition.CoderIntuition.pojos.response.UserProfileResponseDto;
 import com.coderintuition.CoderIntuition.pojos.response.UserResponse;
 import com.coderintuition.CoderIntuition.pojos.response.VerifyEmailResponse;
@@ -28,10 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import reactor.util.StringUtils;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -96,6 +92,17 @@ public class UserController {
         int numCompletedProblems = submissionRepository.findNumOfCompletedProblemsByUser(user);
 
         List<Activity> activities = activityRepository.findActivitiesByUser(user);
+        List<ActivityResponseDto> activityResponses = new ArrayList<ActivityResponseDto>();
+        for (Activity activity: activities) {
+            ActivityResponseDto activityResponse = new ActivityResponseDto();
+            activityResponse.setActivityType(activity.getActivityType());
+            if (activity.getActivityType() == ActivityType.LEARN_INTUITION || activity.getActivityType() == ActivityType.SUBMIT_PROBLEM) {
+                activityResponse.setProblemName(activity.getProblem().getName());
+                activityResponse.setProblemUrl(activity.getProblem().getUrlName());
+            }
+            activityResponse.setCreatedDate(activity.getCreated_at());
+            activityResponses.add(activityResponse);
+        }
 
         return new UserProfileResponseDto(user.getName(),
             user.getUsername(),
@@ -103,7 +110,7 @@ public class UserController {
             user.getImageUrl(),
             numCompletedProblems,
             user.getBadges(),
-            activities,
+            activityResponses,
             // TODO: call level calculation method to calculate level
             0,
             user.getGithubLink(),

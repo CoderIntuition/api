@@ -22,10 +22,9 @@ public class UserProfileResponseDto {
     private String username;
     private Boolean plusRole;
     private String profilePicturePath;
-    private int numCompletedProblems;
+    private Integer numCompletedProblems;
     private List<Badge> badges;
-    @JsonIgnoreProperties("user")
-    private List<Activity> activities;
+    private List<ActivityResponseDto> activities;
     private Integer level;
     private String githubLink;
     private String linkedinLink;
