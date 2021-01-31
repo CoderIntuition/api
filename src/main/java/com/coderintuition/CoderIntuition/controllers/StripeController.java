@@ -14,12 +14,17 @@ import com.coderintuition.CoderIntuition.repositories.RoleRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.stripe.Stripe;
-import com.stripe.exception.StripeException;
+import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.*;
 import com.stripe.model.checkout.Session;
+import com.stripe.net.ApiResource;
+import com.stripe.net.Webhook;
 import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -78,9 +83,9 @@ public class StripeController {
         SessionCreateParams params = new SessionCreateParams.Builder()
             .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
             .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
-            .setSuccessUrl("https://coderintuition.com/checkout-success")
+            .setSuccessUrl("https://coderintuition.com/checkout-success?session_id={CHECKOUT_SESSION_ID}")
             .setCancelUrl("https://coderintuition.com/plus")
-            .setCustomerEmail(user.getEmail())
+            .setCustomer(user.getStripeCustomerId())
             .addLineItem(new SessionCreateParams.LineItem.Builder()
                 .setQuantity(1L)
                 .setPrice(checkoutSessionRequest.getPriceId())
@@ -112,9 +117,11 @@ public class StripeController {
         return new PortalSessionResponse(portalSession.getUrl());
     }
 
-    @PostMapping("/webhook")
-    public void webhook(Event event) {
+    @PostMapping(value = "/webhook", consumes = "application/json")
+    public void webhook(@RequestHeader("Stripe-Signature") String sigHeader, @RequestBody String payload) throws SignatureVerificationException {
         Stripe.apiKey = appProperties.getStripe().getTestKey();
+
+        Event event = Webhook.constructEvent(payload, sigHeader, appProperties.getStripe().getWebhookSecret());
 
         EventDataObjectDeserializer dataObjectDeserializer = event.getDataObjectDeserializer();
         StripeObject stripeObject = null;
