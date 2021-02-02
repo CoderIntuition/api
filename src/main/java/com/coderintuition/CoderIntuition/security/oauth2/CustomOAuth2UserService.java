@@ -12,6 +12,9 @@ import com.coderintuition.CoderIntuition.security.UserPrincipal;
 import com.coderintuition.CoderIntuition.security.oauth2.user.OAuth2UserInfo;
 import com.coderintuition.CoderIntuition.security.oauth2.user.OAuth2UserInfoFactory;
 import com.coderintuition.CoderIntuition.common.Utils;
+import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
@@ -29,6 +32,8 @@ import java.util.*;
 
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomOAuth2UserService.class);
+    private static final Gson GSON = new Gson();
 
     @Autowired
     private UserRepository userRepository;
@@ -38,7 +43,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
+        LOGGER.debug("oAuth2UserRequest={}", GSON.toJson(oAuth2UserRequest));
         OAuth2User oAuth2User = super.loadUser(oAuth2UserRequest);
+        LOGGER.debug("oAuth2User={}", GSON.toJson(oAuth2User));
         try {
             return processOAuth2User(oAuth2UserRequest, oAuth2User);
         } catch (AuthenticationException ex) {
@@ -51,10 +58,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private OAuth2User processOAuth2User(OAuth2UserRequest oAuth2UserRequest, OAuth2User oAuth2User) {
         Map<String, Object> unprotectedAttributes = new HashMap<>(oAuth2User.getAttributes());
+        LOGGER.debug("unprotectedAttributes={}", GSON.toJson(unprotectedAttributes));
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(oAuth2UserRequest.getClientRegistration().getRegistrationId(), unprotectedAttributes);
 
         AuthProvider authProvider = AuthProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId().toUpperCase());
         String authProviderName = StringUtils.capitalize(authProvider.toString().toLowerCase());
+        LOGGER.debug("authProviderName={}", authProviderName);
 
         // github doesn't provide emails from oauth so need to fetch from their API
         if (authProvider == AuthProvider.GITHUB && (oAuth2UserInfo.getEmail() == null || oAuth2UserInfo.getEmail().isEmpty())) {
@@ -84,6 +93,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         User user;
         // if user already has an account try to update, otherwise create new account
         if (userOptional.isPresent()) {
+            LOGGER.debug("User already has an account so update the user");
             user = userOptional.get();
             // user has an account using a different provider
             if (!user.getAuthProvider().equals(authProvider)) {
@@ -93,6 +103,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             }
             user = updateExistingUser(user, oAuth2UserInfo);
         } else {
+            LOGGER.debug("Create new user");
             user = registerNewUser(oAuth2UserRequest, oAuth2UserInfo);
         }
 
