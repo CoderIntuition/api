@@ -258,7 +258,6 @@ public class CmsController {
         returnType.setType(problemDto.getReturnType().getType());
         returnType.setUnderlyingType(problemDto.getReturnType().getUnderlyingType());
         returnType.setUnderlyingType2(problemDto.getReturnType().getUnderlyingType2());
-        returnTypeRepository.save(returnType);
         problem.setReturnType(returnType);
 
         problemRepository.save(problem);
