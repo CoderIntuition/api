@@ -47,7 +47,8 @@ public class Problem {
     private List<Argument> arguments;
 
     @JsonIgnoreProperties("problem")
-    @OneToOne(mappedBy = "problem")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn( name = "return_type_id" )
     @NotNull
     private ReturnType returnType;
 

@@ -21,9 +21,8 @@ public class ReturnType {
     @Column(name = "id")
     private Long id;
 
-    @JsonIgnoreProperties("return_type")
-    @OneToOne
-    @JoinColumn(name = "problem_id")
+    @JsonIgnoreProperties("returnType")
+    @OneToOne(mappedBy = "returnType")
     @NotNull
     private Problem problem;
 
