@@ -18,6 +18,5 @@ public class ReturnTypeDto {
 
     private UnderlyingType underlyingType2;
 
-    @NotNull
     private Boolean orderMatters;
 }

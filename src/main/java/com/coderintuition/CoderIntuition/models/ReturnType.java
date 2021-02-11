@@ -28,6 +28,7 @@ public class ReturnType {
 
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private ArgumentType type;
 
     @Column(name = "underlying_type")
@@ -39,6 +40,5 @@ public class ReturnType {
     private UnderlyingType underlyingType2;
 
     @Column(name = "order_matters")
-    @NotNull
     private Boolean orderMatters;
 }
