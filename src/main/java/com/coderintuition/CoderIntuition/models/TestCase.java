@@ -45,7 +45,6 @@ public class TestCase {
     private String input;
 
     @Column(name = "output", columnDefinition = "TEXT")
-    @NotBlank
     private String output;
 
     @Column(name = "time_limit")
