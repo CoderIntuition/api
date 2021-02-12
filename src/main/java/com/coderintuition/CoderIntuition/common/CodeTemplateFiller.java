@@ -221,8 +221,8 @@ public class CodeTemplateFiller {
                 break;
             case STRING:
                 equalsCode.append("if user_result == sol_result:");
-                userResultFormatCode.append("user_result_str = \"\\\"\" + user_result + \"\\\"\"");
-                solResultFormatCode.append("sol_result_str = \"\\\"\" + sol_result + \"\\\"\"");
+                userResultFormatCode.append("user_result_str = '\"' + user_result + '\"'");
+                solResultFormatCode.append("sol_result_str = '\"' + sol_result + '\"'");
                 break;
             case INTEGER:
                 // fall through
