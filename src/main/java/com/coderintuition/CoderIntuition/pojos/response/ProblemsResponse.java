@@ -14,5 +14,5 @@ import java.util.List;
 public class ProblemsResponse {
     private int totalPages;
     private int totalElements;
-    private List<SimpleProblemDto> problems;
+    private List<SimpleProblemResponse> problems;
 }

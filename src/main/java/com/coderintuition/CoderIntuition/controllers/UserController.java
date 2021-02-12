@@ -11,8 +11,8 @@ import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.pojos.request.ChangePasswordRequest;
 import com.coderintuition.CoderIntuition.pojos.request.UserGeneralSettingsRequest;
 import com.coderintuition.CoderIntuition.pojos.request.VerifyEmailRequest;
-import com.coderintuition.CoderIntuition.pojos.response.ActivityResponseDto;
-import com.coderintuition.CoderIntuition.pojos.response.UserProfileResponseDto;
+import com.coderintuition.CoderIntuition.pojos.response.ActivityResponse;
+import com.coderintuition.CoderIntuition.pojos.response.UserProfileResponse;
 import com.coderintuition.CoderIntuition.pojos.response.UserResponse;
 import com.coderintuition.CoderIntuition.pojos.response.VerifyEmailResponse;
 import com.coderintuition.CoderIntuition.repositories.ActivityRepository;
@@ -81,7 +81,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/user/{username}")
-    public UserProfileResponseDto getUserProfile(@PathVariable String username) {
+    public UserProfileResponse getUserProfile(@PathVariable String username) {
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RecordNotFoundException("Username " + username + " not found"));
 
@@ -92,9 +92,9 @@ public class UserController {
         int numCompletedProblems = submissionRepository.findNumOfCompletedProblemsByUser(user);
 
         List<Activity> activities = activityRepository.findActivitiesByUser(user);
-        List<ActivityResponseDto> activityResponses = new ArrayList<ActivityResponseDto>();
+        List<ActivityResponse> activityResponses = new ArrayList<>();
         for (Activity activity: activities) {
-            ActivityResponseDto activityResponse = new ActivityResponseDto();
+            ActivityResponse activityResponse = new ActivityResponse();
             activityResponse.setActivityType(activity.getActivityType());
             if (activity.getActivityType() == ActivityType.LEARN_INTUITION || activity.getActivityType() == ActivityType.SUBMIT_PROBLEM) {
                 activityResponse.setProblemName(activity.getProblem().getName());
@@ -104,7 +104,7 @@ public class UserController {
             activityResponses.add(activityResponse);
         }
 
-        return new UserProfileResponseDto(user.getName(),
+        return new UserProfileResponse(user.getName(),
             user.getUsername(),
             plusRole,
             user.getImageUrl(),

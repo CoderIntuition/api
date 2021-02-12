@@ -74,8 +74,8 @@ public class User {
     private Set<Role> roles;
 
     @Column(name = "auth_provider")
-    @NotNull
     @Enumerated(EnumType.STRING)
+    @NotNull
     private AuthProvider authProvider;
 
     @Column(name = "auth_provider_id")

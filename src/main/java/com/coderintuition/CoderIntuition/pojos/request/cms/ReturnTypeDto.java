@@ -12,11 +12,15 @@ import javax.validation.constraints.NotNull;
 @Setter
 @NoArgsConstructor
 public class ReturnTypeDto {
+    @NotNull
     private ArgumentType type;
 
+    @NotNull
     private UnderlyingType underlyingType;
 
+    @NotNull
     private UnderlyingType underlyingType2;
 
+    @NotNull
     private Boolean orderMatters;
 }

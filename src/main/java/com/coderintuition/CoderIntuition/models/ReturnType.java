@@ -33,12 +33,15 @@ public class ReturnType {
 
     @Column(name = "underlying_type")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private UnderlyingType underlyingType;
 
     @Column(name = "underlying_type_2")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private UnderlyingType underlyingType2;
 
     @Column(name = "order_matters")
+    @NotNull
     private Boolean orderMatters;
 }

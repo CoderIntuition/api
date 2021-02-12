@@ -9,7 +9,9 @@ import com.coderintuition.CoderIntuition.models.Solution;
 import com.coderintuition.CoderIntuition.models.TestRun;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.pojos.request.RunRequestDto;
-import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
+import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponse;
+import com.coderintuition.CoderIntuition.pojos.response.TestRunResponse;
+import com.coderintuition.CoderIntuition.pojos.response.TokenResponse;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.TestRunRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,9 +35,9 @@ public class TestRunController {
     SimpMessagingTemplate simpMessagingTemplate;
 
     @PutMapping("/testrun/judge0callback")
-    public void testRunCallback(@RequestBody JzSubmissionCheckResponseDto data) throws Exception {
+    public void testRunCallback(@RequestBody JzSubmissionCheckResponse data) throws Exception {
         // get test run info
-        JzSubmissionCheckResponseDto result = Utils.retrieveFromJudgeZero(data.getToken());
+        JzSubmissionCheckResponse result = Utils.retrieveFromJudgeZero(data.getToken());
 
         // update the test run in the db
         TestRun testRun = testRunRepository.findByToken(result.getToken());
@@ -79,13 +81,16 @@ public class TestRunController {
         // save the test run into the db
         testRun = testRunRepository.save(testRun);
 
-        // send message to frontend
+        // create TestRunResponse to send back over websocket
+        TestRunResponse testRunResponse = TestRunResponse.fromTestRun(testRun);
+
+        // send message to frontend over websocket
         ObjectMapper mapper = new ObjectMapper();
-        this.simpMessagingTemplate.convertAndSend("/topic/testrun", mapper.writeValueAsString(testRun));
+        this.simpMessagingTemplate.convertAndSend("/topic/testrun", mapper.writeValueAsString(testRunResponse));
     }
 
     @PostMapping("/testrun")
-    public TestRun createTestRun(@RequestBody RunRequestDto runRequestDto) throws Exception {
+    public TokenResponse createTestRun(@RequestBody RunRequestDto runRequestDto) throws Exception {
         // retrieve the problem
         Problem problem = problemRepository.findById(runRequestDto.getProblemId()).orElseThrow();
 
@@ -93,9 +98,10 @@ public class TestRunController {
         CodeTemplateFiller filler = CodeTemplateFiller.getInstance();
         String functionName = Utils.getFunctionName(runRequestDto.getLanguage(), problem.getCode(runRequestDto.getLanguage()));
         String primarySolution = problem.getSolutions().stream().filter(Solution::getIsPrimary).findFirst().orElseThrow().getCode(runRequestDto.getLanguage());
+
         // fill in the test run template with the arguments/return type for this test run
         String code = filler.getTestRunCode(runRequestDto.getLanguage(), runRequestDto.getCode(), primarySolution,
-                functionName, problem.getArguments(), problem.getReturnType());
+            functionName, problem.getArguments(), problem.getReturnType());
 
         // create request to JudgeZero
         JZSubmissionRequestDto requestDto = new JZSubmissionRequestDto();
@@ -103,6 +109,7 @@ public class TestRunController {
         requestDto.setLanguageId(Utils.getLanguageId(runRequestDto.getLanguage()));
         requestDto.setStdin(runRequestDto.getInput());
         requestDto.setCallbackUrl("https://api.coderintuition.com/testrun/judge0callback");
+
         // send request to JudgeZero
         String token = Utils.submitToJudgeZero(requestDto);
 
@@ -115,6 +122,6 @@ public class TestRunController {
         testRun.setInput(runRequestDto.getInput());
         testRunRepository.save(testRun);
 
-        return testRun;
+        return new TokenResponse(token);
     }
 }

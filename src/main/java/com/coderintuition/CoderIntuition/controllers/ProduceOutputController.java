@@ -9,7 +9,8 @@ import com.coderintuition.CoderIntuition.models.Problem;
 import com.coderintuition.CoderIntuition.models.ProduceOutput;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.pojos.request.ProduceOutputDto;
-import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
+import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponse;
+import com.coderintuition.CoderIntuition.pojos.response.ProduceOutputResponse;
 import com.coderintuition.CoderIntuition.pojos.response.TokenResponse;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.ProduceOutputRepository;
@@ -39,18 +40,18 @@ public class ProduceOutputController {
 
     @GetMapping("/produceoutput/{token}")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ProduceOutput getProduceOutput(@CurrentUser UserPrincipal userPrincipal, @PathVariable String token) throws Exception {
+    public ProduceOutputResponse getProduceOutput(@CurrentUser UserPrincipal userPrincipal, @PathVariable String token) throws Exception {
         ProduceOutput produceOutput = produceOutputRepository.findByToken(token);
         if (!produceOutput.getUser().getId().equals(userPrincipal.getId())) {
             throw new Exception("Unauthorized");
         }
-        return produceOutput;
+        return ProduceOutputResponse.fromProduceOutput(produceOutput);
     }
 
     @PutMapping("/produceoutput/judge0callback")
-    public void produceOutputCallback(@RequestBody JzSubmissionCheckResponseDto data) throws IOException {
+    public void produceOutputCallback(@RequestBody JzSubmissionCheckResponse data) throws IOException {
         // get produce output info
-        JzSubmissionCheckResponseDto result = Utils.retrieveFromJudgeZero(data.getToken());
+        JzSubmissionCheckResponse result = Utils.retrieveFromJudgeZero(data.getToken());
 
         // update the produce output in the db
         ProduceOutput produceOutput = produceOutputRepository.findByToken(result.getToken());
@@ -105,7 +106,7 @@ public class ProduceOutputController {
         CodeTemplateFiller filler = CodeTemplateFiller.getInstance();
         String functionName = Utils.getFunctionName(produceOutputDto.getLanguage(), problem.getCode(produceOutputDto.getLanguage()));
         String code = filler.getProduceOutputCode(produceOutputDto.getLanguage(), produceOutputDto.getCode(),
-                functionName, problem.getArguments(), problem.getReturnType());
+            functionName, problem.getArguments(), problem.getReturnType());
 
         // create request to JudgeZero
         JZSubmissionRequestDto requestDto = new JZSubmissionRequestDto();
@@ -113,6 +114,7 @@ public class ProduceOutputController {
         requestDto.setLanguageId(Utils.getLanguageId(Language.PYTHON));
         requestDto.setStdin(produceOutputDto.getInput());
         requestDto.setCallbackUrl("https://api.coderintuition.com/produceoutput/judge0callback");
+
         // send request to JudgeZero
         String token = Utils.submitToJudgeZero(requestDto);
 

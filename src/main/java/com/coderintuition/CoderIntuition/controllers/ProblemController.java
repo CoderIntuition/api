@@ -3,8 +3,9 @@ package com.coderintuition.CoderIntuition.controllers;
 import com.coderintuition.CoderIntuition.enums.ProblemCategory;
 import com.coderintuition.CoderIntuition.models.Problem;
 import com.coderintuition.CoderIntuition.pojos.response.CategoryDto;
+import com.coderintuition.CoderIntuition.pojos.response.ProblemResponse;
 import com.coderintuition.CoderIntuition.pojos.response.ProblemsResponse;
-import com.coderintuition.CoderIntuition.pojos.response.SimpleProblemDto;
+import com.coderintuition.CoderIntuition.pojos.response.SimpleProblemResponse;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.ProblemStepRepository;
 import com.coderintuition.CoderIntuition.repositories.TestCaseRepository;
@@ -18,7 +19,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 public class ProblemController {
@@ -29,21 +33,6 @@ public class ProblemController {
     ProblemStepRepository problemStepRepository;
     @Autowired
     TestCaseRepository testCaseRepository;
-
-    private List<SimpleProblemDto> simplifyProblems(List<Problem> problems) {
-        List<SimpleProblemDto> simpleProblemDtos = new ArrayList<>();
-        for (Problem problem : problems) {
-            SimpleProblemDto simpleProblemDto = new SimpleProblemDto();
-            simpleProblemDto.setId(problem.getId());
-            simpleProblemDto.setName(problem.getName());
-            simpleProblemDto.setUrlName(problem.getUrlName());
-            simpleProblemDto.setPlusOnly(problem.getPlusOnly());
-            simpleProblemDto.setCategory(problem.getCategory());
-            simpleProblemDto.setDifficulty(problem.getDifficulty());
-            simpleProblemDtos.add(simpleProblemDto);
-        }
-        return simpleProblemDtos;
-    }
 
     @GetMapping("/allproblems")
     public Map<String, CategoryDto> getAllProblems() {
@@ -72,13 +61,22 @@ public class ProblemController {
     }
 
     @GetMapping("/problem/id/{id}")
-    public Problem getProblemById(@PathVariable Long id) {
+    public ProblemResponse getProblemById(@PathVariable Long id) {
         Problem problem = problemRepository.findById(id).orElseThrow();
-        return problem;
+        return ProblemResponse.fromProblem(problem);
     }
 
     @GetMapping("/problem/{urlName}")
-    public Optional<Problem> getProblemByUrlname(@PathVariable String urlName) {
-        return problemRepository.findByUrlName(urlName);
+    public ProblemResponse getProblemByUrlName(@PathVariable String urlName) {
+        Problem problem = problemRepository.findByUrlName(urlName).orElseThrow();
+        return ProblemResponse.fromProblem(problem);
+    }
+
+    private List<SimpleProblemResponse> simplifyProblems(List<Problem> problems) {
+        List<SimpleProblemResponse> simpleProblemResponses = new ArrayList<>();
+        for (Problem problem : problems) {
+            simpleProblemResponses.add(SimpleProblemResponse.fromProblem(problem));
+        }
+        return simpleProblemResponses;
     }
 }

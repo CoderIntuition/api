@@ -31,7 +31,6 @@ public class Solution {
     private Problem problem;
 
     @Column(name = "solution_num")
-    @NotNull
     @Positive
     private Integer solutionNum;
 
@@ -49,7 +48,7 @@ public class Solution {
     private String description;
 
     @Column(name = "python_code", columnDefinition = "TEXT")
-    @NotBlank
+    @NotBlank // at least python code must be provided
     private String pythonCode;
 
     @Column(name = "java_code", columnDefinition = "TEXT")

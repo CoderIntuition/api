@@ -2,8 +2,8 @@ package com.coderintuition.CoderIntuition.common;
 
 import com.coderintuition.CoderIntuition.enums.Language;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
-import com.coderintuition.CoderIntuition.pojos.response.JZSubmissionResponseDto;
-import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
+import com.coderintuition.CoderIntuition.pojos.response.JZSubmissionResponse;
+import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.sargue.mailgun.Configuration;
 import net.sargue.mailgun.Mail;
@@ -82,13 +82,13 @@ public class Utils {
 
         Call call = client.newCall(request);
         okhttp3.Response response = call.execute();
-        JZSubmissionResponseDto responseDto = mapper.readValue(Objects.requireNonNull(response.body()).string(),
-                JZSubmissionResponseDto.class);
+        JZSubmissionResponse responseDto = mapper.readValue(Objects.requireNonNull(response.body()).string(),
+                JZSubmissionResponse.class);
 
         return responseDto.getToken();
     }
 
-    public static JzSubmissionCheckResponseDto retrieveFromJudgeZero(String token) throws IOException {
+    public static JzSubmissionCheckResponse retrieveFromJudgeZero(String token) throws IOException {
         // get test run info
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
@@ -100,7 +100,7 @@ public class Utils {
 
         okhttp3.Response response = client.newCall(request).execute();
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(Objects.requireNonNull(response.body()).string(), JzSubmissionCheckResponseDto.class);
+        return mapper.readValue(Objects.requireNonNull(response.body()).string(), JzSubmissionCheckResponse.class);
     }
 
     public static String generateUsername() {

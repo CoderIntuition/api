@@ -10,7 +10,8 @@ import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.pojos.request.ActivityRequestDto;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.pojos.request.RunRequestDto;
-import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponseDto;
+import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponse;
+import com.coderintuition.CoderIntuition.pojos.response.SubmissionResponse;
 import com.coderintuition.CoderIntuition.pojos.response.TokenResponse;
 import com.coderintuition.CoderIntuition.repositories.*;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
@@ -52,18 +53,19 @@ public class SubmissionController {
 
     @GetMapping("/submission/{token}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public Submission getSubmission(@CurrentUser UserPrincipal userPrincipal, @PathVariable String token) throws Exception {
+    public SubmissionResponse getSubmission(@CurrentUser UserPrincipal userPrincipal, @PathVariable String token) throws Exception {
         Submission submission = submissionRepository.findByToken(token);
         if (!submission.getUser().getId().equals(userPrincipal.getId())) {
             throw new Exception("Unauthorized");
         }
-        return submission;
+
+        return SubmissionResponse.fromSubmission(submission);
     }
 
     @PutMapping("/submission/judge0callback")
-    public void submissionCallback(@RequestBody JzSubmissionCheckResponseDto data) throws IOException {
+    public void submissionCallback(@RequestBody JzSubmissionCheckResponse data) throws IOException {
         // get submission info
-        JzSubmissionCheckResponseDto result = Utils.retrieveFromJudgeZero(data.getToken());
+        JzSubmissionCheckResponse result = Utils.retrieveFromJudgeZero(data.getToken());
 
         // update the submission in the db
         Submission submission = submissionRepository.findByToken(result.getToken());
@@ -129,7 +131,7 @@ public class SubmissionController {
         // save the submission into the db
         submissionRepository.save(submission);
 
-        // send message to frontend
+        // send message to frontend over websocket
         this.simpMessagingTemplate.convertAndSend("/topic/submission", result.getToken());
     }
 

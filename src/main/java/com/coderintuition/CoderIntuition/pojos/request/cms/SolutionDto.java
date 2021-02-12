@@ -13,14 +13,19 @@ import javax.validation.constraints.NotNull;
 public class SolutionDto {
     @NotBlank
     private String name;
+
     @NotNull
     private Boolean isPrimary;
+
     @NotNull
     private String description;
+
     @NotBlank
     private String pythonCode;
+
     @NotNull
     private String javaCode;
+
     @NotNull
     private String javascriptCode;
 }

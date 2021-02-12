@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "role")
@@ -19,5 +20,6 @@ public class Role {
 
     @Column(name = "name")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private ERole name;
 }

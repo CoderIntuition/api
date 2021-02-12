@@ -10,7 +10,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Date;
@@ -33,10 +32,12 @@ public class Submission {
 
     @Column(name = "language")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private Language language;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private SubmissionStatus status;
 
     @Column(name = "code", columnDefinition = "TEXT")

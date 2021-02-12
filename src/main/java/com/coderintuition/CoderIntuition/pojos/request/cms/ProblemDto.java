@@ -27,8 +27,10 @@ public class ProblemDto {
     @NotNull
     private Boolean plusOnly;
 
+    @NotNull
     private ProblemCategory category;
 
+    @NotNull
     private Difficulty difficulty;
 
     @NotBlank

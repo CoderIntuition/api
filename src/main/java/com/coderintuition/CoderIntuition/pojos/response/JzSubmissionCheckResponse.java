@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class JzSubmissionCheckResponseDto {
+public class JzSubmissionCheckResponse {
     @JsonProperty("compile_output")
     private String compileOutput;
     private int memory;

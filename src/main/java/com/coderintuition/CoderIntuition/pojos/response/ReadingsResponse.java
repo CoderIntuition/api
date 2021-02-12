@@ -14,5 +14,5 @@ import java.util.List;
 public class ReadingsResponse {
     private int totalPages;
     private int totalElements;
-    private List<SimpleReadingDto> readings;
+    private List<SimpleReadingResponse> readings;
 }

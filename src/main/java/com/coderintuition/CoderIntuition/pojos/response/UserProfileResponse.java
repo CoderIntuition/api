@@ -1,10 +1,7 @@
 package com.coderintuition.CoderIntuition.pojos.response;
 
-import com.coderintuition.CoderIntuition.models.Activity;
 import com.coderintuition.CoderIntuition.models.Badge;
-import com.coderintuition.CoderIntuition.models.Role;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,14 +14,14 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserProfileResponseDto {
+public class UserProfileResponse {
     private String name;
     private String username;
     private Boolean plusRole;
     private String profilePicturePath;
     private Integer numCompletedProblems;
     private List<Badge> badges;
-    private List<ActivityResponseDto> activities;
+    private List<ActivityResponse> activities;
     private Integer level;
     private String githubLink;
     private String linkedinLink;

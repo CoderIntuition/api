@@ -29,25 +29,21 @@ public class Argument {
     private Problem problem;
 
     @Column(name = "argument_num")
-    @NotNull
     @Positive
     private Integer argumentNum;
 
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private ArgumentType type;
 
     @Column(name = "underlying_type")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private UnderlyingType underlyingType;
 
     @Column(name = "underlying_type_2")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private UnderlyingType underlyingType2;
-
-    public Argument(ArgumentType type, UnderlyingType underlyingType, UnderlyingType underlyingType2) {
-        this.type = type;
-        this.underlyingType = underlyingType;
-        this.underlyingType2 = underlyingType2;
-    }
 }

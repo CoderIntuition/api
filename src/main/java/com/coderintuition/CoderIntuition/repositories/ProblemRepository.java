@@ -2,7 +2,6 @@ package com.coderintuition.CoderIntuition.repositories;
 
 import com.coderintuition.CoderIntuition.enums.ProblemCategory;
 import com.coderintuition.CoderIntuition.models.Problem;
-import com.coderintuition.CoderIntuition.pojos.response.SimpleProblemDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

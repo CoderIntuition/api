@@ -28,7 +28,6 @@ public class TestCase {
 
     @Column(name = "test_case_num")
     @Positive
-    @NotNull
     private Integer testCaseNum;
 
     @Column(name = "name")
@@ -41,11 +40,8 @@ public class TestCase {
     private Boolean isDefault;
 
     @Column(name = "input", columnDefinition = "TEXT")
-    @NotBlank
+    @NotNull
     private String input;
-
-    @Column(name = "output", columnDefinition = "TEXT")
-    private String output;
 
     @Column(name = "time_limit")
     private Integer time_limit;
@@ -65,5 +61,4 @@ public class TestCase {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private Date updated_at;
-
 }

@@ -21,7 +21,4 @@ public class TestCaseDto {
 
     @NotBlank
     private String input;
-
-    @NotBlank
-    private String output;
 }

@@ -8,13 +8,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
-import java.util.Optional;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ActivityResponseDto {
+public class ActivityResponse {
     private ActivityType activityType;
     private String problemName;
     private String problemUrl;

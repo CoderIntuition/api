@@ -28,7 +28,6 @@ public class ProblemStep {
     private Problem problem;
 
     @Column(name = "step_num")
-    @NotNull
     @Positive
     private Integer stepNum;
 
@@ -39,6 +38,7 @@ public class ProblemStep {
 
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private ProblemStepType type;
 
     @Column(name = "content", columnDefinition = "TEXT")
@@ -46,7 +46,6 @@ public class ProblemStep {
     private String content;
 
     @Column(name = "time")
-    @NotNull
     @PositiveOrZero
     private Integer time;
 

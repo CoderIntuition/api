@@ -7,6 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class JZSubmissionResponseDto {
+public class JZSubmissionResponse {
     private String token;
 }

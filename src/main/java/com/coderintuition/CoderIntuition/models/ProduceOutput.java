@@ -2,7 +2,6 @@ package com.coderintuition.CoderIntuition.models;
 
 import com.coderintuition.CoderIntuition.enums.Language;
 import com.coderintuition.CoderIntuition.enums.ProduceOutputStatus;
-import com.coderintuition.CoderIntuition.enums.TestStatus;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -41,6 +40,7 @@ public class ProduceOutput {
 
     @Column(name = "language")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private Language language;
 
     @Column(name = "code", columnDefinition = "TEXT")
@@ -48,11 +48,12 @@ public class ProduceOutput {
     private String code;
 
     @Column(name = "input", columnDefinition = "TEXT")
-    @NotBlank
+    @NotNull
     private String input;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private ProduceOutputStatus status;
 
     @Column(name = "output", columnDefinition = "TEXT")

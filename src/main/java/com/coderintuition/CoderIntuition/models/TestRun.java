@@ -35,6 +35,7 @@ public class TestRun {
 
     @Column(name = "language")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private Language language;
 
     @Column(name = "code", columnDefinition = "TEXT")
@@ -47,6 +48,7 @@ public class TestRun {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private TestStatus status;
 
     @Column(name = "expected_output", columnDefinition = "TEXT")

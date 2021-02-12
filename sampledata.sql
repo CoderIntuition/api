@@ -1,8 +1,14 @@
 USE coderintuition;
 
-INSERT INTO coderintuition.problem (name, url_name, plus_only, category, difficulty, description, python_code, java_code,
+INSERT INTO coderintuition.return_type(type, underlying_type, underlying_type_2, order_matters)
+VALUES ('LIST', 'INTEGER', 'NONE', true);
+
+SET @return_type_id = LAST_INSERT_ID();
+
+INSERT INTO coderintuition.problem (return_type_id, name, url_name, plus_only, category, difficulty, description,
+                                    python_code, java_code,
                                     javascript_code, created_at, updated_at)
-VALUES ('Sort Array', 'sort-array', false, 'ARRAYS', 'BEGINNER',
+VALUES (@return_type_id, 'Sort Array', 'sort-array', false, 'ARRAYS', 'BEGINNER',
         'Given an array of integers, sort the array in non-decreasing order.',
         'def sort_array(nums):\n\treturn nums',
         'class Solution {\n\tList<Integer> sortArray(List<Integer> nums) {\n\t\treturn nums;\n\t}\n}',
@@ -51,14 +57,14 @@ VALUES (@problem1_id, 2, 'Step 2: Problem Understanding Quiz', 'QUIZ', '
     }]
 ', 5, '2020-08-29 00:00:00', '2020-08-29 00:00:00');
 
-INSERT INTO coderintuition.test_case(problem_id, test_case_num, name, is_default, input, output, time_limit,
+INSERT INTO coderintuition.test_case(problem_id, test_case_num, name, is_default, input, time_limit,
                                      memory_limit, stack_limit, created_at, updated_at)
-VALUES (@problem1_id, 1, 'Test 1', true, '[1, 2, 3, 4]', '[1, 2, 3, 4]', 10, 10, 10, '2020-08-29 00:00:00',
+VALUES (@problem1_id, 1, 'Test 1', true, '[1, 2, 3, 4]', 10, 10, 10, '2020-08-29 00:00:00',
         '2020-08-29 00:00:00');
 
-INSERT INTO coderintuition.test_case(problem_id, test_case_num, name, is_default, input, output, time_limit,
+INSERT INTO coderintuition.test_case(problem_id, test_case_num, name, is_default, input, time_limit,
                                      memory_limit, stack_limit, created_at, updated_at)
-VALUES (@problem1_id, 2, 'Test 1', false, '[3, 1, 4, 2]', '[1, 2, 3, 4]', 10, 10, 10, '2020-08-29 00:00:00',
+VALUES (@problem1_id, 2, 'Test 1', false, '[3, 1, 4, 2]', 10, 10, 10, '2020-08-29 00:00:00',
         '2020-08-29 00:00:00');
 
 INSERT INTO coderintuition.solution(problem_id, solution_num, name, is_primary, python_code, java_code,
@@ -77,15 +83,16 @@ VALUES (@problem1_id, 2, 'Approach 2: Use built-in sorted', true,
 INSERT INTO coderintuition.argument(problem_id, argument_num, type, underlying_type, underlying_type_2)
 VALUES (@problem1_id, 1, 'LIST', 'INTEGER', 'NONE');
 
-INSERT INTO coderintuition.return_type(problem_id, type, underlying_type, underlying_type_2, order_matters)
-VALUES (@problem1_id, 'LIST', 'INTEGER', 'NONE', true);
-
-INSERT INTO role(name) VALUES ('ROLE_USER');
+INSERT INTO role(name)
+VALUES ('ROLE_USER');
 SET @user_id = LAST_INSERT_ID();
-INSERT INTO role(name) VALUES ('ROLE_PLUS');
-INSERT INTO role(name) VALUES ('ROLE_MODERATOR');
+INSERT INTO role(name)
+VALUES ('ROLE_PLUS');
+INSERT INTO role(name)
+VALUES ('ROLE_MODERATOR');
 SET @moderator_id = LAST_INSERT_ID();
-INSERT INTO role(name) VALUES ('ROLE_ADMIN');
+INSERT INTO role(name)
+VALUES ('ROLE_ADMIN');
 SET @admin_id = LAST_INSERT_ID();
 
 INSERT INTO user(name, email, password, language, auth_provider, verified, username)
@@ -94,6 +101,9 @@ VALUES ('David Zhang', 'davidhqr@gmail.com', '$2a$10$ygD6H1LrE7erEV8FrLrQfeVnNYC
 
 SET @user1_id = LAST_INSERT_ID();
 
-INSERT INTO user_role(user_id, role_id) VALUES (@user1_id, @user_id);
-INSERT INTO user_role(user_id, role_id) VALUES (@user1_id, @moderator_id);
-INSERT INTO user_role(user_id, role_id) VALUES (@user1_id, @admin_id);
+INSERT INTO user_role(user_id, role_id)
+VALUES (@user1_id, @user_id);
+INSERT INTO user_role(user_id, role_id)
+VALUES (@user1_id, @moderator_id);
+INSERT INTO user_role(user_id, role_id)
+VALUES (@user1_id, @admin_id);

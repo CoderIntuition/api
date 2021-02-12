@@ -1,17 +1,21 @@
 package com.coderintuition.CoderIntuition.models;
 
-import com.coderintuition.CoderIntuition.enums.ProblemCategory;
 import com.coderintuition.CoderIntuition.enums.Difficulty;
 import com.coderintuition.CoderIntuition.enums.Language;
+import com.coderintuition.CoderIntuition.enums.ProblemCategory;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.List;
 
@@ -48,7 +52,7 @@ public class Problem {
 
     @JsonIgnoreProperties("problem")
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn( name = "return_type_id" )
+    @JoinColumn(name = "return_type_id", referencedColumnName = "id")
     @NotNull
     private ReturnType returnType;
 
@@ -68,10 +72,12 @@ public class Problem {
 
     @Column(name = "category")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private ProblemCategory category;
 
     @Column(name = "difficulty")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private Difficulty difficulty;
 
     @Column(name = "description", columnDefinition = "TEXT")
@@ -79,7 +85,7 @@ public class Problem {
     private String description;
 
     @Column(name = "python_code", columnDefinition = "TEXT")
-    @NotBlank
+    @NotBlank // at least python code must be provided
     private String pythonCode;
 
     @Column(name = "java_code", columnDefinition = "TEXT")
@@ -91,6 +97,8 @@ public class Problem {
     private String javascriptCode;
 
     @Column(name = "deleted")
+    @NotNull
+    @JsonIgnore
     private Boolean deleted;
 
     @CreationTimestamp
@@ -114,5 +122,9 @@ public class Problem {
             default:
                 return "";
         }
+    }
+
+    public TestCase getDefaultTestCase() {
+        return testCases.stream().filter(TestCase::getIsDefault).findFirst().orElseThrow();
     }
 }

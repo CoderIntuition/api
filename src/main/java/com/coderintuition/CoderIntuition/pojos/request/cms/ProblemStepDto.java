@@ -5,7 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Size;
 
 @Getter
 @Setter
@@ -15,12 +18,12 @@ public class ProblemStepDto {
     @Size(max = 300)
     private String name;
 
+    @NotNull
     private ProblemStepType type;
 
     @NotBlank
     private String content;
 
-    @NotNull
     @PositiveOrZero
     private Integer time;
 }

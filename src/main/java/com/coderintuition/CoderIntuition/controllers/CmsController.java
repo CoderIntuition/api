@@ -39,6 +39,12 @@ public class CmsController {
     @Autowired
     ReadingRepository readingRepository;
 
+    @GetMapping("/problem/id/{id}")
+    @PreAuthorize("hasRole('ROLE_MODERATOR')")
+    public Problem getProblemById(@PathVariable Long id) {
+        return problemRepository.findById(id).orElseThrow();
+    }
+
     @PostMapping("/problem/update")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
     public ResponseEntity<?> updateProblem(@Valid @RequestBody UpdateProblemRequest updateProblemRequest) throws Exception {
@@ -100,7 +106,6 @@ public class CmsController {
             testCase.setName(testCaseDto.getName());
             testCase.setIsDefault(testCaseDto.getIsDefault());
             testCase.setInput(testCaseDto.getInput());
-            testCase.setOutput(testCaseDto.getOutput());
             testCaseRepository.save(testCase);
         }
         // delete remaining test cases
@@ -177,6 +182,7 @@ public class CmsController {
             throw new Exception("There must be exactly one primary solution");
         }
         Problem problem = new Problem();
+        problem.setDeleted(false);
         problem.setName(problemDto.getName());
         problem.setUrlName(problemDto.getUrlName());
         problem.setPlusOnly(problemDto.getPlusOnly());
@@ -213,7 +219,6 @@ public class CmsController {
             testCase.setName(testCaseDto.getName());
             testCase.setIsDefault(testCaseDto.getIsDefault());
             testCase.setInput(testCaseDto.getInput());
-            testCase.setOutput(testCaseDto.getOutput());
 
             testCases.add(testCase);
         }
@@ -258,6 +263,7 @@ public class CmsController {
         returnType.setType(problemDto.getReturnType().getType());
         returnType.setUnderlyingType(problemDto.getReturnType().getUnderlyingType());
         returnType.setUnderlyingType2(problemDto.getReturnType().getUnderlyingType2());
+        returnType.setOrderMatters(problemDto.getReturnType().getOrderMatters());
         problem.setReturnType(returnType);
 
         problemRepository.save(problem);
@@ -285,6 +291,12 @@ public class CmsController {
         problemRepository.save(problem);
 
         return ResponseEntity.ok().body(new MessageResponse("Problem deleted successfully"));
+    }
+
+    @GetMapping("/reading/id/{id}")
+    @PreAuthorize("hasRole('ROLE_MODERATOR')")
+    public Reading getReadingById(@PathVariable Long id) {
+        return readingRepository.findById(id).orElseThrow();
     }
 
     @PostMapping("/reading/add")
