@@ -20,7 +20,7 @@ public class TestCase {
     @Column(name = "id")
     private Long id;
 
-    @JsonIgnoreProperties("testCases")
+    @JsonIgnoreProperties({"testCases", "defaultTestCase"})
     @ManyToOne
     @JoinColumn(name = "problem_id")
     @NotNull
