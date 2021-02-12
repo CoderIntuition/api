@@ -37,7 +37,6 @@ public class Submission {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    @NotNull
     private SubmissionStatus status;
 
     @Column(name = "code", columnDefinition = "TEXT")
