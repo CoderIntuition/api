@@ -3,6 +3,7 @@ package com.coderintuition.CoderIntuition.controllers;
 import com.coderintuition.CoderIntuition.common.CodeTemplateFiller;
 import com.coderintuition.CoderIntuition.common.Constants;
 import com.coderintuition.CoderIntuition.common.Utils;
+import com.coderintuition.CoderIntuition.config.AppProperties;
 import com.coderintuition.CoderIntuition.enums.TestStatus;
 import com.coderintuition.CoderIntuition.models.Problem;
 import com.coderintuition.CoderIntuition.models.Solution;
@@ -34,10 +35,13 @@ public class TestRunController {
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
 
+    @Autowired
+    AppProperties appProperties;
+
     @PutMapping("/testrun/judge0callback")
     public void testRunCallback(@RequestBody JzSubmissionCheckResponse data) throws Exception {
         // get test run info
-        JzSubmissionCheckResponse result = Utils.retrieveFromJudgeZero(data.getToken());
+        JzSubmissionCheckResponse result = Utils.retrieveFromJudgeZero(data.getToken(), appProperties);
 
         // update the test run in the db
         TestRun testRun = testRunRepository.findByToken(result.getToken());
@@ -108,10 +112,10 @@ public class TestRunController {
         requestDto.setSourceCode(code);
         requestDto.setLanguageId(Utils.getLanguageId(runRequestDto.getLanguage()));
         requestDto.setStdin(runRequestDto.getInput());
-        requestDto.setCallbackUrl("https://api.coderintuition.com/testrun/judge0callback");
+        requestDto.setCallbackUrl(appProperties.getJudge0().getCallbackUrl() + "/testrun/judge0callback");
 
         // send request to JudgeZero
-        String token = Utils.submitToJudgeZero(requestDto);
+        String token = Utils.submitToJudgeZero(requestDto, appProperties);
 
         // create the test run to be saved into the db
         TestRun testRun = new TestRun();
@@ -120,6 +124,7 @@ public class TestRunController {
         testRun.setLanguage(runRequestDto.getLanguage());
         testRun.setCode(runRequestDto.getCode());
         testRun.setInput(runRequestDto.getInput());
+        testRun.setStatus(TestStatus.RUNNING);
         testRunRepository.save(testRun);
 
         return new TokenResponse(token);

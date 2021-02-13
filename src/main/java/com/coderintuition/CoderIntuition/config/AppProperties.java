@@ -15,6 +15,7 @@ public class AppProperties {
     private final OAuth2 oauth2 = new OAuth2();
     private final Mailgun mailgun = new Mailgun();
     private final Stripe stripe = new Stripe();
+    private final Judge0 judge0 = new Judge0();
 
     @Getter
     @Setter
@@ -48,5 +49,15 @@ public class AppProperties {
         private String testKey;
         private String liveKey;
         private String webhookSecret;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class Judge0 {
+        private String url;
+        private String callbackUrl;
+        private String rapidApiHost;
+        private String rapidApiKey;
     }
 }

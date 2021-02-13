@@ -1,5 +1,6 @@
 package com.coderintuition.CoderIntuition.common;
 
+import com.coderintuition.CoderIntuition.config.AppProperties;
 import com.coderintuition.CoderIntuition.enums.Language;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.pojos.response.JZSubmissionResponse;
@@ -12,11 +13,11 @@ import okhttp3.*;
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.util.Base64Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.Random;
 
@@ -67,25 +68,22 @@ public class Utils {
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    public static String submitToJudgeZero(JZSubmissionRequestDto requestDto) throws IOException {
-        requestDto.setSourceCode(Base64Utils.encodeToString(requestDto.getSourceCode().getBytes(StandardCharsets.UTF_8)));
+    public static String submitToJudgeZero(JZSubmissionRequestDto requestDto, AppProperties appProperties) throws IOException {
+        Base64.Encoder encoder = Base64.getEncoder();
+        requestDto.setSourceCode(encoder.encodeToString(requestDto.getSourceCode().getBytes()));
+        requestDto.setStdin(encoder.encodeToString(requestDto.getStdin().getBytes()));
+
         ObjectMapper mapper = new ObjectMapper();
 
         OkHttpClient client = new OkHttpClient();
-        HttpUrl url = new HttpUrl.Builder()
-            .scheme("https")
-            .host("judge0-ce.p.rapidapi.com")
-            .addPathSegment("submissions")
-            .addQueryParameter("base64_encoded", "true")
-            .build();
-
+        String url = appProperties.getJudge0().getUrl() + "/submissions?base64_encoded=true";
         RequestBody body = RequestBody.create(mapper.writeValueAsString(requestDto), JSON);
 
         Request request = new Request.Builder()
             .url(url)
             .addHeader("content-type", "application/json")
-            .addHeader("x-rapidapi-host", "judge0-ce.p.rapidapi.com")
-            .addHeader("x-rapidapi-key", "570c3ea12amsh7d718c55ca5d164p153fd5jsnfca4d3b2f9f9")
+            .addHeader("x-rapidapi-host", appProperties.getJudge0().getRapidApiHost())
+            .addHeader("x-rapidapi-key", appProperties.getJudge0().getRapidApiKey())
             .post(body)
             .build();
 
@@ -97,27 +95,42 @@ public class Utils {
         return responseDto.getToken();
     }
 
-    public static JzSubmissionCheckResponse retrieveFromJudgeZero(String token) throws IOException {
+    public static JzSubmissionCheckResponse retrieveFromJudgeZero(String token, AppProperties appProperties) throws IOException {
         // get test run info
         OkHttpClient client = new OkHttpClient();
-        HttpUrl url = new HttpUrl.Builder()
-            .scheme("https")
-            .host("judge0-ce.p.rapidapi.com")
-            .addPathSegment("submissions")
-            .addPathSegment(token)
-            .build();
+        String url = appProperties.getJudge0().getUrl() + "/submissions/" + token + "?base64_encoded=true";
 
         Request request = new Request.Builder()
             .url(url)
-            .addHeader("x-rapidapi-host", "judge0-ce.p.rapidapi.com")
-            .addHeader("x-rapidapi-key", "570c3ea12amsh7d718c55ca5d164p153fd5jsnfca4d3b2f9f9")
+            .addHeader("x-rapidapi-host", appProperties.getJudge0().getRapidApiHost())
+            .addHeader("x-rapidapi-key", appProperties.getJudge0().getRapidApiKey())
             .get()
             .build();
 
         okhttp3.Response response = client.newCall(request).execute();
         ObjectMapper mapper = new ObjectMapper();
 
-        return mapper.readValue(Objects.requireNonNull(response.body()).string(), JzSubmissionCheckResponse.class);
+        Base64.Decoder decoder = Base64.getMimeDecoder();
+
+        JzSubmissionCheckResponse jzSubmissionCheckResponse = mapper.readValue(Objects.requireNonNull(response.body()).string(), JzSubmissionCheckResponse.class);
+        if (jzSubmissionCheckResponse.getStderr() != null) {
+            byte[] stderrBytes = decoder.decode(jzSubmissionCheckResponse.getStderr());
+            jzSubmissionCheckResponse.setStderr(new String(stderrBytes));
+        }
+        if (jzSubmissionCheckResponse.getStdout() != null) {
+            byte[] stdoutBytes = decoder.decode(jzSubmissionCheckResponse.getStdout());
+            jzSubmissionCheckResponse.setStdout(new String(stdoutBytes));
+        }
+        if (jzSubmissionCheckResponse.getCompileOutput() != null) {
+            byte[] compileOutputBytes = decoder.decode(jzSubmissionCheckResponse.getCompileOutput());
+            jzSubmissionCheckResponse.setCompileOutput(new String(compileOutputBytes));
+        }
+        if (jzSubmissionCheckResponse.getMessage() != null) {
+            byte[] messageBytes = decoder.decode(jzSubmissionCheckResponse.getMessage());
+            jzSubmissionCheckResponse.setMessage(new String(messageBytes));
+        }
+
+        return jzSubmissionCheckResponse;
     }
 
     public static String generateUsername() {
