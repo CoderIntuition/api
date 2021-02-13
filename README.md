@@ -1,4 +1,4 @@
-# CoderIntution Backend API
+# CoderIntuition Spring Backend API
 ![Deploy](https://github.com/CoderIntuition/CoderIntuition-API/workflows/Deploy/badge.svg?branch=master)
 
 ## Documentation
