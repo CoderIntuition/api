@@ -5,4 +5,5 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public enum ProduceOutputStatus {
     @JsonProperty("ERROR") ERROR,
     @JsonProperty("SUCCESS") SUCCESS,
+    @JsonProperty("RUNNING") RUNNING
 }

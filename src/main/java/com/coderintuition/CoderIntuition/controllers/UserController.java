@@ -11,10 +11,7 @@ import com.coderintuition.CoderIntuition.models.User;
 import com.coderintuition.CoderIntuition.pojos.request.ChangePasswordRequest;
 import com.coderintuition.CoderIntuition.pojos.request.UserGeneralSettingsRequest;
 import com.coderintuition.CoderIntuition.pojos.request.VerifyEmailRequest;
-import com.coderintuition.CoderIntuition.pojos.response.ActivityResponse;
-import com.coderintuition.CoderIntuition.pojos.response.UserProfileResponse;
-import com.coderintuition.CoderIntuition.pojos.response.UserResponse;
-import com.coderintuition.CoderIntuition.pojos.response.VerifyEmailResponse;
+import com.coderintuition.CoderIntuition.pojos.response.*;
 import com.coderintuition.CoderIntuition.repositories.ActivityRepository;
 import com.coderintuition.CoderIntuition.repositories.RoleRepository;
 import com.coderintuition.CoderIntuition.repositories.SubmissionRepository;
@@ -180,11 +177,12 @@ public class UserController {
 
     @GetMapping("/user/me/submissions/{problemId}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public List<Submission> getSubmissions(@CurrentUser UserPrincipal userPrincipal,
-                                           @PathVariable Long problemId) {
+    public List<SubmissionResponse> getSubmissions(@CurrentUser UserPrincipal userPrincipal,
+                                                   @PathVariable Long problemId) {
         User user = userRepository.findById(userPrincipal.getId()).orElseThrow();
         return user.getSubmissions().stream()
-            .filter((x) -> x.getProblem().getId().equals(problemId))
+            .filter(x -> x.getProblem().getId().equals(problemId))
+            .map(SubmissionResponse::fromSubmission)
             .collect(Collectors.toList());
     }
 

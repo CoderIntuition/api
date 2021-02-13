@@ -48,6 +48,7 @@ public class TestRun {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private TestStatus status;
 
     @Column(name = "expected_output", columnDefinition = "TEXT")

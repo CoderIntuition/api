@@ -3,6 +3,7 @@ package com.coderintuition.CoderIntuition.controllers;
 import com.coderintuition.CoderIntuition.common.CodeTemplateFiller;
 import com.coderintuition.CoderIntuition.common.Constants;
 import com.coderintuition.CoderIntuition.common.Utils;
+import com.coderintuition.CoderIntuition.config.AppProperties;
 import com.coderintuition.CoderIntuition.enums.Language;
 import com.coderintuition.CoderIntuition.enums.ProduceOutputStatus;
 import com.coderintuition.CoderIntuition.models.Problem;
@@ -38,6 +39,9 @@ public class ProduceOutputController {
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
 
+    @Autowired
+    AppProperties appProperties;
+
     @GetMapping("/produceoutput/{token}")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
     public ProduceOutputResponse getProduceOutput(@CurrentUser UserPrincipal userPrincipal, @PathVariable String token) throws Exception {
@@ -51,7 +55,7 @@ public class ProduceOutputController {
     @PutMapping("/produceoutput/judge0callback")
     public void produceOutputCallback(@RequestBody JzSubmissionCheckResponse data) throws IOException {
         // get produce output info
-        JzSubmissionCheckResponse result = Utils.retrieveFromJudgeZero(data.getToken());
+        JzSubmissionCheckResponse result = Utils.retrieveFromJudgeZero(data.getToken(), appProperties);
 
         // update the produce output in the db
         ProduceOutput produceOutput = produceOutputRepository.findByToken(result.getToken());
@@ -113,16 +117,17 @@ public class ProduceOutputController {
         requestDto.setSourceCode(code);
         requestDto.setLanguageId(Utils.getLanguageId(Language.PYTHON));
         requestDto.setStdin(produceOutputDto.getInput());
-        requestDto.setCallbackUrl("https://api.coderintuition.com/produceoutput/judge0callback");
+        requestDto.setCallbackUrl(appProperties.getJudge0().getCallbackUrl() + "/produceoutput/judge0callback");
 
         // send request to JudgeZero
-        String token = Utils.submitToJudgeZero(requestDto);
+        String token = Utils.submitToJudgeZero(requestDto, appProperties);
 
         // save submission to db
         ProduceOutput produceOutput = new ProduceOutput();
         produceOutput.setUser(userRepository.findById(userPrincipal.getId()).orElseThrow());
         produceOutput.setCode(produceOutputDto.getCode());
         produceOutput.setInput(produceOutputDto.getInput());
+        produceOutput.setStatus(ProduceOutputStatus.RUNNING);
         produceOutput.setLanguage(produceOutputDto.getLanguage());
         produceOutput.setProblem(problem);
         produceOutput.setToken(token);

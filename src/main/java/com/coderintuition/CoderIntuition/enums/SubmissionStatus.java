@@ -5,5 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public enum SubmissionStatus {
     @JsonProperty("ACCEPTED") ACCEPTED,
     @JsonProperty("REJECTED") REJECTED,
-    @JsonProperty("ERROR") ERROR
+    @JsonProperty("ERROR") ERROR,
+    @JsonProperty("RUNNING") RUNNING
 }

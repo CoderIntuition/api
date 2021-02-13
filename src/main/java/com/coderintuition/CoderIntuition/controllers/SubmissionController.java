@@ -3,6 +3,7 @@ package com.coderintuition.CoderIntuition.controllers;
 import com.coderintuition.CoderIntuition.common.CodeTemplateFiller;
 import com.coderintuition.CoderIntuition.common.Constants;
 import com.coderintuition.CoderIntuition.common.Utils;
+import com.coderintuition.CoderIntuition.config.AppProperties;
 import com.coderintuition.CoderIntuition.enums.ActivityType;
 import com.coderintuition.CoderIntuition.enums.SubmissionStatus;
 import com.coderintuition.CoderIntuition.enums.TestStatus;
@@ -51,6 +52,9 @@ public class SubmissionController {
     @Autowired
     ActivityController activityController;
 
+    @Autowired
+    AppProperties appProperties;
+
     @GetMapping("/submission/{token}")
     @PreAuthorize("hasRole('ROLE_USER')")
     public SubmissionResponse getSubmission(@CurrentUser UserPrincipal userPrincipal, @PathVariable String token) throws Exception {
@@ -65,7 +69,7 @@ public class SubmissionController {
     @PutMapping("/submission/judge0callback")
     public void submissionCallback(@RequestBody JzSubmissionCheckResponse data) throws IOException {
         // get submission info
-        JzSubmissionCheckResponse result = Utils.retrieveFromJudgeZero(data.getToken());
+        JzSubmissionCheckResponse result = Utils.retrieveFromJudgeZero(data.getToken(), appProperties);
 
         // update the submission in the db
         Submission submission = submissionRepository.findByToken(result.getToken());
@@ -161,9 +165,9 @@ public class SubmissionController {
         requestDto.setSourceCode(code);
         requestDto.setLanguageId(Utils.getLanguageId(submissionRequestDto.getLanguage()));
         requestDto.setStdin(stdin.toString());
-        requestDto.setCallbackUrl("https://api.coderintuition.com/submission/judge0callback");
+        requestDto.setCallbackUrl(appProperties.getJudge0().getCallbackUrl() + "/submission/judge0callback");
         // send request to JudgeZero
-        String token = Utils.submitToJudgeZero(requestDto);
+        String token = Utils.submitToJudgeZero(requestDto, appProperties);
 
         // save submission to db
         Submission submission = new Submission();
@@ -171,6 +175,7 @@ public class SubmissionController {
         submission.setUser(user);
         submission.setCode(submissionRequestDto.getCode());
         submission.setLanguage(submissionRequestDto.getLanguage());
+        submission.setStatus(SubmissionStatus.RUNNING);
         submission.setProblem(problem);
         submission.setToken(token);
         submissionRepository.save(submission);

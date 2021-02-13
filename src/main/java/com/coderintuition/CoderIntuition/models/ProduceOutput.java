@@ -53,6 +53,7 @@ public class ProduceOutput {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private ProduceOutputStatus status;
 
     @Column(name = "output", columnDefinition = "TEXT")
