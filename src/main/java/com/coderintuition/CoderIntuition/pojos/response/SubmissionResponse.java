@@ -38,10 +38,10 @@ public class SubmissionResponse {
         SubmissionResponse submissionResponse = new SubmissionResponse();
         submissionResponse.setId(submission.getId());
         submissionResponse.setToken(submission.getToken());
-        submissionResponse.setStatus(submissionResponse.getStatus());
-        submissionResponse.setOutput(submissionResponse.getOutput());
-        submissionResponse.setStderr(submissionResponse.getStderr());
-        submissionResponse.setTestResults(submissionResponse.getTestResults());
+        submissionResponse.setStatus(submission.getStatus());
+        submissionResponse.setOutput(submission.getOutput());
+        submissionResponse.setStderr(submission.getStderr());
+        submissionResponse.setTestResults(submission.getTestResults());
         return submissionResponse;
     }
 }
