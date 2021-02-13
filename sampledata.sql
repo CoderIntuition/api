@@ -69,12 +69,12 @@ VALUES (@problem1_id, 2, 'Test 1', false, '[3, 1, 4, 2]', 10, 10, 10, '2020-08-2
 
 INSERT INTO coderintuition.solution(problem_id, solution_num, name, is_primary, python_code, java_code,
                                     javascript_code, description, created_at, updated_at)
-VALUES (@problem1_id, 1, 'Approach 1: Manually sort the array', false, 'def sort_array(nums):\n    return []',
+VALUES (@problem1_id, 1, 'Manually sort the array', false, 'def sort_array(nums):\n    return []',
         '', '', 'Go through each element and compare', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
 
 INSERT INTO coderintuition.solution(problem_id, solution_num, name, is_primary, python_code, java_code,
                                     javascript_code, description, created_at, updated_at)
-VALUES (@problem1_id, 2, 'Approach 2: Use built-in sorted', true,
+VALUES (@problem1_id, 2, 'Use built-in sorted', true,
         'def sort_array(nums):\n    return sorted(nums)',
         'class ActualSolution {\n\tList<Integer> sortArray(List<Integer> nums) {\n\t\tCollections.sort(nums);\n\t\treturn nums\n\t}\n}',
         'function sortArray(nums) {\n\tnums.sort();\n\treturn nums;\n}',

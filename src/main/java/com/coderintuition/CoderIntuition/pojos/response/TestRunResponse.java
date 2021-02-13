@@ -6,13 +6,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class TestRunResponse {
+    @NotBlank
+    private String token;
+
     @NotBlank
     private String input;
 
@@ -29,6 +34,7 @@ public class TestRunResponse {
 
     public static TestRunResponse fromTestRun(TestRun testRun) {
         TestRunResponse testRunResponse = new TestRunResponse();
+        testRunResponse.setToken(testRun.getToken());
         testRunResponse.setInput(testRun.getInput());
         testRunResponse.setStatus(testRun.getStatus());
         testRunResponse.setExpectedOutput(testRun.getExpectedOutput());

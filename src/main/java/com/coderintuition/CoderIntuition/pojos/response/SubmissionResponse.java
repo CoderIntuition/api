@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -17,6 +18,9 @@ import java.util.List;
 public class SubmissionResponse {
     @NotNull
     private Long id;
+
+    @NotBlank
+    private String token;
 
     @NotNull
     private Language language;
@@ -33,6 +37,7 @@ public class SubmissionResponse {
     public static SubmissionResponse fromSubmission(Submission submission) {
         SubmissionResponse submissionResponse = new SubmissionResponse();
         submissionResponse.setId(submission.getId());
+        submissionResponse.setToken(submission.getToken());
         submissionResponse.setStatus(submissionResponse.getStatus());
         submissionResponse.setOutput(submissionResponse.getOutput());
         submissionResponse.setStderr(submissionResponse.getStderr());
