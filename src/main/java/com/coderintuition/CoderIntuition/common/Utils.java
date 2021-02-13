@@ -105,7 +105,6 @@ public class Utils {
             .host("judge0-ce.p.rapidapi.com")
             .addPathSegment("submissions")
             .addPathSegment(token)
-            .addQueryParameter("base64_encoded", "true")
             .build();
 
         Request request = new Request.Builder()
@@ -117,12 +116,8 @@ public class Utils {
 
         okhttp3.Response response = client.newCall(request).execute();
         ObjectMapper mapper = new ObjectMapper();
-        JzSubmissionCheckResponse jzSubmissionCheckResponse = mapper.readValue(Objects.requireNonNull(response.body()).string(), JzSubmissionCheckResponse.class);
-        jzSubmissionCheckResponse.setStderr(new String(Base64Utils.decodeFromString(jzSubmissionCheckResponse.getStderr())));
-        jzSubmissionCheckResponse.setStdout(new String(Base64Utils.decodeFromString(jzSubmissionCheckResponse.getStdout())));
-        jzSubmissionCheckResponse.setCompileOutput(new String(Base64Utils.decodeFromString(jzSubmissionCheckResponse.getCompileOutput())));
-        jzSubmissionCheckResponse.setMessage(new String(Base64Utils.decodeFromString(jzSubmissionCheckResponse.getMessage())));
-        return jzSubmissionCheckResponse;
+
+        return mapper.readValue(Objects.requireNonNull(response.body()).string(), JzSubmissionCheckResponse.class);
     }
 
     public static String generateUsername() {
