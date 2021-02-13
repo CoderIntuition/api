@@ -12,6 +12,7 @@ import okhttp3.*;
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.util.Base64Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,23 +68,31 @@ public class Utils {
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     public static String submitToJudgeZero(JZSubmissionRequestDto requestDto) throws IOException {
+        requestDto.setSourceCode(Base64Utils.encodeToString(requestDto.getSourceCode().getBytes(StandardCharsets.UTF_8)));
         ObjectMapper mapper = new ObjectMapper();
 
         OkHttpClient client = new OkHttpClient();
+        HttpUrl url = new HttpUrl.Builder()
+            .scheme("https")
+            .host("judge0-ce.p.rapidapi.com")
+            .addPathSegment("submissions")
+            .addQueryParameter("base64_encoded", "true")
+            .build();
+
         RequestBody body = RequestBody.create(mapper.writeValueAsString(requestDto), JSON);
 
         Request request = new Request.Builder()
-                .url("https://judge0-ce.p.rapidapi.com/submissions")
-                .addHeader("content-type", "application/json")
-                .addHeader("x-rapidapi-host", "judge0-ce.p.rapidapi.com")
-                .addHeader("x-rapidapi-key", "570c3ea12amsh7d718c55ca5d164p153fd5jsnfca4d3b2f9f9")
-                .post(body)
-                .build();
+            .url(url)
+            .addHeader("content-type", "application/json")
+            .addHeader("x-rapidapi-host", "judge0-ce.p.rapidapi.com")
+            .addHeader("x-rapidapi-key", "570c3ea12amsh7d718c55ca5d164p153fd5jsnfca4d3b2f9f9")
+            .post(body)
+            .build();
 
         Call call = client.newCall(request);
         okhttp3.Response response = call.execute();
         JZSubmissionResponse responseDto = mapper.readValue(Objects.requireNonNull(response.body()).string(),
-                JZSubmissionResponse.class);
+            JZSubmissionResponse.class);
 
         return responseDto.getToken();
     }
@@ -91,16 +100,29 @@ public class Utils {
     public static JzSubmissionCheckResponse retrieveFromJudgeZero(String token) throws IOException {
         // get test run info
         OkHttpClient client = new OkHttpClient();
+        HttpUrl url = new HttpUrl.Builder()
+            .scheme("https")
+            .host("judge0-ce.p.rapidapi.com")
+            .addPathSegment("submissions")
+            .addPathSegment(token)
+            .addQueryParameter("base64_encoded", "true")
+            .build();
+
         Request request = new Request.Builder()
-                .url("https://judge0-ce.p.rapidapi.com/submissions/" + token)
-                .addHeader("x-rapidapi-host", "judge0-ce.p.rapidapi.com")
-                .addHeader("x-rapidapi-key", "570c3ea12amsh7d718c55ca5d164p153fd5jsnfca4d3b2f9f9")
-                .get()
-                .build();
+            .url(url)
+            .addHeader("x-rapidapi-host", "judge0-ce.p.rapidapi.com")
+            .addHeader("x-rapidapi-key", "570c3ea12amsh7d718c55ca5d164p153fd5jsnfca4d3b2f9f9")
+            .get()
+            .build();
 
         okhttp3.Response response = client.newCall(request).execute();
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(Objects.requireNonNull(response.body()).string(), JzSubmissionCheckResponse.class);
+        JzSubmissionCheckResponse jzSubmissionCheckResponse = mapper.readValue(Objects.requireNonNull(response.body()).string(), JzSubmissionCheckResponse.class);
+        jzSubmissionCheckResponse.setStderr(new String(Base64Utils.decodeFromString(jzSubmissionCheckResponse.getStderr())));
+        jzSubmissionCheckResponse.setStdout(new String(Base64Utils.decodeFromString(jzSubmissionCheckResponse.getStdout())));
+        jzSubmissionCheckResponse.setCompileOutput(new String(Base64Utils.decodeFromString(jzSubmissionCheckResponse.getCompileOutput())));
+        jzSubmissionCheckResponse.setMessage(new String(Base64Utils.decodeFromString(jzSubmissionCheckResponse.getMessage())));
+        return jzSubmissionCheckResponse;
     }
 
     public static String generateUsername() {
@@ -127,19 +149,19 @@ public class Utils {
 
     public static void sendEmail(String key, String to, String subject, String html) {
         Configuration configuration = new Configuration()
-                .domain("coderintuition.com")
-                .apiKey(key)
-                .from("CoderIntuition", "support@coderintuition.com");
+            .domain("coderintuition.com")
+            .apiKey(key)
+            .from("CoderIntuition", "support@coderintuition.com");
         Response response = Mail.using(configuration)
-                .to(to)
-                .subject(subject)
-                .html(html)
-                .build()
-                .send();
+            .to(to)
+            .subject(subject)
+            .html(html)
+            .build()
+            .send();
 
         if (!response.isOk()) {
             System.out.println("Error sending email to " + to + ". Response code: "
-                    + response.responseCode() + " with message: " + response.responseMessage());
+                + response.responseCode() + " with message: " + response.responseMessage());
         }
     }
 }
