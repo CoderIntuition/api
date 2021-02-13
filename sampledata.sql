@@ -7,12 +7,12 @@ SET @return_type_id = LAST_INSERT_ID();
 
 INSERT INTO coderintuition.problem (return_type_id, name, url_name, plus_only, category, difficulty, description,
                                     python_code, java_code,
-                                    javascript_code, created_at, updated_at)
+                                    javascript_code, created_at, updated_at, deleted)
 VALUES (@return_type_id, 'Sort Array', 'sort-array', false, 'ARRAYS', 'BEGINNER',
         'Given an array of integers, sort the array in non-decreasing order.',
         'def sort_array(nums):\n\treturn nums',
         'class Solution {\n\tList<Integer> sortArray(List<Integer> nums) {\n\t\treturn nums;\n\t}\n}',
-        'sortArray(nums) {\n\treturn nums;\n}', '2020-08-29 00:00:00', '2020-08-29 00:00:00');
+        'sortArray(nums) {\n\treturn nums;\n}', '2020-08-29 00:00:00', '2020-08-29 00:00:00', 0);
 
 SET @problem1_id = LAST_INSERT_ID();
 

@@ -64,6 +64,10 @@ public class Submission {
     @NotNull
     private User user;
 
+    @JsonIgnoreProperties("submission")
+    @OneToOne(mappedBy = "submission")
+    private Activity activity;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", updatable = false)

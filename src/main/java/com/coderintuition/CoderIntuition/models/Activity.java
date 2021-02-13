@@ -34,6 +34,11 @@ public class Activity {
     @Enumerated(EnumType.STRING)
     private ActivityType activityType;
 
+    @JsonIgnoreProperties("activity")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "submission_id", referencedColumnName = "id")
+    private Submission submission;
+
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "problem_id")

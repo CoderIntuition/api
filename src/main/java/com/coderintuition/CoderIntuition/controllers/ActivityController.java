@@ -2,15 +2,9 @@ package com.coderintuition.CoderIntuition.controllers;
 
 import com.coderintuition.CoderIntuition.enums.ActivityType;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
-import com.coderintuition.CoderIntuition.models.Activity;
-import com.coderintuition.CoderIntuition.models.Badge;
-import com.coderintuition.CoderIntuition.models.Problem;
-import com.coderintuition.CoderIntuition.models.User;
+import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.pojos.request.ActivityRequestDto;
-import com.coderintuition.CoderIntuition.repositories.ActivityRepository;
-import com.coderintuition.CoderIntuition.repositories.BadgeRepository;
-import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
-import com.coderintuition.CoderIntuition.repositories.UserRepository;
+import com.coderintuition.CoderIntuition.repositories.*;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +28,9 @@ public class ActivityController {
     @Autowired
     BadgeRepository badgeRepository;
 
+    @Autowired
+    SubmissionRepository submissionRepository;
+
     public void createActivity(ActivityRequestDto activityRequestDto, User user) {
         Activity activity = new Activity();
         activity.setUser(user);
@@ -43,6 +40,12 @@ public class ActivityController {
             activityRequestDto.getActivityType() == ActivityType.SUBMIT_PROBLEM) {
             Problem problem = problemRepository.findById(activityRequestDto.getProblemId())
                 .orElseThrow(() -> new RecordNotFoundException("Problem with ID" + activityRequestDto.getProblemId() + " not found."));
+
+            if (activityRequestDto.getActivityType() == ActivityType.SUBMIT_PROBLEM) {
+                Submission submission = submissionRepository.findById(activityRequestDto.getSubmissionId())
+                    .orElseThrow(() -> new RecordNotFoundException("Submission with ID" + activityRequestDto.getSubmissionId() + " not found."));
+                activity.setSubmission(submission);
+            }
 
             if (activityRequestDto.getActivityType() == ActivityType.LEARN_INTUITION &&
                 activityRepository.findActivity(user, problem, ActivityType.LEARN_INTUITION) > 0) {

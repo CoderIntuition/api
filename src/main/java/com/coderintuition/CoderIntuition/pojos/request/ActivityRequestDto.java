@@ -12,4 +12,5 @@ public class ActivityRequestDto {
     ActivityType activityType;
     Long problemId;
     Long badgeId;
+    Long submissionId;
 }

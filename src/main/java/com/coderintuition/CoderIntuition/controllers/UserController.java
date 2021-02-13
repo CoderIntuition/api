@@ -1,13 +1,13 @@
 package com.coderintuition.CoderIntuition.controllers;
 
-import com.coderintuition.CoderIntuition.enums.ActivityType;
-import com.coderintuition.CoderIntuition.enums.AuthProvider;
-import com.coderintuition.CoderIntuition.enums.ERole;
-import com.coderintuition.CoderIntuition.enums.VerifyEmailStatus;
+import com.coderintuition.CoderIntuition.enums.*;
 import com.coderintuition.CoderIntuition.exceptions.BadRequestException;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
 import com.coderintuition.CoderIntuition.exceptions.ResourceNotFoundException;
-import com.coderintuition.CoderIntuition.models.*;
+import com.coderintuition.CoderIntuition.models.Activity;
+import com.coderintuition.CoderIntuition.models.Role;
+import com.coderintuition.CoderIntuition.models.Submission;
+import com.coderintuition.CoderIntuition.models.User;
 import com.coderintuition.CoderIntuition.pojos.request.ChangePasswordRequest;
 import com.coderintuition.CoderIntuition.pojos.request.UserGeneralSettingsRequest;
 import com.coderintuition.CoderIntuition.pojos.request.VerifyEmailRequest;
@@ -93,13 +93,19 @@ public class UserController {
 
         List<Activity> activities = activityRepository.findActivitiesByUser(user);
         List<ActivityResponse> activityResponses = new ArrayList<>();
-        for (Activity activity: activities) {
+        for (Activity activity : activities) {
             ActivityResponse activityResponse = new ActivityResponse();
             activityResponse.setActivityType(activity.getActivityType());
             if (activity.getActivityType() == ActivityType.LEARN_INTUITION || activity.getActivityType() == ActivityType.SUBMIT_PROBLEM) {
                 activityResponse.setProblemName(activity.getProblem().getName());
                 activityResponse.setProblemUrl(activity.getProblem().getUrlName());
             }
+            if (activity.getActivityType() == ActivityType.SUBMIT_PROBLEM) {
+                SubmissionStatus submissionStatus = submissionRepository.findById(activity.getSubmission().getId())
+                    .get().getStatus();
+                activityResponse.setSubmissionStatus(submissionStatus);
+            }
+
             activityResponse.setCreatedDate(activity.getCreated_at());
             activityResponses.add(activityResponse);
         }
