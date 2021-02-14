@@ -98,9 +98,8 @@ public class UserController {
                 activityResponse.setProblemUrl(activity.getProblem().getUrlName());
             }
             if (activity.getActivityType() == ActivityType.SUBMIT_PROBLEM) {
-                SubmissionStatus submissionStatus = submissionRepository.findById(activity.getSubmission().getId())
-                    .get().getStatus();
-                activityResponse.setSubmissionStatus(submissionStatus);
+                Submission submission = submissionRepository.findById(activity.getSubmission().getId()).orElseThrow();
+                activityResponse.setSubmissionStatus(submission.getStatus());
             }
 
             activityResponse.setCreatedDate(activity.getCreated_at());
