@@ -105,6 +105,7 @@ public class UserController {
             activityResponse.setCreatedDate(activity.getCreated_at());
             activityResponses.add(activityResponse);
         }
+        activityResponses.sort((x1, x2) -> x2.getCreatedDate().compareTo(x1.getCreatedDate()));
 
         return new UserProfileResponse(user.getName(),
             user.getUsername(),
@@ -182,6 +183,7 @@ public class UserController {
         return user.getSubmissions().stream()
             .filter(x -> x.getProblem().getId().equals(problemId))
             .map(SubmissionResponse::fromSubmission)
+            .sorted((x1, x2) -> x2.getCreated_at().compareTo(x1.getCreated_at()))
             .collect(Collectors.toList());
     }
 

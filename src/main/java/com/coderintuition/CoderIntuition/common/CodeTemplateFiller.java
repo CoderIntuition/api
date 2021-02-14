@@ -576,8 +576,8 @@ public class CodeTemplateFiller {
                 break;
             case STRING:
                 equalsCode.append("if (userResult.equals(solResult)) {").append("\n");
-                userResultFormatCode.append("String userResultStr = \"\\\"\" + userResult + \"\\\"\";").append("\n");
-                solResultFormatCode.append("String solResultStr = \"\\\"\" + solResult + \"\\\"\";").append("\n");
+                userResultFormatCode.append("String userResultStr = \"\\\\\"\" + userResult + \"\\\\\"\";").append("\n");
+                solResultFormatCode.append("String solResultStr = \"\\\\\"\" + solResult + \"\\\\\"\";").append("\n");
                 break;
             case INTEGER:
                 // fall through
@@ -703,8 +703,8 @@ public class CodeTemplateFiller {
                 break;
             case STRING:
                 equalsCode.append("if (userResult === solResult) {");
-                userResultFormatCode.append("const userResultStr = \"\\\"\" + userResult + \"\\\"\";");
-                solResultFormatCode.append("const solResultStr = \"\\\"\" + solResult + \"\\\"\";");
+                userResultFormatCode.append("const userResultStr = \"\\\\\"\" + userResult + \"\\\\\"\";");
+                solResultFormatCode.append("const solResultStr = \"\\\\\"\" + solResult + \"\\\\\"\";");
                 break;
             case INTEGER:
                 // fall through

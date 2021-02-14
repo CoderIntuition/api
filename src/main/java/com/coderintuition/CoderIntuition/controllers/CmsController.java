@@ -162,7 +162,7 @@ public class CmsController {
         }
 
         // update return type
-        ReturnType returnType = returnTypeRepository.findByProblem(problem).orElseThrow();
+        ReturnType returnType = returnTypeRepository.findById(problem.getReturnType().getId()).orElseThrow();
         returnType.setType(problemDto.getReturnType().getType());
         returnType.setUnderlyingType(problemDto.getReturnType().getUnderlyingType());
         returnType.setUnderlyingType2(problemDto.getReturnType().getUnderlyingType2());
