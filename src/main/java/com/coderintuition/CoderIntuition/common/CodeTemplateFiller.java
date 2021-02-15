@@ -44,6 +44,7 @@ public class CodeTemplateFiller {
     private String pythonString;
     private String javaTestRunTemplate;
     private String javaSubmissionTemplate;
+    private String javaProduceOutputTemplate;
     private String javaList;
     private String javaArray2D;
     private String javaListOfLists;
@@ -53,6 +54,7 @@ public class CodeTemplateFiller {
     private String javaString;
     private String javaScriptTestRunTemplate;
     private String javaScriptSubmissionTemplate;
+    private String javaScriptProduceOutputTemplate;
     private String javaScriptTree;
     private String javaScriptLinkedList;
     private String javaScriptString;
@@ -74,6 +76,7 @@ public class CodeTemplateFiller {
             pythonString = fileToString("python/pythonString.txt");
             javaTestRunTemplate = fileToString("java/javaTestRunTemplate.txt");
             javaSubmissionTemplate = fileToString("java/javaSubmissionTemplate.txt");
+            javaProduceOutputTemplate = fileToString("java/javaProduceOutputTemplate.txt");
             javaList = fileToString("java/javaList.txt");
             javaArray2D = fileToString("java/javaArray2D.txt");
             javaListOfLists = fileToString("java/javaListOfLists.txt");
@@ -83,6 +86,7 @@ public class CodeTemplateFiller {
             javaString = fileToString("java/javaString.txt");
             javaScriptTestRunTemplate = fileToString("javascript/javaScriptTestRunTemplate.txt");
             javaScriptSubmissionTemplate = fileToString("javascript/javaScriptSubmissionTemplate.txt");
+            javaScriptProduceOutputTemplate = fileToString("javascript/javaScriptProduceOutputTemplate.txt");
             javaScriptTree = fileToString("javascript/javaScriptTree.txt");
             javaScriptLinkedList = fileToString("javascript/javaScriptLinkedList.txt");
             javaScriptString = fileToString("javascript/javaScriptString.txt");
@@ -111,7 +115,7 @@ public class CodeTemplateFiller {
 
     public String getProduceOutputCode(Language language, String userCode, String functionName, List<Argument> args, ReturnType returnType) {
         return getFilledCode(language, userCode, "", functionName, args, returnType, pythonProduceOutputTemplate,
-                javaSubmissionTemplate, javaScriptSubmissionTemplate);
+                javaProduceOutputTemplate, javaScriptProduceOutputTemplate);
     }
 
     private String getFilledCode(Language language, String userCode, String solutionCode, String functionName, List<Argument> args,

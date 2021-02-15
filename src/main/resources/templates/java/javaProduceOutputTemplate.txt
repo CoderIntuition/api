@@ -5,8 +5,6 @@ ${definitionCode}
 
 ${userCode}
 
-${solutionCode}
-
 public class Main {
     ${setupCode}
 
@@ -18,18 +16,11 @@ public class Main {
                 input.add(sc.nextLine());
             }
             ${retType} userResult = new Solution().${functionName}(${args});
-            ${retType} solResult = new ActualSolution().${functionName}(${args});
 
             ${userResultFormatCode}
-            ${solResultFormatCode}
 
             System.out.println("-----------------------------------");
-
-            ${equalsCode}
-                System.out.printf("PASSED|%s|%s\n", solResultStr, userResultStr);
-            } else {
-                System.out.printf("FAILED|%s|%s\n", solResultStr, userResultStr);
-            }
+            System.out.printf("SUCCESS|%s\n", userResultStr);
         } catch (Exception ex) {
             System.out.println("-----------------------------------");
             System.out.printf("ERROR|%s\n", ex.toString());
