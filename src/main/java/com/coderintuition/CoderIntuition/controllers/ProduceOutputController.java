@@ -115,7 +115,7 @@ public class ProduceOutputController {
         // create request to JudgeZero
         JZSubmissionRequestDto requestDto = new JZSubmissionRequestDto();
         requestDto.setSourceCode(code);
-        requestDto.setLanguageId(Utils.getLanguageId(Language.PYTHON));
+        requestDto.setLanguageId(Utils.getLanguageId(produceOutputDto.getLanguage()));
         requestDto.setStdin(produceOutputDto.getInput());
         requestDto.setCallbackUrl(appProperties.getJudge0().getCallbackUrl() + "/produceoutput/judge0callback");
 
