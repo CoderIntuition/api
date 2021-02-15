@@ -250,7 +250,7 @@ public class CodeTemplateFiller {
         return template
                 .replaceAll("\\$\\{definitionCode}", setupDefinitionArgsCode.definitionCode)
                 .replaceAll("\\$\\{userCode}", userCode)
-                .replaceAll("\\$\\{solutionCode}", solutionCode)
+                .replaceAll("\\$\\{solutionCode}", solutionCode.replace("Solution", "ActualSolution"))
                 .replaceAll("\\$\\{setupCode}", setupDefinitionArgsCode.setupCode)
                 .replaceAll("\\$\\{functionName}", functionName)
                 .replaceAll("\\$\\{args}", setupDefinitionArgsCode.argsCode)
