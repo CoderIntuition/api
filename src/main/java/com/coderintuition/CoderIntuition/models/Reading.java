@@ -35,6 +35,10 @@ public class Reading {
     @NotNull
     private Boolean plusOnly;
 
+    @Column(name = "is_quiz")
+    @NotNull
+    private Boolean isQuiz;
+
     @Column(name = "content", columnDefinition = "TEXT")
     @NotBlank
     private String content;

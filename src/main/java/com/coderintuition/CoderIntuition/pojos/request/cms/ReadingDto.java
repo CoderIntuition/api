@@ -23,6 +23,9 @@ public class ReadingDto {
     @NotNull
     private Boolean plusOnly;
 
+    @NotNull
+    private Boolean isQuiz;
+
     @NotBlank
     private String content;
 }

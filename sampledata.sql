@@ -16,15 +16,15 @@ VALUES (@return_type_id, 'Sort Array', 'sort-array', false, 'ARRAYS', 'BEGINNER'
 
 SET @problem1_id = LAST_INSERT_ID();
 
-INSERT INTO coderintuition.reading (name, url_name, plus_only, content)
-VALUES ('Test Reading', 'test-reading', false, 'I am a meenie test');
+INSERT INTO coderintuition.reading (name, url_name, plus_only, is_quiz, content)
+VALUES ('Test Reading', 'test-reading', false, false, 'I am a meenie test');
 
 INSERT INTO coderintuition.problem_step (problem_id, step_num, name, type, content, time, created_at, updated_at)
-VALUES (@problem1_id, 1, 'Step 1: Understand the Problem', 'TEXT', 'Read the problem and understand it.', 5,
+VALUES (@problem1_id, 1, 'Understand the Problem', 'TEXT', 'Read the problem and understand it.', 5,
         '2020-08-29 00:00:00', '2020-08-29 00:00:00');
 
 INSERT INTO coderintuition.problem_step (problem_id, step_num, name, type, content, time, created_at, updated_at)
-VALUES (@problem1_id, 2, 'Step 2: Problem Understanding Quiz', 'QUIZ', '
+VALUES (@problem1_id, 2, 'Problem Understanding Quiz', 'QUIZ', '
     [{
         "question": "How can you access the state of a component from inside of a member function?",
         "questionType": "text",

@@ -20,12 +20,16 @@ public class SimpleReadingResponse {
     @NotNull
     private Boolean plusOnly;
 
+    @NotNull
+    private Boolean isQuiz;
+
     public static SimpleReadingResponse fromReading(Reading reading) {
         SimpleReadingResponse simpleReadingResponse = new SimpleReadingResponse();
         simpleReadingResponse.setId(reading.getId());
         simpleReadingResponse.setName(reading.getName());
         simpleReadingResponse.setUrlName(reading.getUrlName());
         simpleReadingResponse.setPlusOnly(reading.getPlusOnly());
+        simpleReadingResponse.setIsQuiz(reading.getIsQuiz());
         return simpleReadingResponse;
     }
 }

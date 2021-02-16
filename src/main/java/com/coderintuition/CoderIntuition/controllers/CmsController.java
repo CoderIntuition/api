@@ -306,6 +306,7 @@ public class CmsController {
         reading.setName(readingDto.getName());
         reading.setUrlName(readingDto.getUrlName());
         reading.setPlusOnly(readingDto.getPlusOnly());
+        reading.setIsQuiz(readingDto.getIsQuiz());
         reading.setContent(readingDto.getContent());
         readingRepository.save(reading);
 
