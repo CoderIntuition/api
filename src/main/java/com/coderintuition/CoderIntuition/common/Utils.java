@@ -6,6 +6,7 @@ import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.pojos.response.JZSubmissionResponse;
 import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.netty.util.internal.StringUtil;
 import net.sargue.mailgun.Configuration;
 import net.sargue.mailgun.Mail;
 import net.sargue.mailgun.Response;
@@ -13,13 +14,13 @@ import okhttp3.*;
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import reactor.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Utils {
     public static int getLanguageId(Language language) {
@@ -171,5 +172,11 @@ public class Utils {
             System.out.println("Error sending email to " + to + ". Response code: "
                 + response.responseCode() + " with message: " + response.responseMessage());
         }
+    }
+
+    public static String capitalize(String str) {
+        String[] strs = str.split("_");
+        List<String> capitalizedStrs =  Arrays.stream(strs).map(StringUtils::capitalize).collect(Collectors.toList());
+        return String.join(" ", capitalizedStrs);
     }
 }

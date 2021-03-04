@@ -1,5 +1,6 @@
 package com.coderintuition.CoderIntuition.controllers;
 
+import com.coderintuition.CoderIntuition.common.Utils;
 import com.coderintuition.CoderIntuition.enums.ProblemCategory;
 import com.coderintuition.CoderIntuition.models.Problem;
 import com.coderintuition.CoderIntuition.pojos.response.CategoryDto;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,10 +39,10 @@ public class ProblemController {
         Map<String, CategoryDto> map = new HashMap<>();
         for (ProblemCategory category : ProblemCategory.values()) {
             CategoryDto categoryDto = new CategoryDto();
-            categoryDto.setName(StringUtils.capitalize(category.toString().toLowerCase()));
+            categoryDto.setName(Utils.capitalize(category.toString().toLowerCase()));
             List<Problem> categoryProblems = problemRepository.findByCategory(category);
             categoryDto.setResults(simplifyProblems(categoryProblems));
-            map.put(StringUtils.capitalize(category.toString().toLowerCase()), categoryDto);
+            map.put(Utils.capitalize(category.toString().toLowerCase()), categoryDto);
         }
         return map;
     }

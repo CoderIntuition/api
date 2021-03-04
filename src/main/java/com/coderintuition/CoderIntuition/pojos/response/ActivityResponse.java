@@ -19,6 +19,5 @@ public class ActivityResponse {
     private String problemName;
     private String problemUrl;
     private SubmissionStatus submissionStatus;
-    @JsonFormat(pattern="yyyy-MM-dd")
     private Date createdDate;
 }
