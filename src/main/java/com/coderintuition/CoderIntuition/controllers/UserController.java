@@ -133,6 +133,7 @@ public class UserController {
         userResult.setGithubLink(settingsRequest.getGithubLink());
         userResult.setLinkedinLink(settingsRequest.getLinkedinLink());
         userResult.setWebsiteLink(settingsRequest.getWebsiteLink());
+        userResult.setLanguage(Language.valueOf(settingsRequest.getLanguage()));
         userRepository.save(userResult);
     }
 
