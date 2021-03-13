@@ -13,4 +13,5 @@ public class UserGeneralSettingsRequest {
     private String githubLink;
     private String linkedinLink;
     private String websiteLink;
+    private String language;
 }
