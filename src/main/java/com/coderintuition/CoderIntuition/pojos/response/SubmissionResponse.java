@@ -30,6 +30,9 @@ public class SubmissionResponse {
     @NotNull
     private SubmissionStatus status;
 
+    @NotNull
+    private String code;
+
     private String output;
 
     private String stderr;
@@ -45,6 +48,7 @@ public class SubmissionResponse {
         submissionResponse.setToken(submission.getToken());
         submissionResponse.setLanguage(submission.getLanguage());
         submissionResponse.setStatus(submission.getStatus());
+        submissionResponse.setCode(submission.getCode());
         submissionResponse.setOutput(submission.getOutput());
         submissionResponse.setStderr(submission.getStderr());
         submissionResponse.setTestResults(submission.getTestResults());
