@@ -2,15 +2,19 @@ server:
   forward-headers-strategy: framework
 logging:
   level:
-    root: DEBUG
+    root: INFO
 spring:
   datasource:
     url: ${CODERINTUITION_DATASOURCE_URL}
     username: ${CODERINTUITION_DATASOURCE_USERNAME}
     password: ${CODERINTUITION_DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
   security:
     oauth2:
       client:
