@@ -50,11 +50,12 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_USER')")
     public UserResponse getCurrentUser(@CurrentUser UserPrincipal userPrincipal) {
         User user = userRepository.findById(userPrincipal.getId())
-            .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
 
         // check if plus subscription expired
         Role plusRole = roleRepository.findByName(ERole.ROLE_PLUS).orElseThrow();
-        if (user.getRoles().contains(plusRole) && user.getPlusExpirationDate().before(new Date())) {
+        if (user.getRoles().contains(plusRole) && user.getPlusExpirationDate() != null
+                && user.getPlusExpirationDate().before(new Date())) {
             Set<Role> roles = user.getRoles();
             roles.remove(plusRole);
             user.setRoles(roles);
@@ -62,29 +63,29 @@ public class UserController {
         }
 
         return new UserResponse(
-            user.getId(),
-            user.getUsername(),
-            user.getName(),
-            user.getEmail(),
-            user.getVerified(),
-            user.getImageUrl(),
-            user.getLanguage(),
-            user.getRoles(),
-            user.getPoints(),
-            user.getGithubLink(),
-            user.getLinkedinLink(),
-            user.getWebsiteLink()
+                user.getId(),
+                user.getUsername(),
+                user.getName(),
+                user.getEmail(),
+                user.getVerified(),
+                user.getImageUrl(),
+                user.getLanguage(),
+                user.getRoles(),
+                user.getPoints(),
+                user.getGithubLink(),
+                user.getLinkedinLink(),
+                user.getWebsiteLink()
         );
     }
 
     @GetMapping(value = "/user/{username}")
     public UserProfileResponse getUserProfile(@PathVariable String username) {
         User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new RecordNotFoundException("Username " + username + " not found"));
+                .orElseThrow(() -> new RecordNotFoundException("Username " + username + " not found"));
 
         Boolean plusRole = user.getRoles()
-            .stream()
-            .anyMatch(role -> role.getName().equals(ERole.ROLE_PLUS));
+                .stream()
+                .anyMatch(role -> role.getName().equals(ERole.ROLE_PLUS));
 
         int numCompletedProblems = submissionRepository.findNumOfCompletedProblemsByUser(user);
 
@@ -108,18 +109,18 @@ public class UserController {
         activityResponses.sort((x1, x2) -> x2.getCreatedDate().compareTo(x1.getCreatedDate()));
 
         return new UserProfileResponse(user.getName(),
-            user.getUsername(),
-            plusRole,
-            user.getImageUrl(),
-            numCompletedProblems,
-            user.getBadges(),
-            activityResponses,
-            // TODO: call level calculation method to calculate level
-            0,
-            user.getGithubLink(),
-            user.getLinkedinLink(),
-            user.getWebsiteLink(),
-            user.getCreated_at());
+                user.getUsername(),
+                plusRole,
+                user.getImageUrl(),
+                numCompletedProblems,
+                user.getBadges(),
+                activityResponses,
+                // TODO: call level calculation method to calculate level
+                0,
+                user.getGithubLink(),
+                user.getLinkedinLink(),
+                user.getWebsiteLink(),
+                user.getCreated_at());
     }
 
     @PostMapping("/user/me")
@@ -127,7 +128,7 @@ public class UserController {
     public void saveUserGeneralInfo(@CurrentUser UserPrincipal userPrincipal,
                                     @RequestBody UserGeneralSettingsRequest settingsRequest) {
         User userResult = userRepository.findById(userPrincipal.getId())
-            .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
         userResult.setName(settingsRequest.getName());
         userResult.setUsername(settingsRequest.getUsername());
         userResult.setGithubLink(settingsRequest.getGithubLink());
@@ -144,11 +145,11 @@ public class UserController {
     public void changePassword(@CurrentUser UserPrincipal userPrincipal,
                                @RequestBody ChangePasswordRequest changePasswordRequest) {
         User user = userRepository.findById(userPrincipal.getId())
-            .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
         if (user.getAuthProvider() != AuthProvider.LOCAL) {
             String provider = StringUtils.capitalize(user.getAuthProvider().toString().toLowerCase());
             throw new BadRequestException("Your account is with " + provider + ". Please change your password on "
-                + provider + "'s website instead.");
+                    + provider + "'s website instead.");
         }
         if (!passwordEncoder.matches(changePasswordRequest.getCurrentPassword(), user.getPassword())) {
             throw new BadRequestException("Current password is incorrect");
@@ -184,16 +185,16 @@ public class UserController {
                                                    @PathVariable Long problemId) {
         User user = userRepository.findById(userPrincipal.getId()).orElseThrow();
         return user.getSubmissions().stream()
-            .filter(x -> x.getProblem().getId().equals(problemId))
-            .map(SubmissionResponse::fromSubmission)
-            .sorted((x1, x2) -> x2.getCreated_at().compareTo(x1.getCreated_at()))
-            .collect(Collectors.toList());
+                .filter(x -> x.getProblem().getId().equals(problemId))
+                .map(SubmissionResponse::fromSubmission)
+                .sorted((x1, x2) -> x2.getCreated_at().compareTo(x1.getCreated_at()))
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/user/{username}/completedProblems")
     int getStatsSubmission(@PathVariable String username) {
         User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new RecordNotFoundException("Username " + username + " not found"));
+                .orElseThrow(() -> new RecordNotFoundException("Username " + username + " not found"));
 
         return submissionRepository.findNumOfCompletedProblemsByUser(user);
     }
