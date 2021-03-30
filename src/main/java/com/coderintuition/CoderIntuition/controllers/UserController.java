@@ -81,24 +81,20 @@ public class UserController {
 
                 List<String> expandList = new ArrayList<>();
                 expandList.add("subscriptions");
-
                 Map<String, Object> params = new HashMap<>();
                 params.put("expand", expandList);
 
                 Customer customer = Customer.retrieve(user.getStripeCustomerId(), params, null);
-                log.info("customer: " + new Gson().toJson(customer));
-                log.info("customer subscriptions: " + new Gson().toJson(customer.getSubscriptions()));
                 Subscription subscription = customer.getSubscriptions().getData().stream().findFirst().get();
-                log.info("subscription: " + new Gson().toJson(subscription));
                 String priceId = subscription.getItems().getData().stream().findFirst().get().getPrice().getId();
-                log.info("priceId: " + priceId);
+
                 if (priceId.equals(appProperties.getStripe().getMonthlyId())) {
                     planCycle = PlanCycle.MONTHLY;
                 } else if (priceId.equals(appProperties.getStripe().getYearlyId())) {
                     planCycle = PlanCycle.YEARLY;
                 }
             } catch (Exception ex) {
-                ex.printStackTrace();
+                log.warn("Could not find priceId for plus user. userId={}", user.getId());
             }
         }
 
