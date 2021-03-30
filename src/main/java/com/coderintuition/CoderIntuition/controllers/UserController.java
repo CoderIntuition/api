@@ -19,6 +19,7 @@ import com.coderintuition.CoderIntuition.repositories.SubmissionRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
+import com.google.gson.Gson;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
@@ -78,7 +79,10 @@ public class UserController {
             try {
                 Stripe.apiKey = appProperties.getStripe().getTestKey();
                 Customer customer = Customer.retrieve(user.getStripeCustomerId());
+                log.info("customer: " + new Gson().toJson(customer));
+                log.info("customer subscriptions: " + new Gson().toJson(customer.getSubscriptions()));
                 Subscription subscription = customer.getSubscriptions().getData().stream().findFirst().get();
+                log.info("subscription: " + new Gson().toJson(subscription));
                 String priceId = subscription.getItems().getData().stream().findFirst().get().getPrice().getId();
                 log.info("priceId: " + priceId);
                 if (priceId.equals(appProperties.getStripe().getMonthlyId())) {
