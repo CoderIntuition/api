@@ -1,6 +1,7 @@
 package com.coderintuition.CoderIntuition.pojos.response;
 
 import com.coderintuition.CoderIntuition.enums.Language;
+import com.coderintuition.CoderIntuition.enums.PlanCycle;
 import com.coderintuition.CoderIntuition.models.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,4 +25,5 @@ public class UserResponse {
     private String githubLink;
     private String linkedinLink;
     private String websiteLink;
+    private PlanCycle planCycle;
 }

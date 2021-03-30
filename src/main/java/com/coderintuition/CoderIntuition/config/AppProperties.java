@@ -49,6 +49,8 @@ public class AppProperties {
         private String testKey;
         private String liveKey;
         private String webhookSecret;
+        private String monthlyId;
+        private String yearlyId;
     }
 
     @Getter

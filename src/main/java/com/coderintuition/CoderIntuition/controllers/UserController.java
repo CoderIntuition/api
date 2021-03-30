@@ -1,5 +1,6 @@
 package com.coderintuition.CoderIntuition.controllers;
 
+import com.coderintuition.CoderIntuition.config.AppProperties;
 import com.coderintuition.CoderIntuition.enums.*;
 import com.coderintuition.CoderIntuition.exceptions.BadRequestException;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
@@ -18,6 +19,11 @@ import com.coderintuition.CoderIntuition.repositories.SubmissionRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
+import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
+import com.stripe.model.Customer;
+import com.stripe.model.Subscription;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,7 +34,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
+@Log4j2
 public class UserController {
+    @Autowired
+    AppProperties appProperties;
 
     @Autowired
     private UserRepository userRepository;
@@ -62,6 +71,26 @@ public class UserController {
             userRepository.save(user);
         }
 
+        // get plan cycle from stripe
+        PlanCycle planCycle = null;
+        Role plus = roleRepository.findByName(ERole.ROLE_PLUS).orElseThrow();
+        if (user.getRoles().contains(plus)) {
+            try {
+                Stripe.apiKey = appProperties.getStripe().getTestKey();
+                Customer customer = Customer.retrieve(user.getStripeCustomerId());
+                Subscription subscription = customer.getSubscriptions().getData().stream().findFirst().get();
+                String priceId = subscription.getItems().getData().stream().findFirst().get().getPrice().getId();
+                log.info("priceId: " + priceId);
+                if (priceId.equals(appProperties.getStripe().getMonthlyId())) {
+                    planCycle = PlanCycle.MONTHLY;
+                } else if (priceId.equals(appProperties.getStripe().getYearlyId())) {
+                    planCycle = PlanCycle.YEARLY;
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
         return new UserResponse(
                 user.getId(),
                 user.getUsername(),
@@ -74,7 +103,8 @@ public class UserController {
                 user.getPoints(),
                 user.getGithubLink(),
                 user.getLinkedinLink(),
-                user.getWebsiteLink()
+                user.getWebsiteLink(),
+                planCycle
         );
     }
 
