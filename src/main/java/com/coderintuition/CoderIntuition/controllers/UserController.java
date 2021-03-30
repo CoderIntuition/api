@@ -78,7 +78,14 @@ public class UserController {
         if (user.getRoles().contains(plus)) {
             try {
                 Stripe.apiKey = appProperties.getStripe().getTestKey();
-                Customer customer = Customer.retrieve(user.getStripeCustomerId());
+
+                List<String> expandList = new ArrayList<>();
+                expandList.add("subscriptions");
+
+                Map<String, Object> params = new HashMap<>();
+                params.put("expand", expandList);
+
+                Customer customer = Customer.retrieve(user.getStripeCustomerId(), params, null);
                 log.info("customer: " + new Gson().toJson(customer));
                 log.info("customer subscriptions: " + new Gson().toJson(customer.getSubscriptions()));
                 Subscription subscription = customer.getSubscriptions().getData().stream().findFirst().get();
