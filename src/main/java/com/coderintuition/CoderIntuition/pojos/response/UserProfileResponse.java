@@ -21,7 +21,6 @@ public class UserProfileResponse {
     private String profilePicturePath;
     private Integer numCompletedProblems;
     private List<Badge> badges;
-    private List<ActivityResponse> activities;
     private Integer level;
     private String githubLink;
     private String linkedinLink;

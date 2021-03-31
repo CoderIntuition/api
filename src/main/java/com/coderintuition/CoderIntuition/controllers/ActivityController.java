@@ -4,14 +4,19 @@ import com.coderintuition.CoderIntuition.enums.ActivityType;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
 import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.pojos.request.ActivityRequestDto;
+import com.coderintuition.CoderIntuition.pojos.response.ActivityResponse;
 import com.coderintuition.CoderIntuition.repositories.*;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 public class ActivityController {
@@ -69,5 +74,37 @@ public class ActivityController {
         User user = userRepository.findById(userPrincipal.getId())
             .orElseThrow(() -> new RecordNotFoundException("User with ID" + userPrincipal.getId() + " not found."));
         createActivity(activityRequestDto, user);
+    }
+
+    @GetMapping(value = "/activity/{username}", params = {"page", "size"})
+    public List<ActivityResponse> getUserProfile(@PathVariable String username,
+                                                 @RequestParam("page") int page,
+                                                 @RequestParam("size") int size) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RecordNotFoundException("Username " + username + " not found"));
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Activity> activities = activityRepository.findActivitiesByUser(user, pageable);
+
+        List<ActivityResponse> activityResponses = new ArrayList<>();
+        for (Activity activity : activities) {
+            ActivityResponse activityResponse = new ActivityResponse();
+            activityResponse.setActivityType(activity.getActivityType());
+            if (activity.getActivityType() == ActivityType.LEARN_INTUITION || activity.getActivityType() == ActivityType.SUBMIT_PROBLEM) {
+                activityResponse.setProblemName(activity.getProblem().getName());
+                activityResponse.setProblemUrl(activity.getProblem().getUrlName());
+            }
+            if (activity.getActivityType() == ActivityType.SUBMIT_PROBLEM) {
+                Submission submission = submissionRepository.findById(activity.getSubmission().getId()).orElseThrow();
+                activityResponse.setSubmissionStatus(submission.getStatus());
+            }
+
+            activityResponse.setCreatedDate(activity.getCreated_at());
+            activityResponses.add(activityResponse);
+        }
+        activityResponses.sort((x1, x2) -> x2.getCreatedDate().compareTo(x1.getCreatedDate()));
+
+        return activityResponses;
     }
 }

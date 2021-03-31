@@ -5,23 +5,22 @@ import com.coderintuition.CoderIntuition.enums.*;
 import com.coderintuition.CoderIntuition.exceptions.BadRequestException;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
 import com.coderintuition.CoderIntuition.exceptions.ResourceNotFoundException;
-import com.coderintuition.CoderIntuition.models.Activity;
 import com.coderintuition.CoderIntuition.models.Role;
-import com.coderintuition.CoderIntuition.models.Submission;
 import com.coderintuition.CoderIntuition.models.User;
 import com.coderintuition.CoderIntuition.pojos.request.ChangePasswordRequest;
 import com.coderintuition.CoderIntuition.pojos.request.UserGeneralSettingsRequest;
 import com.coderintuition.CoderIntuition.pojos.request.VerifyEmailRequest;
-import com.coderintuition.CoderIntuition.pojos.response.*;
+import com.coderintuition.CoderIntuition.pojos.response.SubmissionResponse;
+import com.coderintuition.CoderIntuition.pojos.response.UserProfileResponse;
+import com.coderintuition.CoderIntuition.pojos.response.UserResponse;
+import com.coderintuition.CoderIntuition.pojos.response.VerifyEmailResponse;
 import com.coderintuition.CoderIntuition.repositories.ActivityRepository;
 import com.coderintuition.CoderIntuition.repositories.RoleRepository;
 import com.coderintuition.CoderIntuition.repositories.SubmissionRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
-import com.google.gson.Gson;
 import com.stripe.Stripe;
-import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.model.Subscription;
 import lombok.extern.log4j.Log4j2;
@@ -60,12 +59,12 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_USER')")
     public UserResponse getCurrentUser(@CurrentUser UserPrincipal userPrincipal) {
         User user = userRepository.findById(userPrincipal.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+            .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
 
         // check if plus subscription expired
         Role plusRole = roleRepository.findByName(ERole.ROLE_PLUS).orElseThrow();
         if (user.getRoles().contains(plusRole) && user.getPlusExpirationDate() != null
-                && user.getPlusExpirationDate().before(new Date())) {
+            && user.getPlusExpirationDate().before(new Date())) {
             Set<Role> roles = user.getRoles();
             roles.remove(plusRole);
             user.setRoles(roles);
@@ -99,65 +98,45 @@ public class UserController {
         }
 
         return new UserResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getName(),
-                user.getEmail(),
-                user.getVerified(),
-                user.getImageUrl(),
-                user.getLanguage(),
-                user.getRoles(),
-                user.getPoints(),
-                user.getGithubLink(),
-                user.getLinkedinLink(),
-                user.getWebsiteLink(),
-                planCycle
+            user.getId(),
+            user.getUsername(),
+            user.getName(),
+            user.getEmail(),
+            user.getVerified(),
+            user.getImageUrl(),
+            user.getLanguage(),
+            user.getRoles(),
+            user.getPoints(),
+            user.getGithubLink(),
+            user.getLinkedinLink(),
+            user.getWebsiteLink(),
+            planCycle
         );
     }
 
     @GetMapping(value = "/user/{username}")
     public UserProfileResponse getUserProfile(@PathVariable String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RecordNotFoundException("Username " + username + " not found"));
+            .orElseThrow(() -> new RecordNotFoundException("Username " + username + " not found"));
 
         Boolean plusRole = user.getRoles()
-                .stream()
-                .anyMatch(role -> role.getName().equals(ERole.ROLE_PLUS));
+            .stream()
+            .anyMatch(role -> role.getName().equals(ERole.ROLE_PLUS));
 
         int numCompletedProblems = submissionRepository.findNumOfCompletedProblemsByUser(user);
 
-        List<Activity> activities = activityRepository.findActivitiesByUser(user);
-        List<ActivityResponse> activityResponses = new ArrayList<>();
-        for (Activity activity : activities) {
-            ActivityResponse activityResponse = new ActivityResponse();
-            activityResponse.setActivityType(activity.getActivityType());
-            if (activity.getActivityType() == ActivityType.LEARN_INTUITION || activity.getActivityType() == ActivityType.SUBMIT_PROBLEM) {
-                activityResponse.setProblemName(activity.getProblem().getName());
-                activityResponse.setProblemUrl(activity.getProblem().getUrlName());
-            }
-            if (activity.getActivityType() == ActivityType.SUBMIT_PROBLEM) {
-                Submission submission = submissionRepository.findById(activity.getSubmission().getId()).orElseThrow();
-                activityResponse.setSubmissionStatus(submission.getStatus());
-            }
-
-            activityResponse.setCreatedDate(activity.getCreated_at());
-            activityResponses.add(activityResponse);
-        }
-        activityResponses.sort((x1, x2) -> x2.getCreatedDate().compareTo(x1.getCreatedDate()));
-
         return new UserProfileResponse(user.getName(),
-                user.getUsername(),
-                plusRole,
-                user.getImageUrl(),
-                numCompletedProblems,
-                user.getBadges(),
-                activityResponses,
-                // TODO: call level calculation method to calculate level
-                0,
-                user.getGithubLink(),
-                user.getLinkedinLink(),
-                user.getWebsiteLink(),
-                user.getCreated_at());
+            user.getUsername(),
+            plusRole,
+            user.getImageUrl(),
+            numCompletedProblems,
+            user.getBadges(),
+            // TODO: call level calculation method to calculate level
+            0,
+            user.getGithubLink(),
+            user.getLinkedinLink(),
+            user.getWebsiteLink(),
+            user.getCreated_at());
     }
 
     @PostMapping("/user/me")
@@ -165,7 +144,7 @@ public class UserController {
     public void saveUserGeneralInfo(@CurrentUser UserPrincipal userPrincipal,
                                     @RequestBody UserGeneralSettingsRequest settingsRequest) {
         User userResult = userRepository.findById(userPrincipal.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+            .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
         userResult.setName(settingsRequest.getName());
         userResult.setUsername(settingsRequest.getUsername());
         userResult.setGithubLink(settingsRequest.getGithubLink());
@@ -182,11 +161,11 @@ public class UserController {
     public void changePassword(@CurrentUser UserPrincipal userPrincipal,
                                @RequestBody ChangePasswordRequest changePasswordRequest) {
         User user = userRepository.findById(userPrincipal.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+            .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
         if (user.getAuthProvider() != AuthProvider.LOCAL) {
             String provider = StringUtils.capitalize(user.getAuthProvider().toString().toLowerCase());
             throw new BadRequestException("Your account is with " + provider + ". Please change your password on "
-                    + provider + "'s website instead.");
+                + provider + "'s website instead.");
         }
         if (!passwordEncoder.matches(changePasswordRequest.getCurrentPassword(), user.getPassword())) {
             throw new BadRequestException("Current password is incorrect");
@@ -222,16 +201,16 @@ public class UserController {
                                                    @PathVariable Long problemId) {
         User user = userRepository.findById(userPrincipal.getId()).orElseThrow();
         return user.getSubmissions().stream()
-                .filter(x -> x.getProblem().getId().equals(problemId))
-                .map(SubmissionResponse::fromSubmission)
-                .sorted((x1, x2) -> x2.getCreated_at().compareTo(x1.getCreated_at()))
-                .collect(Collectors.toList());
+            .filter(x -> x.getProblem().getId().equals(problemId))
+            .map(SubmissionResponse::fromSubmission)
+            .sorted((x1, x2) -> x2.getCreated_at().compareTo(x1.getCreated_at()))
+            .collect(Collectors.toList());
     }
 
     @GetMapping("/user/{username}/completedProblems")
     int getStatsSubmission(@PathVariable String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RecordNotFoundException("Username " + username + " not found"));
+            .orElseThrow(() -> new RecordNotFoundException("Username " + username + " not found"));
 
         return submissionRepository.findNumOfCompletedProblemsByUser(user);
     }
