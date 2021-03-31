@@ -18,7 +18,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
     @Query("SELECT COUNT(a) FROM Activity a WHERE a.user = (:user) AND a.problem = (:problem) AND a.activityType = (:activityType)")
     int findActivity(@Param("user") User user, @Param("problem") Problem problem, @Param("activityType") ActivityType activityType);
 
-    @Query("SELECT a FROM Activity a WHERE a.user = (:user)")
+    @Query("SELECT a FROM Activity a WHERE a.user = (:user) ORDER BY a.created_at DESC")
     Page<Activity> findActivitiesByUser(@Param("user") User user, Pageable pageable);
 
     @Query("SELECT a FROM Activity a WHERE a.user = (:user)")
