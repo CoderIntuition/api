@@ -4,6 +4,7 @@ import com.coderintuition.CoderIntuition.enums.ActivityType;
 import com.coderintuition.CoderIntuition.exceptions.RecordNotFoundException;
 import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.pojos.request.ActivityRequestDto;
+import com.coderintuition.CoderIntuition.pojos.response.ActivityListResponse;
 import com.coderintuition.CoderIntuition.pojos.response.ActivityResponse;
 import com.coderintuition.CoderIntuition.repositories.*;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
@@ -77,9 +78,9 @@ public class ActivityController {
     }
 
     @GetMapping(value = "/activity/{username}", params = {"page", "size"})
-    public List<ActivityResponse> getUserProfile(@PathVariable String username,
-                                                 @RequestParam("page") int page,
-                                                 @RequestParam("size") int size) {
+    public ActivityListResponse getUserProfile(@PathVariable String username,
+                                               @RequestParam("page") int page,
+                                               @RequestParam("size") int size) {
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new RecordNotFoundException("Username " + username + " not found"));
 
@@ -105,6 +106,6 @@ public class ActivityController {
         }
         activityResponses.sort((x1, x2) -> x2.getCreatedDate().compareTo(x1.getCreatedDate()));
 
-        return activityResponses;
+        return new ActivityListResponse(activities.getTotalPages(), activityResponses);
     }
 }
