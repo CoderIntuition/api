@@ -27,4 +27,10 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
 
     @Query("SELECT a FROM Activity a WHERE a.user = (:user)")
     List<Activity> findActivitiesByUser(@Param("user") User user);
+
+    @Query("SELECT DISTINCT a.problem.urlName FROM Activity a WHERE a.user = (:user) AND a.activityType = 'SUBMIT_PROBLEM' AND a.submission.status = 'ACCEPTED'")
+    List<String> findCompletedProblemsByUser(@Param("user") User user);
+
+    @Query("SELECT DISTINCT a.reading.urlName FROM Activity a WHERE a.user = (:user) AND a.activityType = 'COMPLETE_READING'")
+    List<String> findCompletedReadingsByUser(@Param("user") User user);
 }
