@@ -6,6 +6,7 @@ import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.pojos.request.ActivityRequestDto;
 import com.coderintuition.CoderIntuition.pojos.response.ActivityListResponse;
 import com.coderintuition.CoderIntuition.pojos.response.ActivityResponse;
+import com.coderintuition.CoderIntuition.pojos.response.CompletedActivitiesResponse;
 import com.coderintuition.CoderIntuition.repositories.*;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
@@ -129,5 +130,17 @@ public class ActivityController {
 //        activityResponses.sort((x1, x2) -> x2.getCreatedDate().compareTo(x1.getCreatedDate()));
 
         return new ActivityListResponse(activities.getTotalPages(), activityResponses);
+    }
+
+    @GetMapping(value = "/activity/completed/{userId}")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public CompletedActivitiesResponse getCompletedActivities(@PathVariable Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RecordNotFoundException("User not found"));
+
+        List<String> completedProblems = activityRepository.findCompletedProblemsByUser(user);
+        List<String> completedReadings = activityRepository.findCompletedReadingsByUser(user);
+
+        return new CompletedActivitiesResponse(completedProblems, completedReadings);
     }
 }
