@@ -17,6 +17,8 @@ public class ActivityResponse {
     private ActivityType activityType;
     private String problemName;
     private String problemUrl;
+    private String readingName;
+    private String readingUrl;
     private SubmissionStatus submissionStatus;
     private Date createdDate;
 }

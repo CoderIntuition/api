@@ -44,6 +44,11 @@ public class Activity {
     @JoinColumn(name = "problem_id")
     private Problem problem;
 
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "reading_id")
+    private Reading reading;
+
     @ManyToOne
     @JoinColumn(name = "badge_id")
     private Badge badge;

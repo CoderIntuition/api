@@ -185,7 +185,8 @@ public class SubmissionController {
             ActivityType.SUBMIT_PROBLEM,
             problem.getId(),
             null,
-            submission.getId());
+            submission.getId(),
+            null);
         activityController.createActivity(activityRequestDto, user);
 
         return new TokenResponse(token);
