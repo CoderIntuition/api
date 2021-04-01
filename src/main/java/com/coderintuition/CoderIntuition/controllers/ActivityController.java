@@ -32,35 +32,50 @@ public class ActivityController {
     ProblemRepository problemRepository;
 
     @Autowired
+    ReadingRepository readingRepository;
+
+    @Autowired
     BadgeRepository badgeRepository;
 
     @Autowired
     SubmissionRepository submissionRepository;
 
     public void createActivity(ActivityRequestDto activityRequestDto, User user) {
+        ActivityType activityType = activityRequestDto.getActivityType();
+
         Activity activity = new Activity();
         activity.setUser(user);
-        activity.setActivityType(activityRequestDto.getActivityType());
+        activity.setActivityType(activityType);
 
-        if (activityRequestDto.getActivityType() == ActivityType.LEARN_INTUITION ||
-            activityRequestDto.getActivityType() == ActivityType.SUBMIT_PROBLEM) {
+        if (activityType == ActivityType.LEARN_INTUITION || activityType == ActivityType.SUBMIT_PROBLEM) {
             Problem problem = problemRepository.findById(activityRequestDto.getProblemId())
                 .orElseThrow(() -> new RecordNotFoundException("Problem with ID" + activityRequestDto.getProblemId() + " not found."));
 
-            if (activityRequestDto.getActivityType() == ActivityType.SUBMIT_PROBLEM) {
+            if (activityType == ActivityType.SUBMIT_PROBLEM) {
                 Submission submission = submissionRepository.findById(activityRequestDto.getSubmissionId())
                     .orElseThrow(() -> new RecordNotFoundException("Submission with ID" + activityRequestDto.getSubmissionId() + " not found."));
                 activity.setSubmission(submission);
             }
 
-            if (activityRequestDto.getActivityType() == ActivityType.LEARN_INTUITION &&
+            if (activityType == ActivityType.LEARN_INTUITION &&
                 activityRepository.findActivity(user, problem, ActivityType.LEARN_INTUITION) > 0) {
-                return;
+                return; // already exists intuition activity for this problem for this user
             }
             activity.setProblem(problem);
         }
 
-        if (activityRequestDto.getActivityType() == ActivityType.EARN_BADGE) {
+        if (activityType == ActivityType.COMPLETE_READING) {
+            Reading reading = readingRepository.findById(activityRequestDto.getReadingId())
+                .orElseThrow(() -> new RecordNotFoundException("Reading with ID" + activityRequestDto.getReadingId() + " not found."));
+
+            if (activityRepository.findActivity(user, reading, ActivityType.COMPLETE_READING) > 0) {
+                return; // already exists reading activity for this reading for this user
+            }
+
+            activity.setReading(reading);
+        }
+
+        if (activityType == ActivityType.EARN_BADGE) {
             Badge badge = badgeRepository.findById(activityRequestDto.getBadgeId())
                 .orElseThrow(() -> new RecordNotFoundException("Badge with ID" + activityRequestDto.getBadgeId() + " not found."));
             activity.setBadge(badge);
@@ -92,19 +107,26 @@ public class ActivityController {
         for (Activity activity : activities) {
             ActivityResponse activityResponse = new ActivityResponse();
             activityResponse.setActivityType(activity.getActivityType());
+
             if (activity.getActivityType() == ActivityType.LEARN_INTUITION || activity.getActivityType() == ActivityType.SUBMIT_PROBLEM) {
                 activityResponse.setProblemName(activity.getProblem().getName());
                 activityResponse.setProblemUrl(activity.getProblem().getUrlName());
             }
+
             if (activity.getActivityType() == ActivityType.SUBMIT_PROBLEM) {
-                Submission submission = submissionRepository.findById(activity.getSubmission().getId()).orElseThrow();
-                activityResponse.setSubmissionStatus(submission.getStatus());
+                activityResponse.setSubmissionStatus(activity.getSubmission().getStatus());
+            }
+
+            if (activity.getActivityType() == ActivityType.COMPLETE_READING) {
+                activityResponse.setReadingName(activity.getReading().getName());
+                activityResponse.setReadingUrl(activity.getReading().getUrlName());
             }
 
             activityResponse.setCreatedDate(activity.getCreated_at());
             activityResponses.add(activityResponse);
         }
-        activityResponses.sort((x1, x2) -> x2.getCreatedDate().compareTo(x1.getCreatedDate()));
+
+//        activityResponses.sort((x1, x2) -> x2.getCreatedDate().compareTo(x1.getCreatedDate()));
 
         return new ActivityListResponse(activities.getTotalPages(), activityResponses);
     }
