@@ -59,7 +59,7 @@ public class ActivityController {
 
             if (activityType == ActivityType.LEARN_INTUITION &&
                 activityRepository.findActivity(user, problem, ActivityType.LEARN_INTUITION) > 0) {
-                return;
+                return; // already exists intuition activity for this problem for this user
             }
             activity.setProblem(problem);
         }
@@ -67,6 +67,11 @@ public class ActivityController {
         if (activityType == ActivityType.COMPLETE_READING) {
             Reading reading = readingRepository.findById(activityRequestDto.getReadingId())
                 .orElseThrow(() -> new RecordNotFoundException("Reading with ID" + activityRequestDto.getReadingId() + " not found."));
+
+            if (activityRepository.findActivity(user, reading, ActivityType.COMPLETE_READING) > 0) {
+                return; // already exists reading activity for this reading for this user
+            }
+
             activity.setReading(reading);
         }
 

@@ -3,6 +3,7 @@ package com.coderintuition.CoderIntuition.repositories;
 import com.coderintuition.CoderIntuition.enums.ActivityType;
 import com.coderintuition.CoderIntuition.models.Activity;
 import com.coderintuition.CoderIntuition.models.Problem;
+import com.coderintuition.CoderIntuition.models.Reading;
 import com.coderintuition.CoderIntuition.models.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,9 @@ import java.util.List;
 public interface ActivityRepository extends JpaRepository<Activity, Long> {
     @Query("SELECT COUNT(a) FROM Activity a WHERE a.user = (:user) AND a.problem = (:problem) AND a.activityType = (:activityType)")
     int findActivity(@Param("user") User user, @Param("problem") Problem problem, @Param("activityType") ActivityType activityType);
+
+    @Query("SELECT COUNT(a) FROM Activity a WHERE a.user = (:user) AND a.reading = (:reading) AND a.activityType = (:activityType)")
+    int findActivity(@Param("user") User user, @Param("reading") Reading reading, @Param("activityType") ActivityType activityType);
 
     @Query("SELECT a FROM Activity a WHERE a.user = (:user) ORDER BY a.created_at DESC")
     Page<Activity> findActivitiesByUser(@Param("user") User user, Pageable pageable);
