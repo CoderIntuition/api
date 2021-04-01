@@ -125,14 +125,20 @@ public class UserController {
 
         int numCompletedProblems = submissionRepository.findNumOfCompletedProblemsByUser(user);
 
+        int numCompletedEasyProblems = submissionRepository.findNumOfCompletedProblemsByUserAndDifficulty(user, Difficulty.EASY);
+        int numCompletedMediumProblems = submissionRepository.findNumOfCompletedProblemsByUserAndDifficulty(user, Difficulty.MEDIUM);
+        int numCompletedHardProblems = submissionRepository.findNumOfCompletedProblemsByUserAndDifficulty(user, Difficulty.HARD);
+
         return new UserProfileResponse(user.getName(),
             user.getUsername(),
             plusRole,
             user.getImageUrl(),
             numCompletedProblems,
+            numCompletedEasyProblems,
+            numCompletedMediumProblems,
+            numCompletedHardProblems,
             user.getBadges(),
-            // TODO: call level calculation method to calculate level
-            0,
+            0, // TODO: call level calculation method to calculate level
             user.getGithubLink(),
             user.getLinkedinLink(),
             user.getWebsiteLink(),

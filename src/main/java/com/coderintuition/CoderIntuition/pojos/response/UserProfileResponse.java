@@ -20,6 +20,9 @@ public class UserProfileResponse {
     private Boolean plusRole;
     private String profilePicturePath;
     private Integer numCompletedProblems;
+    private Integer numCompletedEasyProblems;
+    private Integer numCompletedMediumProblems;
+    private Integer numCompletedHardProblems;
     private List<Badge> badges;
     private Integer level;
     private String githubLink;
