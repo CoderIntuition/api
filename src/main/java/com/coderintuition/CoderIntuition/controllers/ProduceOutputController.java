@@ -4,7 +4,6 @@ import com.coderintuition.CoderIntuition.common.CodeTemplateFiller;
 import com.coderintuition.CoderIntuition.common.Constants;
 import com.coderintuition.CoderIntuition.common.Utils;
 import com.coderintuition.CoderIntuition.config.AppProperties;
-import com.coderintuition.CoderIntuition.enums.Language;
 import com.coderintuition.CoderIntuition.enums.ProduceOutputStatus;
 import com.coderintuition.CoderIntuition.models.Problem;
 import com.coderintuition.CoderIntuition.models.ProduceOutput;
@@ -18,6 +17,8 @@ import com.coderintuition.CoderIntuition.repositories.ProduceOutputRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
+import com.google.gson.Gson;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 
 @RestController
+@Log4j2
 public class ProduceOutputController {
     @Autowired
     ProblemRepository problemRepository;
@@ -54,6 +56,8 @@ public class ProduceOutputController {
 
     @PutMapping("/produceoutput/judge0callback")
     public void produceOutputCallback(@RequestBody JzSubmissionCheckResponse data) throws IOException {
+        log.info("PUT /produceoutput/judge0callback\ndata={}", new Gson().toJson(data));
+
         // get produce output info
         JzSubmissionCheckResponse result = Utils.retrieveFromJudgeZero(data.getToken(), appProperties);
 
@@ -112,6 +116,8 @@ public class ProduceOutputController {
         String code = filler.getProduceOutputCode(produceOutputDto.getLanguage(), produceOutputDto.getCode(),
             functionName, problem.getArguments(), problem.getReturnType());
 
+        log.info("Generated code from template:\n{}", code);
+
         // create request to JudgeZero
         JZSubmissionRequestDto requestDto = new JZSubmissionRequestDto();
         requestDto.setSourceCode(code);
@@ -121,6 +127,8 @@ public class ProduceOutputController {
 
         // send request to JudgeZero
         String token = Utils.submitToJudgeZero(requestDto, appProperties);
+
+        log.info("Received token from JudgeZero\ntoken={}", token);
 
         // save submission to db
         ProduceOutput produceOutput = new ProduceOutput();
