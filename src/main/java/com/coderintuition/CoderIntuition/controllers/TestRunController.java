@@ -53,7 +53,8 @@ public class TestRunController {
         log.info("result={}", result.toString());
 
         // update the test run in the db
-        TestRun testRun = testRunRepository.findByToken(result.getToken());
+        TestRun testRun = testRunRepository.findByToken(result.getToken()).orElseThrow();
+        log.info("testRun={}", testRun.toString());
 
         // save the results of the test run
         if (result.getStatus().getId() >= 6) { // error
