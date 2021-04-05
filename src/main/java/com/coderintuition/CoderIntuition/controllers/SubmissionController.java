@@ -83,7 +83,6 @@ public class SubmissionController {
 
         // fetch the submission from the db
         Submission submission = submissionRepository.findByToken(result.getToken()).orElseThrow();
-        log.info("submission={}", submission.toString());
 
         List<TestResult> testResults = new ArrayList<>();
 

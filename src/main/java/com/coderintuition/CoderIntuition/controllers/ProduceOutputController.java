@@ -71,7 +71,6 @@ public class ProduceOutputController {
 
         // fetch the produce output in the db
         ProduceOutput produceOutput = produceOutputRepository.findByToken(result.getToken()).orElseThrow();
-        log.info("produceOutput={}", produceOutput.toString());
 
         // set the results
         if (result.getStatus().getId() >= 6) { // error

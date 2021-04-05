@@ -59,7 +59,6 @@ public class TestRunController {
 
         // fetch the test run from the db
         TestRun testRun = testRunRepository.findByToken(result.getToken()).orElseThrow();
-        log.info("testRun={}", testRun.toString());
 
         // save the results of the test run
         if (result.getStatus().getId() >= 6) { // error

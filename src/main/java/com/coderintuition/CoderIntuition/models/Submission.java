@@ -79,10 +79,5 @@ public class Submission {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private Date updated_at;
-
-    @Override
-    public String toString() {
-        return Utils.gson.toJson(this);
-    }
 }
 
