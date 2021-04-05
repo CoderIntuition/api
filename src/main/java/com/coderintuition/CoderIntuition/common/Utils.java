@@ -6,6 +6,8 @@ import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.pojos.response.JZSubmissionResponse;
 import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import io.netty.util.internal.StringUtil;
 import net.sargue.mailgun.Configuration;
 import net.sargue.mailgun.Mail;
@@ -23,6 +25,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Utils {
+    public static Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
     public static int getLanguageId(Language language) {
         if (language == Language.PYTHON) {
             return 71;

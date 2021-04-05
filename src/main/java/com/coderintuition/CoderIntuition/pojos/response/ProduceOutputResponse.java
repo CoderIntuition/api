@@ -25,8 +25,8 @@ public class ProduceOutputResponse {
         ProduceOutputResponse produceOutputResponse = new ProduceOutputResponse();
         produceOutputResponse.setStatus(produceOutput.getStatus());
         produceOutputResponse.setOutput(produceOutput.getOutput());
-        produceOutputResponse.setStdout(produceOutputResponse.getStdout());
-        produceOutputResponse.setStderr(produceOutputResponse.getStderr());
+        produceOutputResponse.setStdout(produceOutput.getStdout());
+        produceOutputResponse.setStderr(produceOutput.getStderr());
         return produceOutputResponse;
     }
 

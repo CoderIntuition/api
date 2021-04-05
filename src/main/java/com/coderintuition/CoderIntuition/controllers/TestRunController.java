@@ -16,6 +16,8 @@ import com.coderintuition.CoderIntuition.pojos.response.TokenResponse;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.TestRunRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +25,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
+
+@Slf4j
 @RestController
 public class TestRunController {
 
@@ -40,8 +45,12 @@ public class TestRunController {
 
     @PutMapping("/testrun/judge0callback")
     public void testRunCallback(@RequestBody JzSubmissionCheckResponse data) throws Exception {
+        log.info("PUT /testrun/judge0callback");
+        log.info("data={}", data.toString());
+
         // get test run info
         JzSubmissionCheckResponse result = Utils.retrieveFromJudgeZero(data.getToken(), appProperties);
+        log.info("result={}", result.toString());
 
         // update the test run in the db
         TestRun testRun = testRunRepository.findByToken(result.getToken());
@@ -64,6 +73,8 @@ public class TestRunController {
             // everything above the line is stdout, everything below is test results
             String[] split = result.getStdout().trim().split(Constants.IO_SEPARATOR);
             String[] testResult = split[1].split("\\|");
+            log.info("testResult={}", Arrays.toString(testResult));
+
             if (testResult.length == 3) { // no errors
                 // test results are formatted: {status}|{expected output}|{run output}
                 testRun.setStatus(TestStatus.valueOf(testResult[0]));

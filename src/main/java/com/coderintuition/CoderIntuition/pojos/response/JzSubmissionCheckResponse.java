@@ -1,5 +1,6 @@
 package com.coderintuition.CoderIntuition.pojos.response;
 
+import com.coderintuition.CoderIntuition.common.Utils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,4 +19,9 @@ public class JzSubmissionCheckResponse {
     private String stdout;
     private String time;
     private String token;
+
+    @Override
+    public String toString() {
+        return Utils.gson.toJson(this);
+    }
 }
