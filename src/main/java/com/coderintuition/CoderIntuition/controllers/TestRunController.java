@@ -16,7 +16,6 @@ import com.coderintuition.CoderIntuition.pojos.response.TokenResponse;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.TestRunRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -26,6 +25,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
+import java.util.Optional;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 
 @Slf4j
 @RestController
@@ -53,6 +56,7 @@ public class TestRunController {
         log.info("result={}", result.toString());
 
         // update the test run in the db
+        await().atMost(5, SECONDS).until(() ->  testRunRepository.findByToken(result.getToken()).isPresent());
         log.info("Fetching test run by token, token={}", result.getToken());
         TestRun testRun = testRunRepository.findByToken(result.getToken()).orElseThrow();
         log.info("testRun={}", testRun.toString());
