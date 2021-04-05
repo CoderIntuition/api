@@ -53,6 +53,7 @@ public class TestRunController {
         log.info("result={}", result.toString());
 
         // update the test run in the db
+        log.info("Fetching test run by token, token={}", result.getToken());
         TestRun testRun = testRunRepository.findByToken(result.getToken()).orElseThrow();
         log.info("testRun={}", testRun.toString());
 
@@ -128,6 +129,7 @@ public class TestRunController {
 
         // send request to JudgeZero
         String token = Utils.submitToJudgeZero(requestDto, appProperties);
+        log.info("Submitted test run to JudgeZero, requestDto={}, token={}", requestDto.toString(), token);
 
         // create the test run to be saved into the db
         TestRun testRun = new TestRun();
@@ -138,6 +140,7 @@ public class TestRunController {
         testRun.setInput(runRequestDto.getInput());
         testRun.setStatus(TestStatus.RUNNING);
         testRunRepository.save(testRun);
+        log.info("Saved test run to database, testRun={}", testRun);
 
         return new TokenResponse(token);
     }
