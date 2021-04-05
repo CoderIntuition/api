@@ -8,9 +8,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface SubmissionRepository extends JpaRepository<Submission, Long> {
-    Submission findByToken(String token);
+    Optional<Submission> findByToken(String token);
 
     @Query("SELECT COUNT(DISTINCT s.problem) FROM Submission s WHERE s.user = (:user) AND s.status = 'ACCEPTED'")
     int findNumOfCompletedProblemsByUser(@Param("user") User user);

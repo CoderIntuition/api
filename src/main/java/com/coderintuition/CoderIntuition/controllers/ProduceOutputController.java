@@ -17,7 +17,6 @@ import com.coderintuition.CoderIntuition.repositories.ProduceOutputRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
-import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -25,6 +24,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 
 @RestController
 @Slf4j
@@ -47,7 +49,8 @@ public class ProduceOutputController {
     @GetMapping("/produceoutput/{token}")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
     public ProduceOutputResponse getProduceOutput(@CurrentUser UserPrincipal userPrincipal, @PathVariable String token) throws Exception {
-        ProduceOutput produceOutput = produceOutputRepository.findByToken(token);
+        ProduceOutput produceOutput = produceOutputRepository.findByToken(token).orElseThrow();
+
         if (!produceOutput.getUser().getId().equals(userPrincipal.getId())) {
             throw new Exception("Unauthorized");
         }
@@ -56,13 +59,19 @@ public class ProduceOutputController {
 
     @PutMapping("/produceoutput/judge0callback")
     public void produceOutputCallback(@RequestBody JzSubmissionCheckResponse data) throws IOException {
-        log.info("PUT /produceoutput/judge0callback\ndata={}", new Gson().toJson(data));
+        log.info("PUT /produceoutput/judge0callback");
+        log.info("data={}", data.toString());
 
         // get produce output info
         JzSubmissionCheckResponse result = Utils.retrieveFromJudgeZero(data.getToken(), appProperties);
+        log.info("result={}", result.toString());
 
-        // update the produce output in the db
-        ProduceOutput produceOutput = produceOutputRepository.findByToken(result.getToken());
+        // wait until produce output is written to db from createProduceOutput
+        await().atMost(5, SECONDS).until(() -> produceOutputRepository.findByToken(result.getToken()).isPresent());
+
+        // fetch the produce output in the db
+        ProduceOutput produceOutput = produceOutputRepository.findByToken(result.getToken()).orElseThrow();
+        log.info("produceOutput={}", produceOutput.toString());
 
         // set the results
         if (result.getStatus().getId() >= 6) { // error
@@ -106,7 +115,7 @@ public class ProduceOutputController {
 
     @PostMapping("/produceoutput")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public TokenResponse produceOutput(@CurrentUser UserPrincipal userPrincipal, @RequestBody ProduceOutputDto produceOutputDto) throws Exception {
+    public TokenResponse createProduceOutput(@CurrentUser UserPrincipal userPrincipal, @RequestBody ProduceOutputDto produceOutputDto) throws Exception {
         // retrieve the problem
         Problem problem = problemRepository.findById(produceOutputDto.getProblemId()).orElseThrow();
 
@@ -115,7 +124,6 @@ public class ProduceOutputController {
         String functionName = Utils.getFunctionName(produceOutputDto.getLanguage(), problem.getCode(produceOutputDto.getLanguage()));
         String code = filler.getProduceOutputCode(produceOutputDto.getLanguage(), produceOutputDto.getCode(),
             functionName, problem.getArguments(), problem.getReturnType());
-
         log.info("Generated code from template:\n{}", code);
 
         // create request to JudgeZero
@@ -127,10 +135,9 @@ public class ProduceOutputController {
 
         // send request to JudgeZero
         String token = Utils.submitToJudgeZero(requestDto, appProperties);
+        log.info("Submitted produce output to JudgeZero, requestDto={}, token={}", requestDto.toString(), token);
 
-        log.info("Received token from JudgeZero\ntoken={}", token);
-
-        // save submission to db
+        // save produce output to db
         ProduceOutput produceOutput = new ProduceOutput();
         produceOutput.setUser(userRepository.findById(userPrincipal.getId()).orElseThrow());
         produceOutput.setCode(produceOutputDto.getCode());
@@ -140,6 +147,7 @@ public class ProduceOutputController {
         produceOutput.setProblem(problem);
         produceOutput.setToken(token);
         produceOutputRepository.save(produceOutput);
+        log.info("Saved produce output to database, produceOutput={}", produceOutput);
 
         return new TokenResponse(token);
     }

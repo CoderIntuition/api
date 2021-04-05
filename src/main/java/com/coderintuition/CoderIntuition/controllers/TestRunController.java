@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
@@ -56,7 +55,7 @@ public class TestRunController {
         log.info("result={}", result.toString());
 
         // wait until test run is written to db from createTestRun
-        await().atMost(5, SECONDS).until(() ->  testRunRepository.findByToken(result.getToken()).isPresent());
+        await().atMost(5, SECONDS).until(() -> testRunRepository.findByToken(result.getToken()).isPresent());
 
         // fetch the test run from the db
         TestRun testRun = testRunRepository.findByToken(result.getToken()).orElseThrow();

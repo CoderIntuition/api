@@ -1,5 +1,6 @@
 package com.coderintuition.CoderIntuition.models;
 
+import com.coderintuition.CoderIntuition.common.Utils;
 import com.coderintuition.CoderIntuition.enums.Language;
 import com.coderintuition.CoderIntuition.enums.ProduceOutputStatus;
 import lombok.Getter;
@@ -74,4 +75,9 @@ public class ProduceOutput {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private Date updated_at;
+
+    @Override
+    public String toString() {
+        return Utils.gson.toJson(this);
+    }
 }

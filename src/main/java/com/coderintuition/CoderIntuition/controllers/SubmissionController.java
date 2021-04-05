@@ -29,6 +29,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
+
 @Slf4j
 @RestController
 public class SubmissionController {
@@ -38,9 +41,6 @@ public class SubmissionController {
 
     @Autowired
     UserRepository userRepository;
-
-    @Autowired
-    TestRunRepository testRunRepository;
 
     @Autowired
     SubmissionRepository submissionRepository;
@@ -60,7 +60,8 @@ public class SubmissionController {
     @GetMapping("/submission/{token}")
     @PreAuthorize("hasRole('ROLE_USER')")
     public SubmissionResponse getSubmission(@CurrentUser UserPrincipal userPrincipal, @PathVariable String token) throws Exception {
-        Submission submission = submissionRepository.findByToken(token);
+        Submission submission = submissionRepository.findByToken(token).orElseThrow();
+
         if (!submission.getUser().getId().equals(userPrincipal.getId())) {
             throw new Exception("Unauthorized");
         }
@@ -77,12 +78,16 @@ public class SubmissionController {
         JzSubmissionCheckResponse result = Utils.retrieveFromJudgeZero(data.getToken(), appProperties);
         log.info("result={}", result.toString());
 
-        // update the submission in the db
-        Submission submission = submissionRepository.findByToken(result.getToken());
-        List<TestResult> testResults = new ArrayList<>();
+        // wait until test run is written to db from createSubmission
+        await().atMost(5, SECONDS).until(() -> submissionRepository.findByToken(result.getToken()).isPresent());
+
+        // fetch the submission from the db
+        Submission submission = submissionRepository.findByToken(result.getToken()).orElseThrow();
         log.info("submission={}", submission.toString());
 
-        // set the results of the submission
+        List<TestResult> testResults = new ArrayList<>();
+
+        // save the results of the submission
         if (result.getStatus().getId() >= 6) { // error
             submission.setStatus(SubmissionStatus.ERROR);
             String stderr = "";
@@ -189,7 +194,7 @@ public class SubmissionController {
         submission.setProblem(problem);
         submission.setToken(token);
         submissionRepository.save(submission);
-        log.info("Saved submission to database, testRun={}", submission);
+        log.info("Saved submission to database, submission={}", submission);
 
         // create Activity
         ActivityRequestDto activityRequestDto = new ActivityRequestDto(
