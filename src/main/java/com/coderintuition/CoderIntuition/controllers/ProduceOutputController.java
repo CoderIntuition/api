@@ -67,7 +67,8 @@ public class ProduceOutputController {
         log.info("result={}", result.toString());
 
         // wait until produce output is written to db from createProduceOutput
-        await().atMost(5, SECONDS).until(() -> produceOutputRepository.findByToken(result.getToken()).isPresent());
+        await().atMost(15, SECONDS).until(() -> produceOutputRepository.findByToken(result.getToken()).isPresent());
+        log.info("Done waiting for produce output to be written to db");
 
         // fetch the produce output in the db
         ProduceOutput produceOutput = produceOutputRepository.findByToken(result.getToken()).orElseThrow();

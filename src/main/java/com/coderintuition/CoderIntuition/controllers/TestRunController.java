@@ -55,7 +55,8 @@ public class TestRunController {
         log.info("result={}", result.toString());
 
         // wait until test run is written to db from createTestRun
-        await().atMost(5, SECONDS).until(() -> testRunRepository.findByToken(result.getToken()).isPresent());
+        await().atMost(15, SECONDS).until(() -> testRunRepository.findByToken(result.getToken()).isPresent());
+        log.info("Done waiting for test run to be written to db");
 
         // fetch the test run from the db
         TestRun testRun = testRunRepository.findByToken(result.getToken()).orElseThrow();

@@ -79,7 +79,8 @@ public class SubmissionController {
         log.info("result={}", result.toString());
 
         // wait until test run is written to db from createSubmission
-        await().atMost(5, SECONDS).until(() -> submissionRepository.findByToken(result.getToken()).isPresent());
+        await().atMost(15, SECONDS).until(() -> submissionRepository.findByToken(result.getToken()).isPresent());
+        log.info("Done waiting for submission to be written to db");
 
         // fetch the submission from the db
         Submission submission = submissionRepository.findByToken(result.getToken()).orElseThrow();
