@@ -1,5 +1,6 @@
 package com.coderintuition.CoderIntuition.models;
 
+import com.coderintuition.CoderIntuition.common.Utils;
 import com.coderintuition.CoderIntuition.enums.Language;
 import com.coderintuition.CoderIntuition.enums.SubmissionStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -78,5 +79,10 @@ public class Submission {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private Date updated_at;
+
+    @Override
+    public String toString() {
+        return Utils.gson.toJson(this);
+    }
 }
 

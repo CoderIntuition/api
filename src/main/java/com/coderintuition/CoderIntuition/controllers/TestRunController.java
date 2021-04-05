@@ -55,9 +55,10 @@ public class TestRunController {
         JzSubmissionCheckResponse result = Utils.retrieveFromJudgeZero(data.getToken(), appProperties);
         log.info("result={}", result.toString());
 
-        // update the test run in the db
+        // wait until test run is written to db from createTestRun
         await().atMost(5, SECONDS).until(() ->  testRunRepository.findByToken(result.getToken()).isPresent());
-        log.info("Fetching test run by token, token={}", result.getToken());
+
+        // fetch the test run from the db
         TestRun testRun = testRunRepository.findByToken(result.getToken()).orElseThrow();
         log.info("testRun={}", testRun.toString());
 

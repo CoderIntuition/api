@@ -17,6 +17,7 @@ import com.coderintuition.CoderIntuition.pojos.response.TokenResponse;
 import com.coderintuition.CoderIntuition.repositories.*;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,10 +26,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 @RestController
-@Controller
 public class SubmissionController {
 
     @Autowired
@@ -68,12 +70,17 @@ public class SubmissionController {
 
     @PutMapping("/submission/judge0callback")
     public void submissionCallback(@RequestBody JzSubmissionCheckResponse data) throws IOException {
+        log.info("PUT /submission/judge0callback");
+        log.info("data={}", data.toString());
+
         // get submission info
         JzSubmissionCheckResponse result = Utils.retrieveFromJudgeZero(data.getToken(), appProperties);
+        log.info("result={}", result.toString());
 
         // update the submission in the db
         Submission submission = submissionRepository.findByToken(result.getToken());
         List<TestResult> testResults = new ArrayList<>();
+        log.info("submission={}", submission.toString());
 
         // set the results of the submission
         if (result.getStatus().getId() >= 6) { // error
@@ -97,6 +104,7 @@ public class SubmissionController {
                 // test results are formatted: {test num}|{status}|{expected output}|{run output}
                 // runtime error results are formatted: {test num}|{status}|{error message}
                 String[] testResult = str.split("\\|");
+                log.info("testResult={}", Arrays.toString(testResult));
 
                 if (testResult.length == 4) { // no errors
                     String num = testResult[0];
@@ -166,8 +174,10 @@ public class SubmissionController {
         requestDto.setLanguageId(Utils.getLanguageId(submissionRequestDto.getLanguage()));
         requestDto.setStdin(stdin.toString());
         requestDto.setCallbackUrl(appProperties.getJudge0().getCallbackUrl() + "/submission/judge0callback");
+
         // send request to JudgeZero
         String token = Utils.submitToJudgeZero(requestDto, appProperties);
+        log.info("Submitted submission to JudgeZero, requestDto={}, token={}", requestDto.toString(), token);
 
         // save submission to db
         Submission submission = new Submission();
@@ -179,6 +189,7 @@ public class SubmissionController {
         submission.setProblem(problem);
         submission.setToken(token);
         submissionRepository.save(submission);
+        log.info("Saved submission to database, testRun={}", submission);
 
         // create Activity
         ActivityRequestDto activityRequestDto = new ActivityRequestDto(

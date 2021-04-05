@@ -8,6 +8,7 @@ import com.coderintuition.CoderIntuition.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -47,6 +48,7 @@ public class CmsController {
 
     @PostMapping("/problem/update")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<?> updateProblem(@Valid @RequestBody UpdateProblemRequest updateProblemRequest) throws Exception {
         ProblemDto problemDto = updateProblemRequest.getProblem();
         if (problemDto.getTestCases().stream().filter(TestCaseDto::getIsDefault).count() != 1) {
@@ -174,6 +176,7 @@ public class CmsController {
 
     @PostMapping("/problem/add")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<?> addProblem(@Valid @RequestBody ProblemDto problemDto) throws Exception {
         if (problemDto.getTestCases().stream().filter(TestCaseDto::getIsDefault).count() != 1) {
             throw new Exception("There must be exactly one default test case");
@@ -265,6 +268,7 @@ public class CmsController {
         returnType.setUnderlyingType2(problemDto.getReturnType().getUnderlyingType2());
         returnType.setOrderMatters(problemDto.getReturnType().getOrderMatters());
         problem.setReturnType(returnType);
+
 
         problemRepository.save(problem);
         for (var problemStep : problemSteps) {
