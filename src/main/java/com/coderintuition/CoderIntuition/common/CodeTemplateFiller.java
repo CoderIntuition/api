@@ -731,8 +731,8 @@ public class CodeTemplateFiller {
                 break;
             case STRING:
                 equalsCode.append("if (userResult === solResult) {");
-                userResultFormatCode.append("const userResultStr = \"\\\\\"\" + userResult + \"\\\\\"\";");
-                solResultFormatCode.append("const solResultStr = \"\\\\\"\" + solResult + \"\\\\\"\";");
+                userResultFormatCode.append("const userResultStr = \"\\\"\" + userResult + \"\\\"\";");
+                solResultFormatCode.append("const solResultStr = \"\\\"\" + solResult + \"\\\"\";");
                 break;
             case INTEGER:
                 // fall through
