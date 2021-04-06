@@ -186,7 +186,7 @@ public class CodeTemplateFiller {
                     usingLinkedList = true;
                     break;
                 case STRING:
-                    argsCode.append("___string_to_string(ast.literal_eval(input[").append(i).append("]))");
+                    argsCode.append("___string_to_string(input[").append(i).append("])");
                     usingString = true;
                     break;
                 case INTEGER:
@@ -246,6 +246,8 @@ public class CodeTemplateFiller {
                 userResultFormatCode.append("user_result_str = '\"' + user_result + '\"'");
                 solResultFormatCode.append("sol_result_str = '\"' + sol_result + '\"'");
                 break;
+            case BOOLEAN:
+                // fall through
             case INTEGER:
                 // fall through
             case FLOAT:
@@ -254,8 +256,8 @@ public class CodeTemplateFiller {
                 // fall through
             case DICTIONARY:
                 equalsCode.append("if user_result == sol_result:");
-                userResultFormatCode.append("user_result_str = user_result");
-                solResultFormatCode.append("sol_result_str = sol_result");
+                userResultFormatCode.append("user_result_str = str(user_result)");
+                solResultFormatCode.append("sol_result_str = str(sol_result)");
                 break;
         }
 

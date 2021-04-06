@@ -16,7 +16,7 @@ def main():
                 inputs.append(cur)
                 cur = []
                 continue
-            cur.append(line)
+            cur.append(line.rstrip("\n"))
 
         results = []
         for i in range(len(inputs)):
@@ -38,7 +38,7 @@ def main():
 
     except ValueError as e:
         print("-----------------------------------")
-        if e.message == "malformed string":
+        if hasattr(e, "message") and e.message == "malformed string":
             print("ERROR|{}".format("Invalid input"))
         else:
             print("ERROR|{}".format(type(e).__name__ + ": " + str(e)))
