@@ -1,5 +1,6 @@
 package com.coderintuition.CoderIntuition.pojos.request;
 
+import com.coderintuition.CoderIntuition.common.Utils;
 import com.coderintuition.CoderIntuition.enums.Language;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,4 +27,9 @@ public class RunRequestDto {
 
     @NotBlank
     private String code;
+
+    @Override
+    public String toString() {
+        return Utils.gson.toJson(this);
+    }
 }

@@ -49,6 +49,7 @@ public class ProduceOutputController {
     @GetMapping("/produceoutput/{token}")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
     public ProduceOutputResponse getProduceOutput(@CurrentUser UserPrincipal userPrincipal, @PathVariable String token) throws Exception {
+        log.info("GET /produceoutput/{}, userId={}", token, userPrincipal.getId());
         ProduceOutput produceOutput = produceOutputRepository.findByToken(token).orElseThrow();
 
         if (!produceOutput.getUser().getId().equals(userPrincipal.getId())) {
@@ -116,6 +117,7 @@ public class ProduceOutputController {
     @PostMapping("/produceoutput")
     @PreAuthorize("hasRole('ROLE_MODERATOR')")
     public TokenResponse createProduceOutput(@CurrentUser UserPrincipal userPrincipal, @RequestBody ProduceOutputDto produceOutputDto) throws Exception {
+        log.info("POST /produceoutput, userId={}, produceOutputDto={}", userPrincipal.getId(), produceOutputDto.toString());
         // retrieve the problem
         Problem problem = problemRepository.findById(produceOutputDto.getProblemId()).orElseThrow();
 
@@ -124,18 +126,18 @@ public class ProduceOutputController {
         String functionName = Utils.getFunctionName(produceOutputDto.getLanguage(), problem.getCode(produceOutputDto.getLanguage()));
         String code = filler.getProduceOutputCode(produceOutputDto.getLanguage(), produceOutputDto.getCode(),
             functionName, problem.getArguments(), problem.getReturnType());
-        log.info("Generated code from template:\n{}", code);
+        log.info("Generated produce output code from template, code={}", code);
 
         // create request to JudgeZero
-        JZSubmissionRequestDto requestDto = new JZSubmissionRequestDto();
-        requestDto.setSourceCode(code);
-        requestDto.setLanguageId(Utils.getLanguageId(produceOutputDto.getLanguage()));
-        requestDto.setStdin(produceOutputDto.getInput());
-        requestDto.setCallbackUrl(appProperties.getJudge0().getCallbackUrl() + "/produceoutput/judge0callback");
+        JZSubmissionRequestDto jzSubmissionRequestDto = new JZSubmissionRequestDto();
+        jzSubmissionRequestDto.setSourceCode(code);
+        jzSubmissionRequestDto.setLanguageId(Utils.getLanguageId(produceOutputDto.getLanguage()));
+        jzSubmissionRequestDto.setStdin(produceOutputDto.getInput());
+        jzSubmissionRequestDto.setCallbackUrl(appProperties.getJudge0().getCallbackUrl() + "/produceoutput/judge0callback");
 
         // send request to JudgeZero
-        String token = Utils.submitToJudgeZero(requestDto, appProperties);
-        log.info("Submitted produce output to JudgeZero, requestDto={}, token={}", requestDto.toString(), token);
+        String token = Utils.submitToJudgeZero(jzSubmissionRequestDto, appProperties);
+        log.info("Submitted produce output to JudgeZero, token={}, jzSubmissionRequestDto={}", token, jzSubmissionRequestDto.toString());
 
         // save produce output to db
         ProduceOutput produceOutput = new ProduceOutput();

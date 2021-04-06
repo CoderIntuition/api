@@ -60,6 +60,7 @@ public class SubmissionController {
     @GetMapping("/submission/{token}")
     @PreAuthorize("hasRole('ROLE_USER')")
     public SubmissionResponse getSubmission(@CurrentUser UserPrincipal userPrincipal, @PathVariable String token) throws Exception {
+        log.info("GET /submission/{}, userId={}", token, userPrincipal.getId());
         Submission submission = submissionRepository.findByToken(token).orElseThrow();
 
         if (!submission.getUser().getId().equals(userPrincipal.getId())) {
@@ -155,6 +156,7 @@ public class SubmissionController {
     @PostMapping("/submission")
     @PreAuthorize("hasRole('ROLE_USER')")
     public TokenResponse createSubmission(@CurrentUser UserPrincipal userPrincipal, @RequestBody RunRequestDto submissionRequestDto) throws Exception {
+        log.info("POST /submission, userId={}, submissionRequestDto={}", userPrincipal.getId(), submissionRequestDto.toString());
         // retrieve the problem
         Problem problem = problemRepository.findById(submissionRequestDto.getProblemId()).orElseThrow();
 
@@ -165,6 +167,7 @@ public class SubmissionController {
         // fill in the submission template with the arguments/return type for this test run
         String code = filler.getSubmissionCode(submissionRequestDto.getLanguage(), submissionRequestDto.getCode(), primarySolution,
             functionName, problem.getArguments(), problem.getReturnType());
+        log.info("Generated submission code from template, code={}", code);
 
         // setup stdin
         StringBuilder stdin = new StringBuilder();
@@ -174,15 +177,15 @@ public class SubmissionController {
         }
 
         // create request to JudgeZero
-        JZSubmissionRequestDto requestDto = new JZSubmissionRequestDto();
-        requestDto.setSourceCode(code);
-        requestDto.setLanguageId(Utils.getLanguageId(submissionRequestDto.getLanguage()));
-        requestDto.setStdin(stdin.toString());
-        requestDto.setCallbackUrl(appProperties.getJudge0().getCallbackUrl() + "/submission/judge0callback");
+        JZSubmissionRequestDto jzSubmissionRequestDto = new JZSubmissionRequestDto();
+        jzSubmissionRequestDto.setSourceCode(code);
+        jzSubmissionRequestDto.setLanguageId(Utils.getLanguageId(submissionRequestDto.getLanguage()));
+        jzSubmissionRequestDto.setStdin(stdin.toString());
+        jzSubmissionRequestDto.setCallbackUrl(appProperties.getJudge0().getCallbackUrl() + "/submission/judge0callback");
 
         // send request to JudgeZero
-        String token = Utils.submitToJudgeZero(requestDto, appProperties);
-        log.info("Submitted submission to JudgeZero, requestDto={}, token={}", requestDto.toString(), token);
+        String token = Utils.submitToJudgeZero(jzSubmissionRequestDto, appProperties);
+        log.info("Submitted submission to JudgeZero, token={}, jzSubmissionRequestDto={}", token, jzSubmissionRequestDto.toString());
 
         // save submission to db
         Submission submission = new Submission();

@@ -112,6 +112,7 @@ public class TestRunController {
 
     @PostMapping("/testrun")
     public TokenResponse createTestRun(@RequestBody RunRequestDto runRequestDto) throws Exception {
+        log.info("POST /testrun, runRequestDto={}", runRequestDto.toString());
         // retrieve the problem
         Problem problem = problemRepository.findById(runRequestDto.getProblemId()).orElseThrow();
 
@@ -123,17 +124,18 @@ public class TestRunController {
         // fill in the test run template with the arguments/return type for this test run
         String code = filler.getTestRunCode(runRequestDto.getLanguage(), runRequestDto.getCode(), primarySolution,
             functionName, problem.getArguments(), problem.getReturnType());
+        log.info("Generated test run code from template, code={}", code);
 
         // create request to JudgeZero
-        JZSubmissionRequestDto requestDto = new JZSubmissionRequestDto();
-        requestDto.setSourceCode(code);
-        requestDto.setLanguageId(Utils.getLanguageId(runRequestDto.getLanguage()));
-        requestDto.setStdin(runRequestDto.getInput());
-        requestDto.setCallbackUrl(appProperties.getJudge0().getCallbackUrl() + "/testrun/judge0callback");
+        JZSubmissionRequestDto jzSubmissionRequestDto = new JZSubmissionRequestDto();
+        jzSubmissionRequestDto.setSourceCode(code);
+        jzSubmissionRequestDto.setLanguageId(Utils.getLanguageId(runRequestDto.getLanguage()));
+        jzSubmissionRequestDto.setStdin(runRequestDto.getInput());
+        jzSubmissionRequestDto.setCallbackUrl(appProperties.getJudge0().getCallbackUrl() + "/testrun/judge0callback");
 
         // send request to JudgeZero
-        String token = Utils.submitToJudgeZero(requestDto, appProperties);
-        log.info("Submitted test run to JudgeZero, requestDto={}, token={}", requestDto.toString(), token);
+        String token = Utils.submitToJudgeZero(jzSubmissionRequestDto, appProperties);
+        log.info("Submitted test run to JudgeZero, token={}, jzSubmissionRequestDto={}", token, jzSubmissionRequestDto.toString());
 
         // create the test run to be saved into the db
         TestRun testRun = new TestRun();
