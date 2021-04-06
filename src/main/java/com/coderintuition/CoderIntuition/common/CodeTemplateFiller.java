@@ -5,6 +5,7 @@ import com.coderintuition.CoderIntuition.enums.UnderlyingType;
 import com.coderintuition.CoderIntuition.models.Argument;
 import com.coderintuition.CoderIntuition.models.ReturnType;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -13,11 +14,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.regex.Matcher;
 
 @AllArgsConstructor
 class DefinitionArgsCode {
     String definitionCode;
     String argsCode;
+
+    @Override
+    public String toString() {
+        return Utils.gson.toJson(this);
+    }
 }
 
 @AllArgsConstructor
@@ -25,6 +32,11 @@ class SetupDefinitionArgsCode {
     String setupCode;
     String definitionCode;
     String argsCode;
+
+    @Override
+    public String toString() {
+        return Utils.gson.toJson(this);
+    }
 }
 
 @AllArgsConstructor
@@ -32,8 +44,14 @@ class EqualsUserSolCode {
     String equalsCode;
     String userResultFormatCode;
     String solResultFormatCode;
+
+    @Override
+    public String toString() {
+        return Utils.gson.toJson(this);
+    }
 }
 
+@Slf4j
 public class CodeTemplateFiller {
     private static CodeTemplateFiller instance = null;
     private String pythonTestRunTemplate;
@@ -249,19 +267,22 @@ public class CodeTemplateFiller {
     private String getFilledJavaCode(String template, String userCode, String solutionCode, String functionName,
                                      List<Argument> args, ReturnType returnType) {
         SetupDefinitionArgsCode setupDefinitionArgsCode = getJavaSetupDefinitionArgsCode(args);
+        log.info("setupDefinitionArgsCode={}", setupDefinitionArgsCode.toString());
+
         EqualsUserSolCode equalsUserSolCode = getJavaEqualsUserSolCode(returnType);
+        log.info("equalsUserSolCode={}", setupDefinitionArgsCode.toString());
 
         return template
-                .replaceAll("\\$\\{definitionCode}", setupDefinitionArgsCode.definitionCode)
-                .replaceAll("\\$\\{userCode}", userCode)
-                .replaceAll("\\$\\{solutionCode}", solutionCode.replace("Solution", "ActualSolution"))
-                .replaceAll("\\$\\{setupCode}", setupDefinitionArgsCode.setupCode)
-                .replaceAll("\\$\\{functionName}", functionName)
-                .replaceAll("\\$\\{args}", setupDefinitionArgsCode.argsCode)
-                .replaceAll("\\$\\{retType}", getJavaType(returnType))
-                .replaceAll("\\$\\{userResultFormatCode}", equalsUserSolCode.userResultFormatCode)
-                .replaceAll("\\$\\{solResultFormatCode}", equalsUserSolCode.solResultFormatCode)
-                .replaceAll("\\$\\{equalsCode}", equalsUserSolCode.equalsCode);
+                .replaceAll("\\$\\{definitionCode}", Matcher.quoteReplacement(setupDefinitionArgsCode.definitionCode))
+                .replaceAll("\\$\\{userCode}", Matcher.quoteReplacement(userCode))
+                .replaceAll("\\$\\{solutionCode}", Matcher.quoteReplacement(solutionCode.replace("Solution", "ActualSolution")))
+                .replaceAll("\\$\\{setupCode}", Matcher.quoteReplacement(setupDefinitionArgsCode.setupCode))
+                .replaceAll("\\$\\{functionName}", Matcher.quoteReplacement(functionName))
+                .replaceAll("\\$\\{args}",Matcher.quoteReplacement( setupDefinitionArgsCode.argsCode))
+                .replaceAll("\\$\\{retType}", Matcher.quoteReplacement(getJavaType(returnType)))
+                .replaceAll("\\$\\{userResultFormatCode}", Matcher.quoteReplacement(equalsUserSolCode.userResultFormatCode))
+                .replaceAll("\\$\\{solResultFormatCode}", Matcher.quoteReplacement(equalsUserSolCode.solResultFormatCode))
+                .replaceAll("\\$\\{equalsCode}", Matcher.quoteReplacement(equalsUserSolCode.equalsCode));
     }
 
     private String getJavaType(UnderlyingType type, boolean primitive) {
@@ -398,7 +419,8 @@ public class CodeTemplateFiller {
                 parseUnderlyingTypeCode.append("Boolean val = Boolean.parseBoolean(item);").append("\n");
                 break;
         }
-        return fillListFunction.replaceAll("\\$\\{parseUnderlyingTypeCode}", parseUnderlyingTypeCode.toString());
+        log.info("parseUnderlyingTypeCode={}", parseUnderlyingTypeCode.toString());
+        return fillListFunction.replaceAll("\\$\\{parseUnderlyingTypeCode}", Matcher.quoteReplacement(parseUnderlyingTypeCode.toString()));
     }
 
     private String getJavaArray2DCode(Argument arg, int i) {
@@ -580,8 +602,8 @@ public class CodeTemplateFiller {
                 break;
             case STRING:
                 equalsCode.append("if (userResult.equals(solResult)) {").append("\n");
-                userResultFormatCode.append("String userResultStr = \"\\\\\"\" + userResult + \"\\\\\"\";").append("\n");
-                solResultFormatCode.append("String solResultStr = \"\\\\\"\" + solResult + \"\\\\\"\";").append("\n");
+                userResultFormatCode.append("String userResultStr = \"\\\"\" + userResult + \"\\\"\";").append("\n");
+                solResultFormatCode.append("String solResultStr = \"\\\"\" + solResult + \"\\\"\";").append("\n");
                 break;
             case INTEGER:
                 // fall through
