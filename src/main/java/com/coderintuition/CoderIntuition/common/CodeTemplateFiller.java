@@ -158,14 +158,14 @@ public class CodeTemplateFiller {
         EqualsUserSolCode equalsUserSolCode = getPythonEqualsUserSolCode(returnType);
 
         return template
-                .replaceAll("\\$\\{definitionCode}", definitionArgsCode.definitionCode)
-                .replaceAll("\\$\\{userCode}", userCode)
-                .replaceAll("\\$\\{solutionCode}", solutionCode.replace(functionName, functionName + "_sol"))
-                .replaceAll("\\$\\{functionName}", functionName)
-                .replaceAll("\\$\\{args}", definitionArgsCode.argsCode)
-                .replaceAll("\\$\\{userResultFormatCode}", equalsUserSolCode.userResultFormatCode)
-                .replaceAll("\\$\\{solResultFormatCode}", equalsUserSolCode.solResultFormatCode)
-                .replaceAll("\\$\\{equalsCode}", equalsUserSolCode.equalsCode);
+                .replaceAll("\\$\\{definitionCode}", Matcher.quoteReplacement(definitionArgsCode.definitionCode))
+                .replaceAll("\\$\\{userCode}", Matcher.quoteReplacement(userCode))
+                .replaceAll("\\$\\{solutionCode}", Matcher.quoteReplacement(solutionCode.replace(functionName, functionName + "_sol")))
+                .replaceAll("\\$\\{functionName}", Matcher.quoteReplacement(functionName))
+                .replaceAll("\\$\\{args}", Matcher.quoteReplacement(definitionArgsCode.argsCode))
+                .replaceAll("\\$\\{userResultFormatCode}", Matcher.quoteReplacement(equalsUserSolCode.userResultFormatCode))
+                .replaceAll("\\$\\{solResultFormatCode}", Matcher.quoteReplacement(equalsUserSolCode.solResultFormatCode))
+                .replaceAll("\\$\\{equalsCode}", Matcher.quoteReplacement(equalsUserSolCode.equalsCode));
     }
 
     private DefinitionArgsCode getPythonDefinitionArgsCode(List<Argument> args) {
