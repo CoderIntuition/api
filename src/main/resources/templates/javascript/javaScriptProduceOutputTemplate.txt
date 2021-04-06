@@ -34,8 +34,7 @@ const main = async () => {
         console.log("SUCCESS|%s", userResultStr);
     } catch (err) {
         console.log("-----------------------------------");
-        console.log(err.stack);
-        if (err.stack.includes("JSON.parse")) {
+        if (err.stack && err.stack.includes("JSON.parse")) {
             console.log("ERROR|%s", "Invalid input");
         } else {
             console.log("ERROR|%s", err.toString());

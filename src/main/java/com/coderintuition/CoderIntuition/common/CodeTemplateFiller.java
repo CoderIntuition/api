@@ -432,23 +432,23 @@ public class CodeTemplateFiller {
         StringBuilder parseUnderlyingTypeCode = new StringBuilder();
         switch (arg.getUnderlyingType()) {
             case STRING:
-                parseUnderlyingTypeCode.append("String[][] convertedArray2D = Arrays.stream(str.substring(2, str.length() - 2).split(\"\\\\],\\\\[\"))").append("\n");
-                parseUnderlyingTypeCode.append("\t.map(e -> Arrays.stream(e.split(\"\\\\s*,\\\\s*\"))").append("\n");
+                parseUnderlyingTypeCode.append("String[][] convertedArray2D = Arrays.stream(str.substring(2, str.length() - 2).split(\"\\],\\[\"))").append("\n");
+                parseUnderlyingTypeCode.append("\t.map(e -> Arrays.stream(e.split(\"\\s*,\\s*\"))").append("\n");
                 parseUnderlyingTypeCode.append("\t.toArray(String[]::new)).toArray(String[][]::new);").append("\n");
                 break;
             case INTEGER:
-                parseUnderlyingTypeCode.append("int[][] convertedArray2D = Arrays.stream(str.substring(2, str.length() - 2).split(\"\\\\],\\\\[\"))").append("\n");
-                parseUnderlyingTypeCode.append("\t.map(e -> Arrays.stream(e.split(\"\\\\s*,\\\\s*\")).map(i -> Integer.parseInt(i))").append("\n");
+                parseUnderlyingTypeCode.append("int[][] convertedArray2D = Arrays.stream(str.substring(2, str.length() - 2).split(\"\\],\\[\"))").append("\n");
+                parseUnderlyingTypeCode.append("\t.map(e -> Arrays.stream(e.split(\"\\s*,\\s*\")).map(i -> Integer.parseInt(i))").append("\n");
                 parseUnderlyingTypeCode.append("\t.mapToInt(x -> x).toArray()).toArray(int[][]::new);").append("\n");
                 break;
             case FLOAT:
-                parseUnderlyingTypeCode.append("double[][] convertedArray2D = Arrays.stream(str.substring(2, str.length() - 2).split(\"\\\\],\\\\[\"))").append("\n");
-                parseUnderlyingTypeCode.append("\t.map(e -> Arrays.stream(e.split(\"\\\\s*,\\\\s*\")).map(i -> Double.parseDouble(i))").append("\n");
+                parseUnderlyingTypeCode.append("double[][] convertedArray2D = Arrays.stream(str.substring(2, str.length() - 2).split(\"\\],\\[\"))").append("\n");
+                parseUnderlyingTypeCode.append("\t.map(e -> Arrays.stream(e.split(\"\\s*,\\s*\")).map(i -> Double.parseDouble(i))").append("\n");
                 parseUnderlyingTypeCode.append("\t.mapToDouble(x -> x).toArray()).toArray(double[][]::new);").append("\n");
                 break;
             case BOOLEAN:
-                parseUnderlyingTypeCode.append("Double[][] tempArray2D = Arrays.stream(str.substring(2, str.length() - 2).split(\"\\\\],\\\\[\"))").append("\n");
-                parseUnderlyingTypeCode.append("\t.map(e -> Arrays.stream(e.split(\"\\\\s*,\\\\s*\")).map(i -> Double.parseDouble(i))").append("\n");
+                parseUnderlyingTypeCode.append("Double[][] tempArray2D = Arrays.stream(str.substring(2, str.length() - 2).split(\"\\],\\[\"))").append("\n");
+                parseUnderlyingTypeCode.append("\t.map(e -> Arrays.stream(e.split(\"\\s*,\\s*\")).map(i -> Double.parseDouble(i))").append("\n");
                 parseUnderlyingTypeCode.append("\t.toArray(Double[]::new)).toArray(Double[][]::new);").append("\n");
                 parseUnderlyingTypeCode.append("double[][] convertedArray2D = new double[tempArray2D.length][tempArray2D[0].length];").append("\n");
                 parseUnderlyingTypeCode.append("for (int row = 0; row < convertedArray2D.length; row++) {").append("\n");
@@ -458,7 +458,7 @@ public class CodeTemplateFiller {
                 parseUnderlyingTypeCode.append("}").append("\n");
                 break;
         }
-        return fillArray2DFunction.replaceAll("\\$\\{parseUnderlyingTypeCode}", parseUnderlyingTypeCode.toString());
+        return fillArray2DFunction.replaceAll("\\$\\{parseUnderlyingTypeCode}", Matcher.quoteReplacement(parseUnderlyingTypeCode.toString()));
     }
 
     private String getJavaListOfListsCode(Argument arg, int i) {
@@ -468,7 +468,7 @@ public class CodeTemplateFiller {
         StringBuilder parseUnderlyingTypeCode = new StringBuilder();
         switch (arg.getUnderlyingType()) {
             case STRING:
-                parseUnderlyingTypeCode.append("if (innerLstStr.charAt(0) != '\\\"' || innerLstStr.charAt(innerLstStr.length() - 1) != '\\\"') {").append("\n");
+                parseUnderlyingTypeCode.append("if (innerLstStr.charAt(0) != '\"' || innerLstStr.charAt(innerLstStr.length() - 1) != '\"') {").append("\n");
                 parseUnderlyingTypeCode.append("\tthrow new Exception(\"Input \" + str + \" is not a valid list of lists (missing quotes around strings)\");").append("\n");
                 parseUnderlyingTypeCode.append("}").append("\n");
                 parseUnderlyingTypeCode.append("innerLst.add(innerLstStr.substring(1, innerLstStr.length() - 1));").append("\n");
@@ -498,7 +498,7 @@ public class CodeTemplateFiller {
                 parseUnderlyingTypeCode.append("}").append("\n");
                 break;
         }
-        return fillListOfListsFunction.replaceAll("\\$\\{parseUnderlyingTypeCode}", parseUnderlyingTypeCode.toString());
+        return fillListOfListsFunction.replaceAll("\\$\\{parseUnderlyingTypeCode}", Matcher.quoteReplacement(parseUnderlyingTypeCode.toString()));
     }
 
     private String getJavaDictionaryCode(Argument arg, int i) {
@@ -543,8 +543,8 @@ public class CodeTemplateFiller {
                 break;
         }
         return fillDictionaryFunction
-                .replaceAll("\\$\\{parseUnderlyingTypeCode}", parseUnderlyingTypeCode.toString())
-                .replaceAll("\\$\\{parseUnderlyingType2Code}", parseUnderlyingType2Code.toString());
+                .replaceAll("\\$\\{parseUnderlyingTypeCode}", Matcher.quoteReplacement(parseUnderlyingTypeCode.toString()))
+                .replaceAll("\\$\\{parseUnderlyingType2Code}", Matcher.quoteReplacement(parseUnderlyingType2Code.toString()));
     }
 
     private EqualsUserSolCode getJavaEqualsUserSolCode(ReturnType returnType) {
@@ -629,14 +629,14 @@ public class CodeTemplateFiller {
         EqualsUserSolCode equalsUserSolCode = getJavaScriptEqualsUserSolCode(returnType);
 
         return template
-                .replaceAll("\\$\\{definitionCode}", definitionArgsCode.definitionCode)
-                .replaceAll("\\$\\{userCode}", userCode)
-                .replaceAll("\\$\\{solutionCode}", solutionCode.replace(functionName, functionName + "Sol"))
-                .replaceAll("\\$\\{functionName}", functionName)
-                .replaceAll("\\$\\{args}", definitionArgsCode.argsCode)
-                .replaceAll("\\$\\{userResultFormatCode}", equalsUserSolCode.userResultFormatCode)
-                .replaceAll("\\$\\{solResultFormatCode}", equalsUserSolCode.solResultFormatCode)
-                .replaceAll("\\$\\{equalsCode}", equalsUserSolCode.equalsCode);
+                .replaceAll("\\$\\{definitionCode}", Matcher.quoteReplacement(definitionArgsCode.definitionCode))
+                .replaceAll("\\$\\{userCode}", Matcher.quoteReplacement(userCode))
+                .replaceAll("\\$\\{solutionCode}", Matcher.quoteReplacement(solutionCode.replace(functionName, functionName + "Sol")))
+                .replaceAll("\\$\\{functionName}", Matcher.quoteReplacement(functionName))
+                .replaceAll("\\$\\{args}", Matcher.quoteReplacement(definitionArgsCode.argsCode))
+                .replaceAll("\\$\\{userResultFormatCode}", Matcher.quoteReplacement(equalsUserSolCode.userResultFormatCode))
+                .replaceAll("\\$\\{solResultFormatCode}", Matcher.quoteReplacement(equalsUserSolCode.solResultFormatCode))
+                .replaceAll("\\$\\{equalsCode}", Matcher.quoteReplacement(equalsUserSolCode.equalsCode));
     }
 
     private DefinitionArgsCode getJavaScriptDefinitionArgsCode(List<Argument> args) {
@@ -657,7 +657,7 @@ public class CodeTemplateFiller {
                     usingLinkedList = true;
                     break;
                 case STRING:
-                    argsCode.append("___stringToString(JSON.parse(input[").append(i).append("]))");
+                    argsCode.append("___stringToString(input[").append(i).append("])");
                     usingString = true;
                     break;
                 case LIST:

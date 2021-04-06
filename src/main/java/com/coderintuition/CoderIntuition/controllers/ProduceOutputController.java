@@ -87,23 +87,30 @@ public class ProduceOutputController {
             produceOutput.setStdout("");
 
         } else if (result.getStatus().getId() == 3) { // no compile errors
-            // everything above the line is stdout, everything below is test results
-            String[] split = result.getStdout().trim().split(Constants.IO_SEPARATOR);
-            String[] testResult = split[1].split("\\|");
-
-            if (testResult[0].equals("SUCCESS")) { // no errors
-                // test results are formatted: {status}|{run output}
-                produceOutput.setStatus(ProduceOutputStatus.SUCCESS);
-                produceOutput.setOutput(testResult[1]);
-                produceOutput.setStdout(split[0]);
-                produceOutput.setStderr("");
-
-            } else if (testResult[0].equals("ERROR")) { // runtime errors
-                // runtime error results are formatted: {status}|{error message}
+            if (result.getStderr() != null && !result.getStderr().isEmpty()) {
                 produceOutput.setStatus(ProduceOutputStatus.ERROR);
                 produceOutput.setOutput("");
-                produceOutput.setStderr(Utils.formatErrorMessage(produceOutput.getLanguage(), testResult[1]));
+                produceOutput.setStderr(Utils.formatErrorMessage(produceOutput.getLanguage(), result.getStderr()));
                 produceOutput.setStdout("");
+            } else {
+                // everything above the line is stdout, everything below is test results
+                String[] split = result.getStdout().trim().split(Constants.IO_SEPARATOR);
+                String[] testResult = split[1].split("\\|");
+
+                if (testResult[0].equals("SUCCESS")) { // no errors
+                    // test results are formatted: {status}|{run output}
+                    produceOutput.setStatus(ProduceOutputStatus.SUCCESS);
+                    produceOutput.setOutput(testResult[1]);
+                    produceOutput.setStdout(split[0]);
+                    produceOutput.setStderr("");
+
+                } else if (testResult[0].equals("ERROR")) { // runtime errors
+                    // runtime error results are formatted: {status}|{error message}
+                    produceOutput.setStatus(ProduceOutputStatus.ERROR);
+                    produceOutput.setOutput("");
+                    produceOutput.setStderr(Utils.formatErrorMessage(produceOutput.getLanguage(), testResult[1]));
+                    produceOutput.setStdout("");
+                }
             }
         }
 
