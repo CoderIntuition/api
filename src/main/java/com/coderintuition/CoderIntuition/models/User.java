@@ -1,6 +1,7 @@
 package com.coderintuition.CoderIntuition.models;
 
 import com.coderintuition.CoderIntuition.enums.AuthProvider;
+import com.coderintuition.CoderIntuition.enums.ERole;
 import com.coderintuition.CoderIntuition.enums.Language;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
@@ -136,5 +137,9 @@ public class User {
         this.username = username;
         this.authProvider = authProvider;
         this.roles = roles;
+    }
+
+    public boolean hasRole(ERole role) {
+        return roles.stream().anyMatch(x -> x.getName() == role);
     }
 }

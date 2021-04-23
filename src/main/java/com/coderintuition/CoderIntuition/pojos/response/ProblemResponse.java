@@ -65,9 +65,9 @@ public class ProblemResponse {
     public static ProblemResponse fromProblem(Problem problem) {
         ProblemResponse problemResponse = new ProblemResponse();
         problemResponse.setId(problem.getId());
-        problemResponse.setProblemSteps(problem.getProblemSteps());
+        problemResponse.setProblemSteps(problem.getOrderedProblemSteps());
         problemResponse.setDefaultTestCase(problem.getDefaultTestCase());
-        problemResponse.setSolutions(problem.getSolutions());
+        problemResponse.setSolutions(problem.getOrderedSolutions());
         problemResponse.setName(problem.getName());
         problemResponse.setUrlName(problem.getUrlName());
         problemResponse.setPlusOnly(problem.getPlusOnly());

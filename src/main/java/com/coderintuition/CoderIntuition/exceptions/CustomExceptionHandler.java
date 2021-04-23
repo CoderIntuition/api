@@ -68,6 +68,13 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InternalServerException.class)
+    public final ResponseEntity<Object> handleInternalServerException(InternalServerException ex) {
+        log.warn("Handled InternalServerException");
+        ErrorResponse error = new ErrorResponse("Error", List.of(ex.getLocalizedMessage()));
+        return new ResponseEntity(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     public final ResponseEntity<Object> handleSQLIntegrityConstraintViolation(SQLIntegrityConstraintViolationException ex) {
         log.warn("Handled SQLIntegrityConstraintViolationException");

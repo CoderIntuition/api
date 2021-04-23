@@ -10,14 +10,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-
-    @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/socket")
-            .setAllowedOrigins("*")
-            .withSockJS();
-    }
-
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         ThreadPoolTaskScheduler te = new ThreadPoolTaskScheduler();
@@ -25,9 +17,16 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         te.setThreadNamePrefix("wss-heartbeat-thread-");
         te.initialize();
 
-        config.enableSimpleBroker("/topic/", "/queue/")
+        config.enableSimpleBroker("/global/", "/secured/", "/topic/")
             .setHeartbeatValue(new long[]{10000, 10000})
             .setTaskScheduler(te);
         config.setApplicationDestinationPrefixes("/app");
+    }
+
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/socket")
+            .setAllowedOrigins("*")
+            .withSockJS();
     }
 }

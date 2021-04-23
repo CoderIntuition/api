@@ -123,7 +123,7 @@ public class TestRunController {
 
         // fill in the test run template with the arguments/return type for this test run
         String code = filler.getTestRunCode(runRequestDto.getLanguage(), runRequestDto.getCode(), primarySolution,
-            functionName, problem.getArguments(), problem.getReturnType());
+            functionName, problem.getOrderedArguments(), problem.getReturnType());
         log.info("Generated test run code from template, code={}", code);
 
         // create request to JudgeZero

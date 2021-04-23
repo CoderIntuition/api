@@ -12,8 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -197,7 +197,7 @@ public class CmsController {
         problem.setJavascriptCode(problemDto.getJavascriptCode());
 
         // process problem steps
-        List<ProblemStep> problemSteps = new ArrayList<>();
+        Set<ProblemStep> problemSteps = new HashSet<>();
         for (int i = 0; i < problemDto.getProblemSteps().size(); i++) {
             var problemStepDto = problemDto.getProblemSteps().get(i);
             ProblemStep problemStep = new ProblemStep();
@@ -213,7 +213,7 @@ public class CmsController {
         problem.setProblemSteps(problemSteps);
 
         // process test cases
-        List<TestCase> testCases = new ArrayList<>();
+        Set<TestCase> testCases = new HashSet<>();
         for (int i = 0; i < problemDto.getTestCases().size(); i++) {
             var testCaseDto = problemDto.getTestCases().get(i);
             TestCase testCase = new TestCase();
@@ -228,7 +228,7 @@ public class CmsController {
         problem.setTestCases(testCases);
 
         // process solutions
-        List<Solution> solutions = new ArrayList<>();
+        Set<Solution> solutions = new HashSet<>();
         for (int i = 0; i < problemDto.getSolutions().size(); i++) {
             var solutionDto = problemDto.getSolutions().get(i);
             Solution solution = new Solution();
@@ -246,7 +246,7 @@ public class CmsController {
         problem.setSolutions(solutions);
 
         // process arguments
-        List<Argument> arguments = new ArrayList<>();
+        Set<Argument> arguments = new HashSet<>();
         for (int i = 0; i < problemDto.getArguments().size(); i++) {
             var argumentDto = problemDto.getArguments().get(i);
             Argument argument = new Argument();

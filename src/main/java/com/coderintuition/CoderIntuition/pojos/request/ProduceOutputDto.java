@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 
 @Getter
 @Setter
@@ -15,6 +16,10 @@ import javax.validation.constraints.NotNull;
 public class ProduceOutputDto {
     @NotNull
     private Long problemId;
+
+    @NotNull
+    @PositiveOrZero
+    private Integer testCaseNum;
 
     @NotNull
     private String input;

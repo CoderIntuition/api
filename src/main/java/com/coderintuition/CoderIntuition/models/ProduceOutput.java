@@ -9,9 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.util.Date;
 
 @Entity
@@ -33,6 +31,11 @@ public class ProduceOutput {
     @JoinColumn(name="user_id")
     @NotNull
     private User user;
+
+    @Column(name="test_case_num")
+    @PositiveOrZero
+    @NotNull
+    private Integer testCaseNum;
 
     @Column(name = "token")
     @NotBlank

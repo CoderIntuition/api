@@ -120,7 +120,7 @@ public class SubmissionController {
                     testResultObj.setSubmission(submission);
                     testResultObj.setStatus(TestStatus.valueOf(status.toUpperCase()));
                     // retrieve the test case for this test result
-                    TestCase testCase = submission.getProblem().getTestCases().get(Integer.parseInt(num));
+                    TestCase testCase = submission.getProblem().getOrderedTestCases().get(Integer.parseInt(num));
                     testResultObj.setInput(testCase.getInput());
                     testResultObj.setExpectedOutput(testResult[2]);
 
@@ -166,7 +166,7 @@ public class SubmissionController {
         String primarySolution = problem.getSolutions().stream().filter(Solution::getIsPrimary).findFirst().orElseThrow().getCode(submissionRequestDto.getLanguage());
         // fill in the submission template with the arguments/return type for this test run
         String code = filler.getSubmissionCode(submissionRequestDto.getLanguage(), submissionRequestDto.getCode(), primarySolution,
-            functionName, problem.getArguments(), problem.getReturnType());
+            functionName, problem.getOrderedArguments(), problem.getReturnType());
         log.info("Generated submission code from template, code={}", code);
 
         // setup stdin

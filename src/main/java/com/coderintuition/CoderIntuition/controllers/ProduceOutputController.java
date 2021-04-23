@@ -11,23 +11,26 @@ import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
 import com.coderintuition.CoderIntuition.pojos.request.ProduceOutputDto;
 import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponse;
 import com.coderintuition.CoderIntuition.pojos.response.ProduceOutputResponse;
-import com.coderintuition.CoderIntuition.pojos.response.TokenResponse;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.ProduceOutputRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
-import com.coderintuition.CoderIntuition.security.CurrentUser;
-import com.coderintuition.CoderIntuition.security.UserPrincipal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 
+@Controller
 @RestController
 @Slf4j
 public class ProduceOutputController {
@@ -46,22 +49,9 @@ public class ProduceOutputController {
     @Autowired
     AppProperties appProperties;
 
-    @GetMapping("/produceoutput/{token}")
-    @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public ProduceOutputResponse getProduceOutput(@CurrentUser UserPrincipal userPrincipal, @PathVariable String token) throws Exception {
-        log.info("GET /produceoutput/{}, userId={}", token, userPrincipal.getId());
-        ProduceOutput produceOutput = produceOutputRepository.findByToken(token).orElseThrow();
-
-        if (!produceOutput.getUser().getId().equals(userPrincipal.getId())) {
-            throw new Exception("Unauthorized");
-        }
-        return ProduceOutputResponse.fromProduceOutput(produceOutput);
-    }
-
     @PutMapping("/produceoutput/judge0callback")
     public void produceOutputCallback(@RequestBody JzSubmissionCheckResponse data) throws IOException {
-        log.info("PUT /produceoutput/judge0callback");
-        log.info("data={}", data.toString());
+        log.info("PUT /produceoutput/judge0callback, data={}", data.toString());
 
         // get produce output info
         JzSubmissionCheckResponse result = Utils.retrieveFromJudgeZero(data.getToken(), appProperties);
@@ -118,13 +108,17 @@ public class ProduceOutputController {
         produceOutputRepository.save(produceOutput);
 
         // send message to frontend
-        this.simpMessagingTemplate.convertAndSend("/topic/produceoutput", result.getToken());
+        this.simpMessagingTemplate.convertAndSend(
+            "/secured/" + produceOutput.getUser().getId() + "/produceoutput",
+            ProduceOutputResponse.fromProduceOutput(produceOutput)
+        );
     }
 
-    @PostMapping("/produceoutput")
-    @PreAuthorize("hasRole('ROLE_MODERATOR')")
-    public TokenResponse createProduceOutput(@CurrentUser UserPrincipal userPrincipal, @RequestBody ProduceOutputDto produceOutputDto) throws Exception {
-        log.info("POST /produceoutput, userId={}, produceOutputDto={}", userPrincipal.getId(), produceOutputDto.toString());
+    @MessageMapping("/secured/{userId}/produceoutput")
+    public void createProduceOutput(@DestinationVariable Long userId, Message<ProduceOutputDto> message) throws IOException {
+        ProduceOutputDto produceOutputDto = message.getPayload();
+        log.info("WEBSOCKET /secured/{}/produceoutput, produceOutputDto={}", userId, produceOutputDto.toString());
+
         // retrieve the problem
         Problem problem = problemRepository.findById(produceOutputDto.getProblemId()).orElseThrow();
 
@@ -132,7 +126,7 @@ public class ProduceOutputController {
         CodeTemplateFiller filler = CodeTemplateFiller.getInstance();
         String functionName = Utils.getFunctionName(produceOutputDto.getLanguage(), problem.getCode(produceOutputDto.getLanguage()));
         String code = filler.getProduceOutputCode(produceOutputDto.getLanguage(), produceOutputDto.getCode(),
-            functionName, problem.getArguments(), problem.getReturnType());
+            functionName, problem.getOrderedArguments(), problem.getReturnType());
         log.info("Generated produce output code from template, code={}", code);
 
         // create request to JudgeZero
@@ -148,7 +142,8 @@ public class ProduceOutputController {
 
         // save produce output to db
         ProduceOutput produceOutput = new ProduceOutput();
-        produceOutput.setUser(userRepository.findById(userPrincipal.getId()).orElseThrow());
+        produceOutput.setUser(userRepository.findById(userId).orElseThrow());
+        produceOutput.setTestCaseNum(produceOutputDto.getTestCaseNum());
         produceOutput.setCode(produceOutputDto.getCode());
         produceOutput.setInput(produceOutputDto.getInput());
         produceOutput.setStatus(ProduceOutputStatus.RUNNING);
@@ -157,7 +152,5 @@ public class ProduceOutputController {
         produceOutput.setToken(token);
         produceOutputRepository.save(produceOutput);
         log.info("Saved produce output to database, produceOutput={}", produceOutput);
-
-        return new TokenResponse(token);
     }
 }
