@@ -104,14 +104,14 @@ public class ProduceOutputController {
             }
         }
 
-        // save the produce output into the db
-        produceOutputRepository.save(produceOutput);
-
         // send message to frontend
         this.simpMessagingTemplate.convertAndSend(
             "/secured/" + produceOutput.getUser().getId() + "/produceoutput",
             ProduceOutputResponse.fromProduceOutput(produceOutput)
         );
+
+        // save the produce output into the db
+        produceOutputRepository.save(produceOutput);
     }
 
     @MessageMapping("/secured/{userId}/produceoutput")
