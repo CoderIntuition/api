@@ -58,6 +58,7 @@ public class CodeTemplateFiller {
     private String pythonSubmissionTemplate;
     private String pythonProduceOutputTemplate;
     private String pythonTree;
+    private String pythonListOfLists;
     private String pythonLinkedList;
     private String pythonString;
     private String javaTestRunTemplate;
@@ -90,6 +91,7 @@ public class CodeTemplateFiller {
             pythonSubmissionTemplate = fileToString("python/pythonSubmissionTemplate.txt");
             pythonProduceOutputTemplate = fileToString("python/pythonProduceOutputTemplate.txt");
             pythonTree = fileToString("python/pythonTree.txt");
+            pythonListOfLists = fileToString("python/pythonListOfLists.txt");
             pythonLinkedList = fileToString("python/pythonLinkedList.txt");
             pythonString = fileToString("python/pythonString.txt");
             javaTestRunTemplate = fileToString("java/javaTestRunTemplate.txt");
@@ -171,6 +173,7 @@ public class CodeTemplateFiller {
     private DefinitionArgsCode getPythonDefinitionArgsCode(List<Argument> args) {
         boolean usingTree = false;
         boolean usingLinkedList = false;
+        boolean usingListOfLists = false;
         boolean usingString = false;
         StringBuilder argsCode = new StringBuilder();
 
@@ -184,6 +187,9 @@ public class CodeTemplateFiller {
                 case LINKED_LIST:
                     argsCode.append("___list_to_linked_list(ast.literal_eval(input[").append(i).append("]))");
                     usingLinkedList = true;
+                    break;
+                case LIST_OF_LISTS:
+                    usingListOfLists = true;
                     break;
                 case STRING:
                     argsCode.append("___string_to_string(input[").append(i).append("])");
@@ -207,6 +213,9 @@ public class CodeTemplateFiller {
         if (usingTree) {
             definitionCode.append(pythonTree);
         }
+        if (usingListOfLists) {
+            definitionCode.append(pythonListOfLists);
+        }
         if (usingLinkedList) {
             definitionCode.append(pythonLinkedList);
         }
@@ -227,6 +236,15 @@ public class CodeTemplateFiller {
                     equalsCode.append("if user_result == sol_result:");
                 } else {
                     equalsCode.append("if len(user_result) == len(sol_result) and sorted(user_result) == sorted(sol_result):");
+                }
+                userResultFormatCode.append("user_result_str = user_result");
+                solResultFormatCode.append("sol_result_str = sol_result");
+                break;
+            case LIST_OF_LISTS:
+                if (returnType.getOrderMatters()) {
+                    equalsCode.append("if user_result == sol_result:");
+                } else {
+                    equalsCode.append("if ___list_of_lists_same(user_result, sol_result):");
                 }
                 userResultFormatCode.append("user_result_str = user_result");
                 solResultFormatCode.append("sol_result_str = sol_result");
