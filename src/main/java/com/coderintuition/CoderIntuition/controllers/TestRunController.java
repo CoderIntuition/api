@@ -106,9 +106,15 @@ public class TestRunController {
         }
 
         // send message to frontend
+        TestRunResponse testRunResponse = TestRunResponse.fromTestRun(testRun);
         this.simpMessagingTemplate.convertAndSend(
             "/global/" + testRun.getSessionId() + "/testrun",
-            TestRunResponse.fromTestRun(testRun)
+            testRunResponse
+        );
+        log.info(
+            "Sent test run over websocket, destination=/global/{}/testrun, testRunResponse={}",
+            testRun.getSessionId(),
+            testRunResponse
         );
 
         // save the test run into the db

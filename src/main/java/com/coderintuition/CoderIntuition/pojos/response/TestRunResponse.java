@@ -1,5 +1,6 @@
 package com.coderintuition.CoderIntuition.pojos.response;
 
+import com.coderintuition.CoderIntuition.common.Utils;
 import com.coderintuition.CoderIntuition.enums.TestStatus;
 import com.coderintuition.CoderIntuition.models.TestRun;
 import lombok.Getter;
@@ -31,6 +32,11 @@ public class TestRunResponse {
     private String stdout;
 
     private String stderr;
+
+    @Override
+    public String toString() {
+        return Utils.gson.toJson(this);
+    }
 
     public static TestRunResponse fromTestRun(TestRun testRun) {
         TestRunResponse testRunResponse = new TestRunResponse();

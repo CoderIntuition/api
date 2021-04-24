@@ -10,15 +10,20 @@ import com.coderintuition.CoderIntuition.enums.TestStatus;
 import com.coderintuition.CoderIntuition.models.*;
 import com.coderintuition.CoderIntuition.pojos.request.ActivityRequestDto;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
+import com.coderintuition.CoderIntuition.pojos.request.ProduceOutputDto;
 import com.coderintuition.CoderIntuition.pojos.request.RunRequestDto;
 import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponse;
 import com.coderintuition.CoderIntuition.pojos.response.SubmissionResponse;
+import com.coderintuition.CoderIntuition.pojos.response.TestRunResponse;
 import com.coderintuition.CoderIntuition.pojos.response.TokenResponse;
 import com.coderintuition.CoderIntuition.repositories.*;
 import com.coderintuition.CoderIntuition.security.CurrentUser;
 import com.coderintuition.CoderIntuition.security.UserPrincipal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -57,23 +62,9 @@ public class SubmissionController {
     @Autowired
     AppProperties appProperties;
 
-    @GetMapping("/submission/{token}")
-    @PreAuthorize("hasRole('ROLE_USER')")
-    public SubmissionResponse getSubmission(@CurrentUser UserPrincipal userPrincipal, @PathVariable String token) throws Exception {
-        log.info("GET /submission/{}, userId={}", token, userPrincipal.getId());
-        Submission submission = submissionRepository.findByToken(token).orElseThrow();
-
-        if (!submission.getUser().getId().equals(userPrincipal.getId())) {
-            throw new Exception("Unauthorized");
-        }
-
-        return SubmissionResponse.fromSubmission(submission);
-    }
-
     @PutMapping("/submission/judge0callback")
     public void submissionCallback(@RequestBody JzSubmissionCheckResponse data) throws IOException {
-        log.info("PUT /submission/judge0callback");
-        log.info("data={}", data.toString());
+        log.info("PUT /submission/judge0callback, data={}", data.toString());
 
         // get submission info
         JzSubmissionCheckResponse result = Utils.retrieveFromJudgeZero(data.getToken(), appProperties);
@@ -146,17 +137,27 @@ public class SubmissionController {
             submission.setTestResults(testResults);
         }
 
+        // send message to frontend
+        SubmissionResponse submissionResponse = SubmissionResponse.fromSubmission(submission);
+        this.simpMessagingTemplate.convertAndSend(
+            "/secured/" + submission.getUser().getId() + "/submission",
+            submissionResponse
+        );
+        log.info(
+            "Sent submission over websocket, destination=/secured/{}/submission, submissionResponse={}",
+            submission.getUser().getId(),
+            submissionResponse
+        );
+
         // save the submission into the db
         submissionRepository.save(submission);
-
-        // send message to frontend over websocket
-        this.simpMessagingTemplate.convertAndSend("/topic/submission", result.getToken());
     }
 
-    @PostMapping("/submission")
-    @PreAuthorize("hasRole('ROLE_USER')")
-    public TokenResponse createSubmission(@CurrentUser UserPrincipal userPrincipal, @RequestBody RunRequestDto submissionRequestDto) throws Exception {
-        log.info("POST /submission, userId={}, submissionRequestDto={}", userPrincipal.getId(), submissionRequestDto.toString());
+    @MessageMapping("/secured/{userId}/submission")
+    public void createSubmission(@DestinationVariable Long userId, Message<RunRequestDto> message) throws Exception {
+        RunRequestDto submissionRequestDto = message.getPayload();
+        log.info("Received websocket message, destination=/secured/{}/submission, submissionRequestionDto={}", userId, submissionRequestDto.toString());
+
         // retrieve the problem
         Problem problem = problemRepository.findById(submissionRequestDto.getProblemId()).orElseThrow();
 
@@ -189,7 +190,7 @@ public class SubmissionController {
 
         // save submission to db
         Submission submission = new Submission();
-        User user = userRepository.findById(userPrincipal.getId()).orElseThrow();
+        User user = userRepository.findById(userId).orElseThrow();
         submission.setUser(user);
         submission.setCode(submissionRequestDto.getCode());
         submission.setLanguage(submissionRequestDto.getLanguage());
@@ -207,7 +208,5 @@ public class SubmissionController {
             submission.getId(),
             null);
         activityController.createActivity(activityRequestDto, user);
-
-        return new TokenResponse(token);
     }
 }

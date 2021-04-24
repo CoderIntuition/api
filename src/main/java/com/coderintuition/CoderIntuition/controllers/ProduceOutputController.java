@@ -105,9 +105,15 @@ public class ProduceOutputController {
         }
 
         // send message to frontend
+        ProduceOutputResponse produceOutputResponse = ProduceOutputResponse.fromProduceOutput(produceOutput);
         this.simpMessagingTemplate.convertAndSend(
             "/secured/" + produceOutput.getUser().getId() + "/produceoutput",
-            ProduceOutputResponse.fromProduceOutput(produceOutput)
+            produceOutputResponse
+        );
+        log.info(
+            "Sent submission over websocket, destination=/secured/{}/produceoutput, produceOutputResponse={}",
+            produceOutput.getUser().getId(),
+            produceOutputResponse
         );
 
         // save the produce output into the db

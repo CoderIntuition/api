@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 public class Utils {
     public static Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    public static Gson excludeGson = new GsonBuilder().setPrettyPrinting().excludeFieldsWithoutExposeAnnotation().create();
 
     public static int getLanguageId(Language language) {
         if (language == Language.PYTHON) {

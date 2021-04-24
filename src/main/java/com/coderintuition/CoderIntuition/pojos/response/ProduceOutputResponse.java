@@ -1,5 +1,6 @@
 package com.coderintuition.CoderIntuition.pojos.response;
 
+import com.coderintuition.CoderIntuition.common.Utils;
 import com.coderintuition.CoderIntuition.enums.ProduceOutputStatus;
 import com.coderintuition.CoderIntuition.models.ProduceOutput;
 import lombok.Getter;
@@ -28,6 +29,11 @@ public class ProduceOutputResponse {
     private String stdout;
 
     private String stderr;
+
+    @Override
+    public String toString() {
+        return Utils.gson.toJson(this);
+    }
 
     public static ProduceOutputResponse fromProduceOutput(ProduceOutput produceOutput) {
         ProduceOutputResponse produceOutputResponse = new ProduceOutputResponse();
