@@ -110,6 +110,9 @@ public class TestRunController {
             "/global/" + testRun.getSessionId() + "/testrun",
             TestRunResponse.fromTestRun(testRun)
         );
+
+        // save the test run into the db
+        testRunRepository.save(testRun);
     }
 
     @MessageMapping("/global/{sessionId}/testrun")
