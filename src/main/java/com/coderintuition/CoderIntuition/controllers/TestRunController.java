@@ -115,7 +115,7 @@ public class TestRunController {
     @MessageMapping("/global/{sessionId}/testrun")
     public void createTestRun(@DestinationVariable String sessionId, Message<RunRequestDto> message) throws Exception {
         RunRequestDto runRequestDto = message.getPayload();
-        log.info("WEBSOCKET /secured/{}/testrun, runRequestDto={}", sessionId, runRequestDto.toString());
+        log.info("Received websocket message, destination=/global/{}/testrun, runRequestDto={}", sessionId, runRequestDto.toString());
 
         // retrieve the problem
         Problem problem = problemRepository.findById(runRequestDto.getProblemId()).orElseThrow();
