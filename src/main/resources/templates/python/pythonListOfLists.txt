@@ -1,7 +1,9 @@
 def ___list_of_lists_same(l1, l2):
     if len(l1) != len(l2): return False
+
     l1 = list(map(lambda l: sorted(l), l1))
     l2 = list(map(lambda l: sorted(l), l2))
     l1.sort()
     l2.sort()
+
     return l1 == l2

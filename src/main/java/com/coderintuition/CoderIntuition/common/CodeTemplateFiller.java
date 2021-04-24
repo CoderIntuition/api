@@ -124,18 +124,18 @@ public class CodeTemplateFiller {
     public String getTestRunCode(Language language, String userCode, String solutionCode, String functionName,
                                  List<Argument> args, ReturnType returnType) {
         return getFilledCode(language, userCode, solutionCode, functionName, args,
-                returnType, pythonTestRunTemplate, javaTestRunTemplate, javaScriptTestRunTemplate);
+            returnType, pythonTestRunTemplate, javaTestRunTemplate, javaScriptTestRunTemplate);
     }
 
     public String getSubmissionCode(Language language, String userCode, String solutionCode, String functionName,
                                     List<Argument> args, ReturnType returnType) {
         return getFilledCode(language, userCode, solutionCode, functionName, args,
-                returnType, pythonSubmissionTemplate, javaSubmissionTemplate, javaScriptSubmissionTemplate);
+            returnType, pythonSubmissionTemplate, javaSubmissionTemplate, javaScriptSubmissionTemplate);
     }
 
     public String getProduceOutputCode(Language language, String userCode, String functionName, List<Argument> args, ReturnType returnType) {
         return getFilledCode(language, userCode, "", functionName, args, returnType, pythonProduceOutputTemplate,
-                javaProduceOutputTemplate, javaScriptProduceOutputTemplate);
+            javaProduceOutputTemplate, javaScriptProduceOutputTemplate);
     }
 
     private String getFilledCode(Language language, String userCode, String solutionCode, String functionName, List<Argument> args,
@@ -160,14 +160,14 @@ public class CodeTemplateFiller {
         EqualsUserSolCode equalsUserSolCode = getPythonEqualsUserSolCode(returnType);
 
         return template
-                .replaceAll("\\$\\{definitionCode}", Matcher.quoteReplacement(definitionArgsCode.definitionCode))
-                .replaceAll("\\$\\{userCode}", Matcher.quoteReplacement(userCode))
-                .replaceAll("\\$\\{solutionCode}", Matcher.quoteReplacement(solutionCode.replace(functionName, functionName + "_sol")))
-                .replaceAll("\\$\\{functionName}", Matcher.quoteReplacement(functionName))
-                .replaceAll("\\$\\{args}", Matcher.quoteReplacement(definitionArgsCode.argsCode))
-                .replaceAll("\\$\\{userResultFormatCode}", Matcher.quoteReplacement(equalsUserSolCode.userResultFormatCode))
-                .replaceAll("\\$\\{solResultFormatCode}", Matcher.quoteReplacement(equalsUserSolCode.solResultFormatCode))
-                .replaceAll("\\$\\{equalsCode}", Matcher.quoteReplacement(equalsUserSolCode.equalsCode));
+            .replaceAll("\\$\\{definitionCode}", Matcher.quoteReplacement(definitionArgsCode.definitionCode))
+            .replaceAll("\\$\\{userCode}", Matcher.quoteReplacement(userCode))
+            .replaceAll("\\$\\{solutionCode}", Matcher.quoteReplacement(solutionCode.replace(functionName, functionName + "_sol")))
+            .replaceAll("\\$\\{functionName}", Matcher.quoteReplacement(functionName))
+            .replaceAll("\\$\\{args}", Matcher.quoteReplacement(definitionArgsCode.argsCode))
+            .replaceAll("\\$\\{userResultFormatCode}", Matcher.quoteReplacement(equalsUserSolCode.userResultFormatCode))
+            .replaceAll("\\$\\{solResultFormatCode}", Matcher.quoteReplacement(equalsUserSolCode.solResultFormatCode))
+            .replaceAll("\\$\\{equalsCode}", Matcher.quoteReplacement(equalsUserSolCode.equalsCode));
     }
 
     private DefinitionArgsCode getPythonDefinitionArgsCode(List<Argument> args) {
@@ -293,16 +293,16 @@ public class CodeTemplateFiller {
         log.info("equalsUserSolCode={}", setupDefinitionArgsCode.toString());
 
         return template
-                .replaceAll("\\$\\{definitionCode}", Matcher.quoteReplacement(setupDefinitionArgsCode.definitionCode))
-                .replaceAll("\\$\\{userCode}", Matcher.quoteReplacement(userCode))
-                .replaceAll("\\$\\{solutionCode}", Matcher.quoteReplacement(solutionCode.replace("Solution", "ActualSolution")))
-                .replaceAll("\\$\\{setupCode}", Matcher.quoteReplacement(setupDefinitionArgsCode.setupCode))
-                .replaceAll("\\$\\{functionName}", Matcher.quoteReplacement(functionName))
-                .replaceAll("\\$\\{args}",Matcher.quoteReplacement( setupDefinitionArgsCode.argsCode))
-                .replaceAll("\\$\\{retType}", Matcher.quoteReplacement(getJavaType(returnType)))
-                .replaceAll("\\$\\{userResultFormatCode}", Matcher.quoteReplacement(equalsUserSolCode.userResultFormatCode))
-                .replaceAll("\\$\\{solResultFormatCode}", Matcher.quoteReplacement(equalsUserSolCode.solResultFormatCode))
-                .replaceAll("\\$\\{equalsCode}", Matcher.quoteReplacement(equalsUserSolCode.equalsCode));
+            .replaceAll("\\$\\{definitionCode}", Matcher.quoteReplacement(setupDefinitionArgsCode.definitionCode))
+            .replaceAll("\\$\\{userCode}", Matcher.quoteReplacement(userCode))
+            .replaceAll("\\$\\{solutionCode}", Matcher.quoteReplacement(solutionCode.replace("Solution", "ActualSolution")))
+            .replaceAll("\\$\\{setupCode}", Matcher.quoteReplacement(setupDefinitionArgsCode.setupCode))
+            .replaceAll("\\$\\{functionName}", Matcher.quoteReplacement(functionName))
+            .replaceAll("\\$\\{args}", Matcher.quoteReplacement(setupDefinitionArgsCode.argsCode))
+            .replaceAll("\\$\\{retType}", Matcher.quoteReplacement(getJavaType(returnType)))
+            .replaceAll("\\$\\{userResultFormatCode}", Matcher.quoteReplacement(equalsUserSolCode.userResultFormatCode))
+            .replaceAll("\\$\\{solResultFormatCode}", Matcher.quoteReplacement(equalsUserSolCode.solResultFormatCode))
+            .replaceAll("\\$\\{equalsCode}", Matcher.quoteReplacement(equalsUserSolCode.equalsCode));
     }
 
     private String getJavaType(UnderlyingType type, boolean primitive) {
@@ -338,7 +338,7 @@ public class CodeTemplateFiller {
                 return "List<List<" + getJavaType(returnType.getUnderlyingType(), false) + ">>";
             case DICTIONARY:
                 return "Map<" + getJavaType(returnType.getUnderlyingType(), false) + ", "
-                        + getJavaType(returnType.getUnderlyingType2(), false) + ">";
+                    + getJavaType(returnType.getUnderlyingType2(), false) + ">";
             case TREE:
                 return "TreeNode";
             case LINKED_LIST:
@@ -419,8 +419,8 @@ public class CodeTemplateFiller {
 
     private String getJavaListCode(Argument arg, int i) {
         String fillListFunction = javaList
-                .replaceAll("\\$\\{i}", Integer.toString(i))
-                .replaceAll("\\$\\{underlyingType}", getJavaType(arg.getUnderlyingType(), false));
+            .replaceAll("\\$\\{i}", Integer.toString(i))
+            .replaceAll("\\$\\{underlyingType}", getJavaType(arg.getUnderlyingType(), false));
         StringBuilder parseUnderlyingTypeCode = new StringBuilder();
         switch (arg.getUnderlyingType()) {
             case STRING:
@@ -445,8 +445,8 @@ public class CodeTemplateFiller {
 
     private String getJavaArray2DCode(Argument arg, int i) {
         String fillArray2DFunction = javaArray2D
-                .replaceAll("\\$\\{i}", Integer.toString(i))
-                .replaceAll("\\$\\{underlyingType}", getJavaType(arg.getUnderlyingType(), true));
+            .replaceAll("\\$\\{i}", Integer.toString(i))
+            .replaceAll("\\$\\{underlyingType}", getJavaType(arg.getUnderlyingType(), true));
         StringBuilder parseUnderlyingTypeCode = new StringBuilder();
         switch (arg.getUnderlyingType()) {
             case STRING:
@@ -481,8 +481,8 @@ public class CodeTemplateFiller {
 
     private String getJavaListOfListsCode(Argument arg, int i) {
         String fillListOfListsFunction = javaListOfLists
-                .replaceAll("\\$\\{i}", Integer.toString(i))
-                .replaceAll("\\$\\{underlyingType}", getJavaType(arg.getUnderlyingType(), true));
+            .replaceAll("\\$\\{i}", Integer.toString(i))
+            .replaceAll("\\$\\{underlyingType}", getJavaType(arg.getUnderlyingType(), true));
         StringBuilder parseUnderlyingTypeCode = new StringBuilder();
         switch (arg.getUnderlyingType()) {
             case STRING:
@@ -521,9 +521,9 @@ public class CodeTemplateFiller {
 
     private String getJavaDictionaryCode(Argument arg, int i) {
         String fillDictionaryFunction = javaDictionary
-                .replaceAll("\\$\\{i}", Integer.toString(i))
-                .replaceAll("\\$\\{underlyingType}", getJavaType(arg.getUnderlyingType(), false))
-                .replaceAll("\\$\\{underlyingType2}", getJavaType(arg.getUnderlyingType2(), false));
+            .replaceAll("\\$\\{i}", Integer.toString(i))
+            .replaceAll("\\$\\{underlyingType}", getJavaType(arg.getUnderlyingType(), false))
+            .replaceAll("\\$\\{underlyingType2}", getJavaType(arg.getUnderlyingType2(), false));
         StringBuilder parseUnderlyingTypeCode = new StringBuilder();
         switch (arg.getUnderlyingType()) {
             case STRING:
@@ -561,8 +561,8 @@ public class CodeTemplateFiller {
                 break;
         }
         return fillDictionaryFunction
-                .replaceAll("\\$\\{parseUnderlyingTypeCode}", Matcher.quoteReplacement(parseUnderlyingTypeCode.toString()))
-                .replaceAll("\\$\\{parseUnderlyingType2Code}", Matcher.quoteReplacement(parseUnderlyingType2Code.toString()));
+            .replaceAll("\\$\\{parseUnderlyingTypeCode}", Matcher.quoteReplacement(parseUnderlyingTypeCode.toString()))
+            .replaceAll("\\$\\{parseUnderlyingType2Code}", Matcher.quoteReplacement(parseUnderlyingType2Code.toString()));
     }
 
     private EqualsUserSolCode getJavaEqualsUserSolCode(ReturnType returnType) {
@@ -574,7 +574,7 @@ public class CodeTemplateFiller {
                 if (returnType.getOrderMatters()) {
                     equalsCode.append("if (userResult.equals(solResult)) {").append("\n");
                 } else {
-                    equalsCode.append("if (userResult.size() == solResult.size() && Collections.sort(userResult).equals(Collections.sort(solResult))) {").append("\n");
+                    equalsCode.append("if (listSame(userResult, solResult)) {").append("\n");
                 }
                 userResultFormatCode.append("String userResultStr = userResult == null ? \"null\" : userResult.toString();").append("\n");
                 solResultFormatCode.append("String solResultStr = solResult == null ? \"null\" : solResult.toString();").append("\n");
@@ -585,7 +585,11 @@ public class CodeTemplateFiller {
                 solResultFormatCode.append("String solResultStr = Arrays.deepToString(solResult);").append("\n");
                 break;
             case LIST_OF_LISTS:
-                equalsCode.append("if (userResult.equals(solResult)) {").append("\n");
+                if (returnType.getOrderMatters()) {
+                    equalsCode.append("if (userResult.equals(solResult)) {").append("\n");
+                } else {
+                    equalsCode.append("if (listOfListsSame(userResult, solResult)) {").append("\n");
+                }
                 userResultFormatCode.append("String userResultStr = userResult == null ? \"null\" : userResult.toString();").append("\n");
                 solResultFormatCode.append("String solResultStr = solResult == null ? \"null\" : solResult.toString();").append("\n");
                 break;
@@ -647,14 +651,14 @@ public class CodeTemplateFiller {
         EqualsUserSolCode equalsUserSolCode = getJavaScriptEqualsUserSolCode(returnType);
 
         return template
-                .replaceAll("\\$\\{definitionCode}", Matcher.quoteReplacement(definitionArgsCode.definitionCode))
-                .replaceAll("\\$\\{userCode}", Matcher.quoteReplacement(userCode))
-                .replaceAll("\\$\\{solutionCode}", Matcher.quoteReplacement(solutionCode.replace(functionName, functionName + "Sol")))
-                .replaceAll("\\$\\{functionName}", Matcher.quoteReplacement(functionName))
-                .replaceAll("\\$\\{args}", Matcher.quoteReplacement(definitionArgsCode.argsCode))
-                .replaceAll("\\$\\{userResultFormatCode}", Matcher.quoteReplacement(equalsUserSolCode.userResultFormatCode))
-                .replaceAll("\\$\\{solResultFormatCode}", Matcher.quoteReplacement(equalsUserSolCode.solResultFormatCode))
-                .replaceAll("\\$\\{equalsCode}", Matcher.quoteReplacement(equalsUserSolCode.equalsCode));
+            .replaceAll("\\$\\{definitionCode}", Matcher.quoteReplacement(definitionArgsCode.definitionCode))
+            .replaceAll("\\$\\{userCode}", Matcher.quoteReplacement(userCode))
+            .replaceAll("\\$\\{solutionCode}", Matcher.quoteReplacement(solutionCode.replace(functionName, functionName + "Sol")))
+            .replaceAll("\\$\\{functionName}", Matcher.quoteReplacement(functionName))
+            .replaceAll("\\$\\{args}", Matcher.quoteReplacement(definitionArgsCode.argsCode))
+            .replaceAll("\\$\\{userResultFormatCode}", Matcher.quoteReplacement(equalsUserSolCode.userResultFormatCode))
+            .replaceAll("\\$\\{solResultFormatCode}", Matcher.quoteReplacement(equalsUserSolCode.solResultFormatCode))
+            .replaceAll("\\$\\{equalsCode}", Matcher.quoteReplacement(equalsUserSolCode.equalsCode));
     }
 
     private DefinitionArgsCode getJavaScriptDefinitionArgsCode(List<Argument> args) {
