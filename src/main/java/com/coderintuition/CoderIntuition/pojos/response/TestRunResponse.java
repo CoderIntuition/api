@@ -16,7 +16,7 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 public class TestRunResponse {
     @NotBlank
-    private String token;
+    private Long problemId;
 
     @NotBlank
     private String input;
@@ -34,7 +34,7 @@ public class TestRunResponse {
 
     public static TestRunResponse fromTestRun(TestRun testRun) {
         TestRunResponse testRunResponse = new TestRunResponse();
-        testRunResponse.setToken(testRun.getToken());
+        testRunResponse.setProblemId(testRun.getProblem().getId());
         testRunResponse.setInput(testRun.getInput());
         testRunResponse.setStatus(testRun.getStatus());
         testRunResponse.setExpectedOutput(testRun.getExpectedOutput());

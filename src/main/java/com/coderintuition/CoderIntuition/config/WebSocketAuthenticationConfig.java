@@ -73,7 +73,9 @@ class SecuredInterceptor implements ChannelInterceptor {
             }
 
             if (destinationComponents.get(0).equals("global") || destinationComponents.get(0).equals("topic")) {
-                // TODO: validate token
+               if (destinationComponents.size() < 2) {
+                   throw new BadRequestException("Invalid session id");
+               }
             } else if (destinationComponents.get(0).equals("secured")) {
                 List<String> authorization = accessor.getNativeHeader("Authorization");
                 if (authorization == null || authorization.isEmpty()) {

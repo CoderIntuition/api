@@ -9,8 +9,10 @@ import com.coderintuition.CoderIntuition.models.Problem;
 import com.coderintuition.CoderIntuition.models.Solution;
 import com.coderintuition.CoderIntuition.models.TestRun;
 import com.coderintuition.CoderIntuition.pojos.request.JZSubmissionRequestDto;
+import com.coderintuition.CoderIntuition.pojos.request.ProduceOutputDto;
 import com.coderintuition.CoderIntuition.pojos.request.RunRequestDto;
 import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckResponse;
+import com.coderintuition.CoderIntuition.pojos.response.ProduceOutputResponse;
 import com.coderintuition.CoderIntuition.pojos.response.TestRunResponse;
 import com.coderintuition.CoderIntuition.pojos.response.TokenResponse;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
@@ -18,7 +20,11 @@ import com.coderintuition.CoderIntuition.repositories.TestRunRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,6 +36,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 
 @Slf4j
+@Controller
 @RestController
 public class TestRunController {
 
@@ -47,8 +54,7 @@ public class TestRunController {
 
     @PutMapping("/testrun/judge0callback")
     public void testRunCallback(@RequestBody JzSubmissionCheckResponse data) throws Exception {
-        log.info("PUT /testrun/judge0callback");
-        log.info("data={}", data.toString());
+        log.info("PUT /testrun/judge0callback, data={}", data.toString());
 
         // get test run info
         JzSubmissionCheckResponse result = Utils.retrieveFromJudgeZero(data.getToken(), appProperties);
@@ -99,20 +105,18 @@ public class TestRunController {
             }
         }
 
-        // save the test run into the db
-        testRun = testRunRepository.save(testRun);
-
-        // create TestRunResponse to send back over websocket
-        TestRunResponse testRunResponse = TestRunResponse.fromTestRun(testRun);
-
-        // send message to frontend over websocket
-        ObjectMapper mapper = new ObjectMapper();
-        this.simpMessagingTemplate.convertAndSend("/topic/testrun", mapper.writeValueAsString(testRunResponse));
+        // send message to frontend
+        this.simpMessagingTemplate.convertAndSend(
+            "/global/" + testRun.getSessionId() + "/testrun",
+            TestRunResponse.fromTestRun(testRun)
+        );
     }
 
-    @PostMapping("/testrun")
-    public TokenResponse createTestRun(@RequestBody RunRequestDto runRequestDto) throws Exception {
-        log.info("POST /testrun, runRequestDto={}", runRequestDto.toString());
+    @MessageMapping("/global/{sessionId}/testrun")
+    public void createTestRun(@DestinationVariable String sessionId, Message<RunRequestDto> message) throws Exception {
+        RunRequestDto runRequestDto = message.getPayload();
+        log.info("WEBSOCKET /secured/{}/testrun, runRequestDto={}", sessionId, runRequestDto.toString());
+
         // retrieve the problem
         Problem problem = problemRepository.findById(runRequestDto.getProblemId()).orElseThrow();
 
@@ -140,6 +144,7 @@ public class TestRunController {
         // create the test run to be saved into the db
         TestRun testRun = new TestRun();
         testRun.setProblem(problem);
+        testRun.setSessionId(runRequestDto.getSessionId());
         testRun.setToken(token);
         testRun.setLanguage(runRequestDto.getLanguage());
         testRun.setCode(runRequestDto.getCode());
@@ -147,7 +152,5 @@ public class TestRunController {
         testRun.setStatus(TestStatus.RUNNING);
         testRunRepository.save(testRun);
         log.info("Saved test run to database, testRun={}", testRun);
-
-        return new TokenResponse(token);
     }
 }

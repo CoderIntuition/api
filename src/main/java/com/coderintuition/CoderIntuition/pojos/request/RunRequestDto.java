@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class RunRequestDto {
     @NotNull
-    private Long userId;
+    private String sessionId;
 
     @NotNull
     private Long problemId;

@@ -29,6 +29,10 @@ public class TestRun {
     @NotNull
     private Problem problem;
 
+    @Column(name = "session_id")
+    @NotBlank
+    private String sessionId;
+
     @Column(name = "token")
     @NotBlank
     @Size(max = 100)
