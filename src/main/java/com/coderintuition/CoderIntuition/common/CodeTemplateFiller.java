@@ -75,6 +75,7 @@ public class CodeTemplateFiller {
     private String javaScriptSubmissionTemplate;
     private String javaScriptProduceOutputTemplate;
     private String javaScriptTree;
+    private String javaScriptListOfLists;
     private String javaScriptLinkedList;
     private String javaScriptString;
 
@@ -108,6 +109,7 @@ public class CodeTemplateFiller {
             javaScriptSubmissionTemplate = fileToString("javascript/javaScriptSubmissionTemplate.txt");
             javaScriptProduceOutputTemplate = fileToString("javascript/javaScriptProduceOutputTemplate.txt");
             javaScriptTree = fileToString("javascript/javaScriptTree.txt");
+            javaScriptListOfLists= fileToString("javascript/javaScriptListOfLists.txt");
             javaScriptLinkedList = fileToString("javascript/javaScriptLinkedList.txt");
             javaScriptString = fileToString("javascript/javaScriptString.txt");
         } catch (IOException ex) {
@@ -663,6 +665,7 @@ public class CodeTemplateFiller {
 
     private DefinitionArgsCode getJavaScriptDefinitionArgsCode(List<Argument> args) {
         boolean usingTree = false;
+        boolean usingListOfLists = false;
         boolean usingLinkedList = false;
         boolean usingString = false;
         StringBuilder argsCode = new StringBuilder();
@@ -682,6 +685,8 @@ public class CodeTemplateFiller {
                     argsCode.append("___stringToString(input[").append(i).append("])");
                     usingString = true;
                     break;
+                case LIST_OF_LISTS:
+                    usingListOfLists = true;
                 case LIST:
                 case ARRAY_2D:
                 case DICTIONARY:
@@ -705,6 +710,9 @@ public class CodeTemplateFiller {
         StringBuilder definitionCode = new StringBuilder();
         if (usingTree) {
             definitionCode.append(javaScriptTree);
+        }
+        if (usingListOfLists) {
+            definitionCode.append(javaScriptListOfLists);
         }
         if (usingLinkedList) {
             definitionCode.append(javaScriptLinkedList);
@@ -730,6 +738,15 @@ public class CodeTemplateFiller {
                     equalsCode.append("const solResultSorted = solResult.slice(0);").append("\n");
                     equalsCode.append("solResultSorted.sort();").append("\n");
                     equalsCode.append("if (___arraysEqual(userResultSorted, solResultSorted)) {");
+                }
+                userResultFormatCode.append("const userResultStr = JSON.stringify(userResult);");
+                solResultFormatCode.append("const solResultStr = JSON.stringify(solResult);");
+                break;
+            case LIST_OF_LISTS:
+                if (returnType.getOrderMatters()) {
+                    equalsCode.append("if (___listOfListsSame(userResult, solResult, true)) {");
+                } else {
+                    equalsCode.append("if (___listOfListsSame(userResult, solResult, false)) {");
                 }
                 userResultFormatCode.append("const userResultStr = JSON.stringify(userResult);");
                 solResultFormatCode.append("const solResultStr = JSON.stringify(solResult);");

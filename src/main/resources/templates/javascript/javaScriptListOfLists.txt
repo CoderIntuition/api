@@ -1,0 +1,31 @@
+function ___sortedListOfLists(lst) {
+    return lst.sort(function(o1, o2) {
+        for (var i = 0; i < Math.min(o1.length, o2.length); i++) {
+            if (o1[i] !== o2[i]) {
+                return o1[i] > o2[i];
+            }
+        }
+        return o1.length > o2.length;
+    });
+}
+
+function ___listOfListsSame(l1, l2, orderMatters) {
+    if (l1.length !== l2.length) {
+        return false;
+    }
+
+    if (!orderMatters) {
+        l1 = l1.map(l => l.sort());
+        l2 = l2.map(l => l.sort());
+        l1 = ___sortedListOfLists(l1);
+        l2 = ___sortedListOfLists(l2);
+    }
+
+    for (var i = 0; i < l1.length; i++) {
+        if (!___arraysEqual(l1[i], l2[i])) {
+            return false;
+        }
+    }
+
+    return true;
+}
