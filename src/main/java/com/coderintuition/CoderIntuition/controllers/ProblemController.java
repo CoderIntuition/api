@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 public class ProblemController {
@@ -35,7 +37,7 @@ public class ProblemController {
     TestCaseRepository testCaseRepository;
 
     @GetMapping("/problems-by-category")
-    public Map<String, CategoryDto> getAllProblems() {
+    public Map<String, CategoryDto> getAllProblemsByCategory() {
         Map<String, CategoryDto> map = new HashMap<>();
         for (ProblemCategory category : ProblemCategory.values()) {
             CategoryDto categoryDto = new CategoryDto();
@@ -48,8 +50,15 @@ public class ProblemController {
     }
 
     @GetMapping("/all-problems")
-    public List<String> getAllReadings() {
+    public List<String> getAllProblems() {
         return problemRepository.findAllPublicUrlNames();
+    }
+
+    @GetMapping("/all-categories")
+    public List<String> getAllCategories() {
+        return Stream.of(ProblemCategory.values())
+            .map(Enum::name)
+            .collect(Collectors.toList());
     }
 
     @GetMapping(value = "/problems/{category}", params = {"page", "size"})
