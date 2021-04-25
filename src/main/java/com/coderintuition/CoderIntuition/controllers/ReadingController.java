@@ -30,6 +30,11 @@ public class ReadingController {
         return simpleReadingResponses;
     }
 
+    @GetMapping("/all-readings")
+    public List<String> getAllReadings() {
+        return readingRepository.findAllPublicUrlNames();
+    }
+
     @GetMapping(value = "/readings", params = {"page", "size"})
     public ReadingsResponse getReadings(@RequestParam("page") int page,
                                         @RequestParam("size") int size) {

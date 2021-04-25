@@ -34,7 +34,7 @@ public class ProblemController {
     @Autowired
     TestCaseRepository testCaseRepository;
 
-    @GetMapping("/allproblems")
+    @GetMapping("/problems-by-category")
     public Map<String, CategoryDto> getAllProblems() {
         Map<String, CategoryDto> map = new HashMap<>();
         for (ProblemCategory category : ProblemCategory.values()) {
@@ -45,6 +45,11 @@ public class ProblemController {
             map.put(Utils.capitalize(category.toString().toLowerCase()), categoryDto);
         }
         return map;
+    }
+
+    @GetMapping("/all-problems")
+    public List<String> getAllReadings() {
+        return problemRepository.findAllPublicUrlNames();
     }
 
     @GetMapping(value = "/problems/{category}", params = {"page", "size"})
