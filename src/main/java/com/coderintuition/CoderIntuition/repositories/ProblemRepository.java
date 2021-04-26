@@ -20,6 +20,9 @@ public interface ProblemRepository extends JpaRepository<Problem, Long> {
     @Query("SELECT p FROM Problem p WHERE p.category = (:category) AND (p.deleted IS NULL OR p.deleted = false) ORDER BY p.id ASC")
     Page<Problem> findByCategory(@Param("category") ProblemCategory problemCategory, Pageable pageable);
 
+    @Query("SELECT p FROM Problem p WHERE (p.deleted IS NULL OR p.deleted = false) ORDER BY p.id ASC")
+    Page<Problem> findAll(Pageable pageable);
+
     @Query("SELECT p FROM Problem p WHERE p.category = (:category) AND (p.deleted IS NULL OR p.deleted = false) ORDER BY p.id ASC")
     List<Problem> findByCategory(@Param("category") ProblemCategory problemCategory);
 

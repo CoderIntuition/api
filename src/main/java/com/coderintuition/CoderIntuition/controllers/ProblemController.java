@@ -66,6 +66,12 @@ public class ProblemController {
                                                   @RequestParam("page") int page,
                                                   @RequestParam("size") int size) throws Exception {
         Pageable pageable = PageRequest.of(page, size);
+
+        if (category.equalsIgnoreCase("ALL")) {
+            Page<Problem> problems = problemRepository.findAll(pageable);
+            return new ProblemsResponse(problems.getTotalPages(), (int) problems.getTotalElements(), simplifyProblems(problems.toList()));
+        }
+
         try {
             Page<Problem> problems = problemRepository.findByCategory(ProblemCategory.valueOf(category.toUpperCase()), pageable);
             return new ProblemsResponse(problems.getTotalPages(), (int) problems.getTotalElements(), simplifyProblems(problems.toList()));
