@@ -33,6 +33,9 @@ public class TestRun {
     @NotBlank
     private String sessionId;
 
+    @Column(name = "user_id")
+    private Long userId;
+
     @Column(name = "token")
     @NotBlank
     @Size(max = 100)

@@ -14,10 +14,12 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class RunRequestDto {
     @NotNull
-    private String sessionId;
+    private Long problemId;
 
     @NotNull
-    private Long problemId;
+    private String sessionId;
+
+    private Long userId;
 
     @NotNull
     private Language language;

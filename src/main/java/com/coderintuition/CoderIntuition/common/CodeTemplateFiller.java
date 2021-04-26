@@ -65,8 +65,10 @@ public class CodeTemplateFiller {
     private String javaSubmissionTemplate;
     private String javaProduceOutputTemplate;
     private String javaList;
+    private String javaListGeneral;
     private String javaArray2D;
     private String javaListOfLists;
+    private String javaListOfListsGeneral;
     private String javaDictionary;
     private String javaTree;
     private String javaLinkedList;
@@ -99,8 +101,10 @@ public class CodeTemplateFiller {
             javaSubmissionTemplate = fileToString("java/javaSubmissionTemplate.txt");
             javaProduceOutputTemplate = fileToString("java/javaProduceOutputTemplate.txt");
             javaList = fileToString("java/javaList.txt");
+            javaListGeneral = fileToString("java/javaListGeneral.txt");
             javaArray2D = fileToString("java/javaArray2D.txt");
             javaListOfLists = fileToString("java/javaListOfLists.txt");
+            javaListOfListsGeneral = fileToString("java/javaListOfListsGeneral.txt");
             javaDictionary = fileToString("java/javaDictionary.txt");
             javaTree = fileToString("java/javaTree.txt");
             javaLinkedList = fileToString("java/javaLinkedList.txt");
@@ -109,7 +113,7 @@ public class CodeTemplateFiller {
             javaScriptSubmissionTemplate = fileToString("javascript/javaScriptSubmissionTemplate.txt");
             javaScriptProduceOutputTemplate = fileToString("javascript/javaScriptProduceOutputTemplate.txt");
             javaScriptTree = fileToString("javascript/javaScriptTree.txt");
-            javaScriptListOfLists= fileToString("javascript/javaScriptListOfLists.txt");
+            javaScriptListOfLists = fileToString("javascript/javaScriptListOfLists.txt");
             javaScriptLinkedList = fileToString("javascript/javaScriptLinkedList.txt");
             javaScriptString = fileToString("javascript/javaScriptString.txt");
         } catch (IOException ex) {
@@ -158,7 +162,7 @@ public class CodeTemplateFiller {
 
     private String getFilledPythonCode(String template, String userCode, String solutionCode, String functionName,
                                        List<Argument> args, ReturnType returnType) {
-        DefinitionArgsCode definitionArgsCode = getPythonDefinitionArgsCode(args);
+        DefinitionArgsCode definitionArgsCode = getPythonDefinitionArgsCode(args, returnType);
         EqualsUserSolCode equalsUserSolCode = getPythonEqualsUserSolCode(returnType);
 
         return template
@@ -172,7 +176,7 @@ public class CodeTemplateFiller {
             .replaceAll("\\$\\{equalsCode}", Matcher.quoteReplacement(equalsUserSolCode.equalsCode));
     }
 
-    private DefinitionArgsCode getPythonDefinitionArgsCode(List<Argument> args) {
+    private DefinitionArgsCode getPythonDefinitionArgsCode(List<Argument> args, ReturnType returnType) {
         boolean usingTree = false;
         boolean usingLinkedList = false;
         boolean usingListOfLists = false;
@@ -190,13 +194,11 @@ public class CodeTemplateFiller {
                     argsCode.append("___list_to_linked_list(ast.literal_eval(input[").append(i).append("]))");
                     usingLinkedList = true;
                     break;
-                case LIST_OF_LISTS:
-                    usingListOfLists = true;
-                    break;
                 case STRING:
                     argsCode.append("___string_to_string(input[").append(i).append("])");
                     usingString = true;
                     break;
+                case LIST_OF_LISTS:
                 case INTEGER:
                 case FLOAT:
                 case BOOLEAN:
@@ -211,18 +213,36 @@ public class CodeTemplateFiller {
             }
         }
 
+        switch (returnType.getType()) {
+            case TREE:
+                usingTree = true;
+                break;
+            case LINKED_LIST:
+                usingLinkedList = true;
+                break;
+            case STRING:
+                usingString = true;
+                break;
+            case LIST_OF_LISTS:
+                usingListOfLists = true;
+                break;
+        }
+
         StringBuilder definitionCode = new StringBuilder();
+        // for args
         if (usingTree) {
             definitionCode.append(pythonTree);
-        }
-        if (usingListOfLists) {
-            definitionCode.append(pythonListOfLists);
         }
         if (usingLinkedList) {
             definitionCode.append(pythonLinkedList);
         }
         if (usingString) {
             definitionCode.append(pythonString);
+        }
+
+        // for return comparison
+        if (usingListOfLists) {
+            definitionCode.append(pythonListOfLists);
         }
 
         return new DefinitionArgsCode(definitionCode.toString(), argsCode.toString());
@@ -288,7 +308,7 @@ public class CodeTemplateFiller {
 
     private String getFilledJavaCode(String template, String userCode, String solutionCode, String functionName,
                                      List<Argument> args, ReturnType returnType) {
-        SetupDefinitionArgsCode setupDefinitionArgsCode = getJavaSetupDefinitionArgsCode(args);
+        SetupDefinitionArgsCode setupDefinitionArgsCode = getJavaSetupDefinitionArgsCode(args, returnType);
         log.info("setupDefinitionArgsCode={}", setupDefinitionArgsCode.toString());
 
         EqualsUserSolCode equalsUserSolCode = getJavaEqualsUserSolCode(returnType);
@@ -350,8 +370,10 @@ public class CodeTemplateFiller {
         }
     }
 
-    private SetupDefinitionArgsCode getJavaSetupDefinitionArgsCode(List<Argument> args) {
+    private SetupDefinitionArgsCode getJavaSetupDefinitionArgsCode(List<Argument> args, ReturnType returnType) {
         boolean usingTree = false;
+        boolean usingList = false;
+        boolean usingListOfLists = false;
         boolean usingLinkedList = false;
         boolean usingString = false;
         StringBuilder setupCode = new StringBuilder();
@@ -405,7 +427,17 @@ public class CodeTemplateFiller {
             }
         }
 
+        switch (returnType.getType()) {
+            case LIST:
+                usingList = true;
+                break;
+            case LIST_OF_LISTS:
+                usingListOfLists = true;
+                break;
+        }
+
         StringBuilder definitionCode = new StringBuilder();
+        // for args
         if (usingTree) {
             definitionCode.append(javaTree);
         }
@@ -414,6 +446,14 @@ public class CodeTemplateFiller {
         }
         if (usingString) {
             setupCode.append(javaString);
+        }
+
+        // for return comparison
+        if (usingList) {
+            setupCode.append(javaListGeneral.replaceAll("\\$\\{underlyingType}", getJavaType(returnType.getUnderlyingType(), false)));
+        }
+        if (usingListOfLists) {
+            setupCode.append(javaListOfListsGeneral.replaceAll("\\$\\{underlyingType}", getJavaType(returnType.getUnderlyingType(), false)));
         }
 
         return new SetupDefinitionArgsCode(setupCode.toString(), definitionCode.toString(), argsCode.toString());
@@ -649,7 +689,7 @@ public class CodeTemplateFiller {
 
     private String getFilledJavaScriptCode(String template, String userCode, String solutionCode, String functionName,
                                            List<Argument> args, ReturnType returnType) {
-        DefinitionArgsCode definitionArgsCode = getJavaScriptDefinitionArgsCode(args);
+        DefinitionArgsCode definitionArgsCode = getJavaScriptDefinitionArgsCode(args, returnType);
         EqualsUserSolCode equalsUserSolCode = getJavaScriptEqualsUserSolCode(returnType);
 
         return template
@@ -663,7 +703,7 @@ public class CodeTemplateFiller {
             .replaceAll("\\$\\{equalsCode}", Matcher.quoteReplacement(equalsUserSolCode.equalsCode));
     }
 
-    private DefinitionArgsCode getJavaScriptDefinitionArgsCode(List<Argument> args) {
+    private DefinitionArgsCode getJavaScriptDefinitionArgsCode(List<Argument> args, ReturnType returnType) {
         boolean usingTree = false;
         boolean usingListOfLists = false;
         boolean usingLinkedList = false;
@@ -686,7 +726,6 @@ public class CodeTemplateFiller {
                     usingString = true;
                     break;
                 case LIST_OF_LISTS:
-                    usingListOfLists = true;
                 case LIST:
                 case ARRAY_2D:
                 case DICTIONARY:
@@ -707,18 +746,36 @@ public class CodeTemplateFiller {
             }
         }
 
+        switch (returnType.getType()) {
+            case TREE:
+                usingTree = true;
+                break;
+            case LINKED_LIST:
+                usingLinkedList = true;
+                break;
+            case STRING:
+                usingString = true;
+                break;
+            case LIST_OF_LISTS:
+                usingListOfLists = true;
+                break;
+        }
+
         StringBuilder definitionCode = new StringBuilder();
+        // for args
         if (usingTree) {
             definitionCode.append(javaScriptTree);
-        }
-        if (usingListOfLists) {
-            definitionCode.append(javaScriptListOfLists);
         }
         if (usingLinkedList) {
             definitionCode.append(javaScriptLinkedList);
         }
         if (usingString) {
             definitionCode.append(javaScriptString);
+        }
+
+        // for return comparison
+        if (usingListOfLists) {
+            definitionCode.append(javaScriptListOfLists);
         }
 
         return new DefinitionArgsCode(definitionCode.toString(), argsCode.toString());

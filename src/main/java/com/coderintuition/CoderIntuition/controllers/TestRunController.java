@@ -154,6 +154,7 @@ public class TestRunController {
         TestRun testRun = new TestRun();
         testRun.setProblem(problem);
         testRun.setSessionId(runRequestDto.getSessionId());
+        testRun.setUserId(runRequestDto.getUserId());
         testRun.setToken(token);
         testRun.setLanguage(runRequestDto.getLanguage());
         testRun.setCode(runRequestDto.getCode());

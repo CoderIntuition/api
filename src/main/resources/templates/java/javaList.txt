@@ -17,14 +17,3 @@ public static List<${underlyingType}> stringToList${i}(String str) throws Except
     }
     return convertedList;
 }
-
-public static boolean listSame(List<${underlyingType}> l1, List<${underlyingType}> l2) {
-    if (l1.size() != l2.size()) {
-        return false;
-    }
-
-     List<${underlyingType}> sortedL1 = l1.stream().sorted().collect(Collectors.toList());
-     List<${underlyingType}> sortedL2 = l2.stream().sorted().collect(Collectors.toList());
-
-     return l1.equals(l2);
-}

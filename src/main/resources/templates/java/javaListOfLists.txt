@@ -22,34 +22,3 @@ public static List<List<${underlyingType}>> stringToListOfLists${i}(String str) 
 
     return convertedListOfLists;
 }
-
-public static List<List<${underlyingType}>> sortedListOfLists(List<List<${underlyingType}>> lst) {
-    return lst.stream().sorted((o1, o2) -> {
-        for (int i = 0; i < Math.min(o1.size(), o2.size()); i++) {
-            int c = o1.get(i).compareTo(o2.get(i));
-            if (c != 0) {
-                return c;
-            }
-        }
-        return Integer.compare(o1.size(), o2.size());
-    }).collect(Collectors.toList());
-}
-
-public static boolean listOfListsSame(List<List<${underlyingType}>> l1, List<List<${underlyingType}>> l2) {
-    if (l1.size() != l2.size()) {
-        return false;
-    }
-
-    List<List<${underlyingType}>> sortedL1 = l1.stream().map(l -> {
-        Collections.sort(l);
-        return l;
-    }).collect(Collectors.toList());
-    List<List<${underlyingType}>> sortedL2 = l2.stream().map(l -> {
-        Collections.sort(l);
-        return l;
-    }).collect(Collectors.toList());
-    sortedL1 = sortedListOfLists(sortedL1);
-    sortedL2 = sortedListOfLists(sortedL2);
-
-    return sortedL1.equals(sortedL2);
-}
