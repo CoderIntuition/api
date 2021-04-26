@@ -17,13 +17,13 @@ public interface ProblemRepository extends JpaRepository<Problem, Long> {
     @Query("SELECT p.urlName FROM Problem p WHERE p.plusOnly=FALSE")
     List<String> findAllPublicUrlNames();
 
-    @Query("SELECT p FROM Problem p WHERE p.category = (:category) AND (p.deleted IS NULL OR p.deleted = false) ORDER BY p.id ASC")
+    @Query("SELECT p FROM Problem p WHERE p.category = (:category) AND (p.deleted IS NULL OR p.deleted = false) ORDER BY p.id DESC")
     Page<Problem> findByCategory(@Param("category") ProblemCategory problemCategory, Pageable pageable);
 
     @Query("SELECT p FROM Problem p WHERE (p.deleted IS NULL OR p.deleted = false) ORDER BY p.id ASC")
     Page<Problem> findAll(Pageable pageable);
 
-    @Query("SELECT p FROM Problem p WHERE p.category = (:category) AND (p.deleted IS NULL OR p.deleted = false) ORDER BY p.id ASC")
+    @Query("SELECT p FROM Problem p WHERE p.category = (:category) AND (p.deleted IS NULL OR p.deleted = false) ORDER BY p.id DESC")
     List<Problem> findByCategory(@Param("category") ProblemCategory problemCategory);
 
     @Query("SELECT p FROM Problem p WHERE p.urlName = :urlName AND (p.deleted IS NULL OR p.deleted = false)")
