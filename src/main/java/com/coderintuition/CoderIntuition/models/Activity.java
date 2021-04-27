@@ -35,7 +35,7 @@ public class Activity {
     private ActivityType activityType;
 
     @JsonIgnoreProperties("activity")
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "submission_id", referencedColumnName = "id")
     private Submission submission;
 
