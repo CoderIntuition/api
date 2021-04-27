@@ -8,12 +8,12 @@ import com.coderintuition.CoderIntuition.pojos.response.JzSubmissionCheckRespons
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.netty.util.internal.StringUtil;
 import net.sargue.mailgun.Configuration;
 import net.sargue.mailgun.Mail;
 import net.sargue.mailgun.Response;
 import okhttp3.*;
 import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import reactor.util.StringUtils;
@@ -101,23 +101,8 @@ public class Utils {
         return responseDto.getToken();
     }
 
-    public static JzSubmissionCheckResponse retrieveFromJudgeZero(String token, AppProperties appProperties) throws IOException {
-        // get test run info
-        OkHttpClient client = new OkHttpClient();
-        String url = appProperties.getJudge0().getUrl() + "/submissions/" + token + "?base64_encoded=true";
-
-        Request request = new Request.Builder()
-            .url(url)
-            .addHeader("x-rapidapi-host", appProperties.getJudge0().getRapidApiHost())
-            .addHeader("x-rapidapi-key", appProperties.getJudge0().getRapidApiKey())
-            .get()
-            .build();
-
-        okhttp3.Response response = client.newCall(request).execute();
-        ObjectMapper mapper = new ObjectMapper();
-
-        Base64.Decoder decoder = Base64.getMimeDecoder();
-
+    @NotNull
+    private static JzSubmissionCheckResponse getJzSubmissionCheckResponse(ObjectMapper mapper, Base64.Decoder decoder, okhttp3.Response response) throws IOException {
         JzSubmissionCheckResponse jzSubmissionCheckResponse = mapper.readValue(Objects.requireNonNull(response.body()).string(), JzSubmissionCheckResponse.class);
         if (jzSubmissionCheckResponse.getStderr() != null) {
             byte[] stderrBytes = decoder.decode(jzSubmissionCheckResponse.getStderr());
@@ -137,6 +122,52 @@ public class Utils {
         }
 
         return jzSubmissionCheckResponse;
+    }
+
+    public static JzSubmissionCheckResponse submitToJudgeZeroSync(JZSubmissionRequestDto requestDto, AppProperties appProperties) throws IOException {
+        Base64.Encoder encoder = Base64.getEncoder();
+        requestDto.setSourceCode(encoder.encodeToString(requestDto.getSourceCode().getBytes()));
+        requestDto.setStdin(encoder.encodeToString(requestDto.getStdin().getBytes()));
+
+        ObjectMapper mapper = new ObjectMapper();
+        Base64.Decoder decoder = Base64.getMimeDecoder();
+
+        OkHttpClient client = new OkHttpClient();
+        String url = appProperties.getJudge0().getUrl() + "/submissions?base64_encoded=true&wait=true";
+        RequestBody body = RequestBody.create(mapper.writeValueAsString(requestDto), JSON);
+
+        Request request = new Request.Builder()
+            .url(url)
+            .addHeader("content-type", "application/json")
+            .addHeader("x-rapidapi-host", appProperties.getJudge0().getRapidApiHost())
+            .addHeader("x-rapidapi-key", appProperties.getJudge0().getRapidApiKey())
+            .post(body)
+            .build();
+
+        Call call = client.newCall(request);
+        okhttp3.Response response = call.execute();
+
+        return getJzSubmissionCheckResponse(mapper, decoder, response);
+    }
+
+    public static JzSubmissionCheckResponse retrieveFromJudgeZero(String token, AppProperties appProperties) throws IOException {
+        // get test run info
+        OkHttpClient client = new OkHttpClient();
+        String url = appProperties.getJudge0().getUrl() + "/submissions/" + token + "?base64_encoded=true";
+
+        Request request = new Request.Builder()
+            .url(url)
+            .addHeader("x-rapidapi-host", appProperties.getJudge0().getRapidApiHost())
+            .addHeader("x-rapidapi-key", appProperties.getJudge0().getRapidApiKey())
+            .get()
+            .build();
+
+        okhttp3.Response response = client.newCall(request).execute();
+        ObjectMapper mapper = new ObjectMapper();
+
+        Base64.Decoder decoder = Base64.getMimeDecoder();
+
+        return getJzSubmissionCheckResponse(mapper, decoder, response);
     }
 
     public static String generateUsername() {
