@@ -9,7 +9,7 @@ class ListNode {
             return null;
         }
         const first = new ListNode(lst[0]);
-        const cur = first;
+        let cur = first;
         for (let i = 1; i < lst.length; i++) {
             cur.next = new ListNode(lst[i]);
             cur = cur.next;
@@ -19,7 +19,7 @@ class ListNode {
 
     static linkedListToList(node) {
         const lst = [];
-        const cur = node;
+        let cur = node;
         while (cur) {
             lst.push(cur.val);
             cur = cur.next;
