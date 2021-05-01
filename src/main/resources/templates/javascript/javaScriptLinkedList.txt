@@ -10,7 +10,7 @@ class ListNode {
         }
         const first = new ListNode(lst[0]);
         const cur = first;
-        for (int i = 0; i < lst.length; i++) {
+        for (int i = 1; i < lst.length; i++) {
             cur.next = new ListNode(lst[i]);
             cur = cur.next;
         }

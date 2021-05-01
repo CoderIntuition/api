@@ -30,7 +30,7 @@ class ListNode {
         }
         ListNode first = new ListNode(lst.get(0));
         ListNode cur = first;
-        for (int i = 0; i < lst.size(); i++) {
+        for (int i = 1; i < lst.size(); i++) {
             cur.next = new ListNode(lst.get(i));
             cur = cur.next;
         }
