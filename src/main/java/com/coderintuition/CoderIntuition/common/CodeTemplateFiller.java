@@ -400,12 +400,12 @@ public class CodeTemplateFiller {
                     break;
                 case TREE:
                     setupCode.append(getJavaListCode(arg, i));
-                    argsCode.append("TreeNode.listToTree(stringToList").append(i).append("(input.get(").append(i).append("))");
+                    argsCode.append("TreeNode.listToTree(stringToList").append(i).append("(input.get(").append(i).append(")))");
                     usingTree = true;
                     break;
                 case LINKED_LIST:
                     setupCode.append(getJavaListCode(arg, i));
-                    argsCode.append("ListNode.listToLinkedList(stringToList").append(i).append("(input.get(").append(i).append("))");
+                    argsCode.append("ListNode.listToLinkedList(stringToList").append(i).append("(input.get(").append(i).append(")))");
                     usingLinkedList = true;
                     break;
                 case STRING:
