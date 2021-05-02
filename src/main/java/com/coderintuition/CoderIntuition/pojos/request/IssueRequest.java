@@ -26,4 +26,8 @@ public class IssueRequest {
     @NotBlank
     @Size(max = 2000)
     private String description;
+
+    @NotBlank
+    @Size(max = 50000)
+    private String code;
 }

@@ -43,6 +43,11 @@ public class Issue {
     @Size(max = 2000)
     private String description;
 
+    @Column(name = "code")
+    @NotBlank
+    @Size(max = 50000)
+    private String code;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", updatable = false)

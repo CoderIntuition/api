@@ -42,6 +42,7 @@ public class SupportController {
         issue.setEmail(issueRequest.getEmail());
         issue.setCategory(issueRequest.getCategory());
         issue.setDescription(issueRequest.getDescription());
+        issue.setCode(issueRequest.getCode());
         issueRepository.save(issue);
 
         // send email to support about the issue
@@ -57,6 +58,8 @@ public class SupportController {
                 .p("Category: " + issue.getCategory())
                 .p("Description:")
                 .p(issue.getDescription())
+                .p("Code:")
+                .p(issue.getCode())
                 .mail()
                 .to("support@coderintuition.com")
                 .subject("New Issue: " + problem.getName())
