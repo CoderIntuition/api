@@ -43,7 +43,7 @@ public class Issue {
     @Size(max = 2000)
     private String description;
 
-    @Column(name = "code")
+    @Column(name = "code", columnDefinition = "TEXT")
     @NotBlank
     @Size(max = 50000)
     private String code;

@@ -1,6 +1,5 @@
 package com.coderintuition.CoderIntuition.models;
 
-import com.coderintuition.CoderIntuition.common.Utils;
 import com.coderintuition.CoderIntuition.enums.Language;
 import com.coderintuition.CoderIntuition.enums.SubmissionStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

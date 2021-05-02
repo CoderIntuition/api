@@ -126,6 +126,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/cms/**").permitAll()
             .antMatchers("/activity/**").permitAll()
             .antMatchers("/stripe/**").permitAll()
+            .antMatchers("/save/**").permitAll()
             .anyRequest().authenticated()
             .and()
             .oauth2Login()
