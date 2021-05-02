@@ -13,6 +13,21 @@ def ___list_to_linked_list(lst):
         cur = cur.next
     return first
 
+def ___list_to_linked_list_with_connection(lst, pos):
+    if len(lst) == 0:
+        return None
+    first = ListNode(lst[0])
+    connection = first
+    cur = first
+    for i in range(1, len(lst)):
+        cur.next = ListNode(lst[i])
+        cur = cur.next
+        if (i == pos):
+            connection = cur
+    if pos >= 0:
+        cur.next = connection
+    return first
+
 def ___linked_list_to_list(node):
     lst = []
     cur = node

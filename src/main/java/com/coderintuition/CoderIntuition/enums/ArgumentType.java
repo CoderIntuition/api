@@ -13,4 +13,5 @@ public enum ArgumentType {
     @JsonProperty("DICTIONARY") DICTIONARY,
     @JsonProperty("TREE") TREE,
     @JsonProperty("LINKED_LIST") LINKED_LIST,
+    @JsonProperty("LINKED_LIST_WITH_CYCLE") LINKED_LIST_WITH_CYCLE,
 }

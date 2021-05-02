@@ -194,6 +194,11 @@ public class CodeTemplateFiller {
                     argsCode.append("___list_to_linked_list(ast.literal_eval(input[").append(i).append("]))");
                     usingLinkedList = true;
                     break;
+                case LINKED_LIST_WITH_CYCLE:
+                    argsCode.append("___list_to_linked_list_with_connection(ast.literal_eval(input[").append(i).append("]), int(input[").append(i + 1).append("]))");
+                    i++;
+                    usingLinkedList = true;
+                    break;
                 case STRING:
                     argsCode.append("___string_to_string(input[").append(i).append("])");
                     usingString = true;
