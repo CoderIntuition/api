@@ -37,7 +37,7 @@ class ListNode {
         return first;
     }
 
-    public static ListNode listToLinkedListWithCycle(List<Integer> lst, int pos) {
+    public static ListNode listToLinkedListWithCycle(List<Integer> lst, int pos) throws Exception {
             if (lst.isEmpty()) {
                 return null;
             }
