@@ -37,6 +37,29 @@ class ListNode {
         return first;
     }
 
+    public static ListNode listToLinkedListWithCycle(List<Integer> lst, int pos) {
+            if (lst.isEmpty()) {
+                return null;
+            }
+            if (pos >= lst.size() || pos < -1) {
+                throw new Exception("Cycle position must be either a valid position in the linked list or -1.");
+            }
+            ListNode first = new ListNode(lst.get(0));
+            ListNode connection = first;
+            ListNode cur = first;
+            for (int i = 1; i < lst.size(); i++) {
+                cur.next = new ListNode(lst.get(i));
+                cur = cur.next;
+                if (i == pos) {
+                    connection = cur;
+                }
+            }
+            if (pos != -1) {
+                cur.next = connection;
+            }
+            return first;
+        }
+
     public static List<Integer> linkedListToList(ListNode node) {
         List<Integer> lst = new ArrayList<>();
         ListNode cur = node;

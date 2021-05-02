@@ -195,7 +195,7 @@ public class CodeTemplateFiller {
                     usingLinkedList = true;
                     break;
                 case LINKED_LIST_WITH_CYCLE:
-                    argsCode.append("___list_to_linked_list_with_connection(ast.literal_eval(input[").append(i).append("]), int(input[").append(i + 1).append("]))");
+                    argsCode.append("___list_to_linked_list_with_cycle(ast.literal_eval(input[").append(i).append("]), int(input[").append(i + 1).append("]))");
                     i++;
                     usingLinkedList = true;
                     break;
@@ -411,6 +411,12 @@ public class CodeTemplateFiller {
                 case LINKED_LIST:
                     setupCode.append(getJavaListCode(arg, i));
                     argsCode.append("ListNode.listToLinkedList(stringToList").append(i).append("(input.get(").append(i).append(")))");
+                    usingLinkedList = true;
+                    break;
+                case LINKED_LIST_WITH_CYCLE:
+                    setupCode.append(getJavaListCode(arg, i));
+                    argsCode.append("ListNode.listToLinkedListWithCycle(stringToList").append(i).append("(input.get(").append(i)
+                        .append(")), Integer.parseInt(input.get(").append(i).append(")))");
                     usingLinkedList = true;
                     break;
                 case STRING:
@@ -724,6 +730,10 @@ public class CodeTemplateFiller {
                     break;
                 case LINKED_LIST:
                     argsCode.append("ListNode.listToLinkedList(JSON.parse(input[").append(i).append("]))");
+                    usingLinkedList = true;
+                    break;
+                case LINKED_LIST_WITH_CYCLE:
+                    argsCode.append("ListNode.listToLinkedListWithCycle(JSON.parse(input[").append(i).append("]), parseInt(input[").append(i + 1).append("]))");
                     usingLinkedList = true;
                     break;
                 case STRING:

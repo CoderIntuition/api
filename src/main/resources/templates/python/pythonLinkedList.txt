@@ -13,9 +13,11 @@ def ___list_to_linked_list(lst):
         cur = cur.next
     return first
 
-def ___list_to_linked_list_with_connection(lst, pos):
+def ___list_to_linked_list_with_cycle(lst, pos):
     if len(lst) == 0:
         return None
+    if pos >= len(lst) or pos < -1:
+        raise Exception("Cycle position must be either a valid position in the linked list or -1.")
     first = ListNode(lst[0])
     connection = first
     cur = first
@@ -24,7 +26,7 @@ def ___list_to_linked_list_with_connection(lst, pos):
         cur = cur.next
         if (i == pos):
             connection = cur
-    if pos >= 0:
+    if pos != -1:
         cur.next = connection
     return first
 
