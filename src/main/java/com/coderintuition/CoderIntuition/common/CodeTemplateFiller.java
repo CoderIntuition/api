@@ -547,24 +547,24 @@ public class CodeTemplateFiller {
                 break;
             case INTEGER:
                 parseUnderlyingTypeCode.append("try {").append("\n");
-                parseUnderlyingTypeCode.append("\tint i = Integer.parseInt(innerLstStr)").append("\n");
-                parseUnderlyingTypeCode.append("\tinnerList.add(i)").append("\n");
+                parseUnderlyingTypeCode.append("\tint i = Integer.parseInt(innerLstStr);").append("\n");
+                parseUnderlyingTypeCode.append("\tinnerList.add(i);").append("\n");
                 parseUnderlyingTypeCode.append("} catch (Exception ex) {").append("\n");
                 parseUnderlyingTypeCode.append("\tthrow new Exception(\"Input \" + str + \" is not a valid list of lists (invalid ints)\");").append("\n");
                 parseUnderlyingTypeCode.append("}").append("\n");
                 break;
             case FLOAT:
                 parseUnderlyingTypeCode.append("try {").append("\n");
-                parseUnderlyingTypeCode.append("\tdouble d = Double.parseDouble(innerLstStr)").append("\n");
-                parseUnderlyingTypeCode.append("\tinnerList.add(d)").append("\n");
+                parseUnderlyingTypeCode.append("\tdouble d = Double.parseDouble(innerLstStr);").append("\n");
+                parseUnderlyingTypeCode.append("\tinnerList.add(d);").append("\n");
                 parseUnderlyingTypeCode.append("} catch (Exception ex) {").append("\n");
                 parseUnderlyingTypeCode.append("\tthrow new Exception(\"Input \" + str + \" is not a valid list of lists (invalid doubles)\");").append("\n");
                 parseUnderlyingTypeCode.append("}").append("\n");
                 break;
             case BOOLEAN:
                 parseUnderlyingTypeCode.append("try {").append("\n");
-                parseUnderlyingTypeCode.append("\tboolean b = Boolean.parseBoolean(innerLstStr)").append("\n");
-                parseUnderlyingTypeCode.append("\tinnerList.add(b)").append("\n");
+                parseUnderlyingTypeCode.append("\tboolean b = Boolean.parseBoolean(innerLstStr);").append("\n");
+                parseUnderlyingTypeCode.append("\tinnerList.add(b);").append("\n");
                 parseUnderlyingTypeCode.append("} catch (Exception ex) {").append("\n");
                 parseUnderlyingTypeCode.append("\tthrow new Exception(\"Input \" + str + \" is not a valid list of lists (invalid booleans)\");").append("\n");
                 parseUnderlyingTypeCode.append("}").append("\n");
