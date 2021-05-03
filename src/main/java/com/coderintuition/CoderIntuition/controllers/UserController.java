@@ -94,7 +94,7 @@ public class UserController {
                     planCycle = PlanCycle.YEARLY;
                 }
             } catch (Exception ex) {
-                log.warn("Could not find priceId for plus user. userId={}", user.getId());
+//                log.warn("Could not find priceId for plus user. userId={}", user.getId());
             }
         }
 
