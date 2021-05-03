@@ -14,7 +14,6 @@ import com.coderintuition.CoderIntuition.pojos.response.SubmissionResponse;
 import com.coderintuition.CoderIntuition.pojos.response.UserProfileResponse;
 import com.coderintuition.CoderIntuition.pojos.response.UserResponse;
 import com.coderintuition.CoderIntuition.pojos.response.VerifyEmailResponse;
-import com.coderintuition.CoderIntuition.repositories.ActivityRepository;
 import com.coderintuition.CoderIntuition.repositories.RoleRepository;
 import com.coderintuition.CoderIntuition.repositories.SubmissionRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
@@ -23,7 +22,6 @@ import com.coderintuition.CoderIntuition.security.UserPrincipal;
 import com.stripe.Stripe;
 import com.stripe.model.Customer;
 import com.stripe.model.Subscription;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,9 +46,6 @@ public class UserController {
 
     @Autowired
     private SubmissionRepository submissionRepository;
-
-    @Autowired
-    private ActivityRepository activityRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
