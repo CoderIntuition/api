@@ -536,7 +536,7 @@ public class CodeTemplateFiller {
     private String getJavaListOfListsCode(Argument arg, int i) {
         String fillListOfListsFunction = javaListOfLists
             .replaceAll("\\$\\{i}", Integer.toString(i))
-            .replaceAll("\\$\\{underlyingType}", getJavaType(arg.getUnderlyingType(), true));
+            .replaceAll("\\$\\{underlyingType}", getJavaType(arg.getUnderlyingType(), false));
         StringBuilder parseUnderlyingTypeCode = new StringBuilder();
         switch (arg.getUnderlyingType()) {
             case STRING:
