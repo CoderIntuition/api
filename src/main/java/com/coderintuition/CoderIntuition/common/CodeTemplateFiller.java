@@ -548,7 +548,7 @@ public class CodeTemplateFiller {
             case INTEGER:
                 parseUnderlyingTypeCode.append("try {").append("\n");
                 parseUnderlyingTypeCode.append("\tint i = Integer.parseInt(innerLstStr);").append("\n");
-                parseUnderlyingTypeCode.append("\tinnerList.add(i);").append("\n");
+                parseUnderlyingTypeCode.append("\tinnerLst.add(i);").append("\n");
                 parseUnderlyingTypeCode.append("} catch (Exception ex) {").append("\n");
                 parseUnderlyingTypeCode.append("\tthrow new Exception(\"Input \" + str + \" is not a valid list of lists (invalid ints)\");").append("\n");
                 parseUnderlyingTypeCode.append("}").append("\n");
@@ -556,7 +556,7 @@ public class CodeTemplateFiller {
             case FLOAT:
                 parseUnderlyingTypeCode.append("try {").append("\n");
                 parseUnderlyingTypeCode.append("\tdouble d = Double.parseDouble(innerLstStr);").append("\n");
-                parseUnderlyingTypeCode.append("\tinnerList.add(d);").append("\n");
+                parseUnderlyingTypeCode.append("\tinnerLst.add(d);").append("\n");
                 parseUnderlyingTypeCode.append("} catch (Exception ex) {").append("\n");
                 parseUnderlyingTypeCode.append("\tthrow new Exception(\"Input \" + str + \" is not a valid list of lists (invalid doubles)\");").append("\n");
                 parseUnderlyingTypeCode.append("}").append("\n");
@@ -564,7 +564,7 @@ public class CodeTemplateFiller {
             case BOOLEAN:
                 parseUnderlyingTypeCode.append("try {").append("\n");
                 parseUnderlyingTypeCode.append("\tboolean b = Boolean.parseBoolean(innerLstStr);").append("\n");
-                parseUnderlyingTypeCode.append("\tinnerList.add(b);").append("\n");
+                parseUnderlyingTypeCode.append("\tinnerLst.add(b);").append("\n");
                 parseUnderlyingTypeCode.append("} catch (Exception ex) {").append("\n");
                 parseUnderlyingTypeCode.append("\tthrow new Exception(\"Input \" + str + \" is not a valid list of lists (invalid booleans)\");").append("\n");
                 parseUnderlyingTypeCode.append("}").append("\n");
