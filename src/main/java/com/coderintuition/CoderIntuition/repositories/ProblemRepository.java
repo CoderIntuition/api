@@ -31,4 +31,10 @@ public interface ProblemRepository extends JpaRepository<Problem, Long> {
 
     @Query("SELECT p FROM Problem p WHERE p.id = :id AND (p.deleted IS NULL OR p.deleted = false)")
     Optional<Problem> findById(@Param("id") Long id);
+
+    @Query("SELECT p FROM Problem p WHERE (p.deleted IS NULL OR p.deleted = false) AND p.difficulty != 'BEGINNER' AND p.id NOT IN (:problemsSent)")
+    List<Problem> findUnsentProblems(@Param("problemsSent") List<Long> problemsSent);
+
+    @Query("SELECT p FROM Problem p WHERE (p.deleted IS NULL OR p.deleted = false) AND p.difficulty != 'BEGINNER'")
+    List<Problem> findAllUnsentProblems();
 }

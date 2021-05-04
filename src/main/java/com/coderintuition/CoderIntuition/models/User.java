@@ -27,7 +27,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import com.coderintuition.CoderIntuition.common.JSONObjectConverter;
+import com.coderintuition.CoderIntuition.common.JSONArrayConverter;
 import com.coderintuition.CoderIntuition.enums.AuthProvider;
 import com.coderintuition.CoderIntuition.enums.ERole;
 import com.coderintuition.CoderIntuition.enums.Language;
@@ -35,6 +35,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.json.JSONArray;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -142,8 +143,8 @@ public class User {
     private Date lastEmailSentAt;
 
     @Column(name = "problems_sent", columnDefinition = "json")
-    @Convert(converter = JSONObjectConverter.class)
-    private String problemsSent;
+    @Convert(converter = JSONArrayConverter.class)
+    private JSONArray problemsSent;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
