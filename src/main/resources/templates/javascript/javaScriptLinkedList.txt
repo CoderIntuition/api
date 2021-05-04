@@ -57,6 +57,6 @@ class ListNode {
         if (!node1 || !node2 || node1.val != node2.val) {
             return false;
         }
-        return linkedListSame(node1.next, node2.next);
+        return ListNode.linkedListSame(node1.next, node2.next);
     }
 }
