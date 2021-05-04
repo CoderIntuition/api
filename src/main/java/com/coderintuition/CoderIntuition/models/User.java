@@ -1,27 +1,48 @@
 package com.coderintuition.CoderIntuition.models;
 
-import com.coderintuition.CoderIntuition.enums.AuthProvider;
-import com.coderintuition.CoderIntuition.enums.ERole;
-import com.coderintuition.CoderIntuition.enums.Language;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import net.minidev.json.annotate.JsonIgnore;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.*;
+
+import com.coderintuition.CoderIntuition.common.JSONObjectConverter;
+import com.coderintuition.CoderIntuition.enums.AuthProvider;
+import com.coderintuition.CoderIntuition.enums.ERole;
+import com.coderintuition.CoderIntuition.enums.Language;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import net.minidev.json.annotate.JsonIgnore;
 
 @Entity
-@Table(name = "user", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "email")
-})
+@Table(name = "user", uniqueConstraints = { @UniqueConstraint(columnNames = "email") })
 @Getter
 @Setter
 @NoArgsConstructor
@@ -69,9 +90,7 @@ public class User {
     private Language language;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_role",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
     @Column(name = "auth_provider")
@@ -91,9 +110,7 @@ public class User {
     private List<Activity> activities;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "user_badge",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "badge_id"))
+    @JoinTable(name = "user_badge", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "badge_id"))
     private List<Badge> badges;
 
     @Column(name = "points")
@@ -118,6 +135,16 @@ public class User {
     @Column(name = "plus_expiration_date")
     private Date plusExpirationDate;
 
+    @Column(name = "email_opt_out")
+    private Boolean emailOptOut;
+
+    @Column(name = "last_email_sent_at")
+    private Date lastEmailSentAt;
+
+    @Column(name = "problems_sent", columnDefinition = "json")
+    @Convert(converter = JSONObjectConverter.class)
+    private String problemsSent;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", updatable = false)
@@ -128,7 +155,8 @@ public class User {
     @Column(name = "updated_at")
     private Date updated_at;
 
-    public User(String uuid, String name, String email, String password, Boolean verified, String username, AuthProvider authProvider, Set<Role> roles) {
+    public User(String uuid, String name, String email, String password, Boolean verified, String username,
+            AuthProvider authProvider, Set<Role> roles) {
         this.uuid = uuid;
         this.name = name;
         this.email = email;

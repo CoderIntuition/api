@@ -216,4 +216,11 @@ public class UserController {
 
         return submissionRepository.findNumOfCompletedProblemsByUser(user);
     }
+
+    @PostMapping("/email-opt-out/{uuid}")
+    void emailOptOut(@PathVariable String uuid) {
+        User user = userRepository.findByUuid(uuid).orElseThrow();
+        user.setEmailOptOut(true);
+        userRepository.save(user);
+    }
 }
