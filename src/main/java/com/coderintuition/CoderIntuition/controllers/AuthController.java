@@ -96,14 +96,14 @@ public class AuthController {
 
         // send welcome email
         String welcomeEmail = Utils.fileToString("email/welcome.html")
-                .replaceAll("\\{\\{name}}", user.getName());
+                .replaceAll("\\{\\{name}}", Utils.getFirstName(user.getName()));
         Utils.sendEmail(appProperties.getMailgun().getKey(), user.getEmail(),
                 "Welcome to CoderIntuition!",
                 welcomeEmail);
 
         // send verify email
         String verifyEmail = Utils.fileToString("email/verify.html")
-                .replaceAll("\\{\\{name}}", user.getName())
+                .replaceAll("\\{\\{name}}", Utils.getFirstName(user.getName()))
                 .replaceAll("\\{\\{action_url}}", "https://coderintuition.com/verify/" + user.getUuid());
         Utils.sendEmail(appProperties.getMailgun().getKey(), user.getEmail(),
                 "Verify Your CoderIntuition Account's Email",
@@ -143,7 +143,7 @@ public class AuthController {
 
             // send reset password email
             String verifyEmail = Utils.fileToString("email/reset.html")
-                    .replaceAll("\\{\\{name}}", user.getName())
+                    .replaceAll("\\{\\{name}}", Utils.getFirstName(user.getName()))
                     .replaceAll("\\{\\{action_url}}", "https://coderintuition.com/reset/" + passwordResetToken.getToken());
             Utils.sendEmail(appProperties.getMailgun().getKey(), user.getEmail(),
                     "Reset Your CoderIntuition Account's Password",

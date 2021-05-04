@@ -1,14 +1,23 @@
 package com.coderintuition.CoderIntuition.tasks;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
+import com.coderintuition.CoderIntuition.common.Utils;
+import com.coderintuition.CoderIntuition.config.AppProperties;
 import com.coderintuition.CoderIntuition.models.Problem;
 import com.coderintuition.CoderIntuition.models.User;
 import com.coderintuition.CoderIntuition.repositories.ProblemRepository;
 import com.coderintuition.CoderIntuition.repositories.UserRepository;
+import com.vladsch.flexmark.ext.tables.TablesExtension;
+import com.vladsch.flexmark.html.HtmlRenderer;
+import com.vladsch.flexmark.parser.Parser;
+import com.vladsch.flexmark.util.ast.Node;
+import com.vladsch.flexmark.util.data.MutableDataSet;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.json.JSONArray;
@@ -29,9 +38,12 @@ public class EmailTask {
     @Autowired
     private ProblemRepository problemRepository;
 
+    @Autowired
+    private AppProperties appProperties;
+
     // send email every morning at 9am Eastern
-    // @Scheduled(cron = "*/10 * * * * *", zone = "America/New_York")
-    @Scheduled(cron = "0 0 9 * * *", zone = "America/New_York")
+    // @Scheduled(cron = "0 * * * * *", zone = "America/New_York")
+    // @Scheduled(cron = "0 0 9 * * *", zone = "America/New_York")
     public void sendEmails() {
         List<User> emailableUsers = userRepository.findEmailableUsers();
         log.info("Emailable users: ");
@@ -63,8 +75,36 @@ public class EmailTask {
 
             Problem problemToSend = unsentProblems.get(new Random().nextInt(unsentProblems.size()));
 
+            // build email
+            MutableDataSet options = new MutableDataSet();
+            options.set(Parser.EXTENSIONS, Arrays.asList(TablesExtension.create()));
+            Parser parser = Parser.builder(options).build();
+            HtmlRenderer renderer = HtmlRenderer.builder(options).build();
+
+            Node document = parser.parse(problemToSend.getDescription());
+            String html = "<div class='markdown-body'>" + renderer.render(document) + "</div>";
+            log.info(html);
+
+            // set uuid if user doesn't have one yet
+            if (user.getUuid() == null) {
+                user.setUuid(UUID.randomUUID().toString());
+                userRepository.save(user);
+            }
+
+            String dailyProblemEmail = Utils.fileToString("email/dailyproblem.html")
+                    .replaceAll("\\{\\{name}}", Utils.getFirstName(user.getName()))
+                    .replaceAll("\\{\\{urlName}}", problemToSend.getUrlName())
+                    .replaceAll("\\{\\{problemName}}", problemToSend.getName())
+                    .replaceAll("\\{\\{uuid}}", user.getUuid())
+                    .replaceAll("\\{\\{description}}", html);
+
+            // send email
+            Utils.sendEmail(appProperties.getMailgun().getKey(), user.getEmail(),
+                    "Daily CoderIntuition Problem: " + problemToSend.getName(), dailyProblemEmail);
+
             log.info("Emailing daily problem, userId={}, problemId={}", user.getId(), problemToSend.getId());
 
+            // update sent information
             problemsSent.add(problemToSend.getId());
             user.setProblemsSent(new JSONArray(problemsSent));
             user.setLastEmailSentAt(new Date());

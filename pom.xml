@@ -146,9 +146,9 @@
 			<version>20210307</version>
 		</dependency>
 		<dependency>
-			<groupId>org.commonmark</groupId>
-			<artifactId>commonmark</artifactId>
-			<version>0.17.1</version>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-all</artifactId>
+			<version>0.62.2</version>
 		</dependency>
 	</dependencies>
 

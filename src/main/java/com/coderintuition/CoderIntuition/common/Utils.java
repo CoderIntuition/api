@@ -218,4 +218,12 @@ public class Utils {
         List<String> capitalizedStrs =  Arrays.stream(strs).map(StringUtils::capitalize).collect(Collectors.toList());
         return String.join(" ", capitalizedStrs);
     }
+    
+    public static String getFirstName(String name) {
+        String[] split = name.split(" ");
+        if (split.length == 0) {
+            return name;
+        }
+        return StringUtils.capitalize(split[0]);
+    }
 }
