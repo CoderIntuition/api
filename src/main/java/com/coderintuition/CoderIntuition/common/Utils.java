@@ -42,10 +42,12 @@ public class Utils {
     public static String getFunctionName(Language language, String defaultCode) {
         switch (language) {
             case PYTHON:
+                defaultCode = defaultCode.replaceAll("(?m)^#.*", "");
                 int startIndex = defaultCode.indexOf("def ") + 4;
                 int endIndex = defaultCode.indexOf("(", startIndex);
                 return defaultCode.substring(startIndex, endIndex);
             case JAVA:
+                defaultCode = defaultCode.replaceAll("(?m)^\\/\\/.*", "");
                 endIndex = defaultCode.indexOf("(");
                 int cur = endIndex - 1;
                 while (defaultCode.charAt(cur) != ' ') {
@@ -53,6 +55,7 @@ public class Utils {
                 }
                 return defaultCode.substring(cur + 1, endIndex);
             case JAVASCRIPT:
+                defaultCode = defaultCode.replaceAll("(?m)^\\/\\/.*", "");
                 startIndex = defaultCode.indexOf("function ") + 9;
                 endIndex = defaultCode.indexOf("(", startIndex);
                 return defaultCode.substring(startIndex, endIndex);
