@@ -83,7 +83,6 @@ public class EmailTask {
 
             Node document = parser.parse(problemToSend.getDescription());
             String html = "<div class='markdown-body'>" + renderer.render(document) + "</div>";
-            log.info(html);
 
             // set uuid if user doesn't have one yet
             if (user.getUuid() == null) {
