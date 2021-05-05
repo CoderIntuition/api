@@ -98,7 +98,7 @@ public class AuthController {
         String welcomeEmail = Utils.fileToString("email/welcome.html")
                 .replaceAll("\\{\\{name}}", Utils.getFirstName(user.getName()));
         Utils.sendEmail(appProperties.getMailgun().getKey(), user.getEmail(),
-                "Welcome to CoderIntuition!",
+                "Welcome to CoderIntuition! 🎉",
                 welcomeEmail);
 
         // send verify email
