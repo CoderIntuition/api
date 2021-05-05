@@ -11,7 +11,7 @@ public class JSONArrayConverter implements AttributeConverter<JSONArray, String>
     @Override
     public String convertToDatabaseColumn(JSONArray jsonArray) {
         if (jsonArray == null) {
-            return "";
+            return "[]";
         }
         return jsonArray.toString();
     }
