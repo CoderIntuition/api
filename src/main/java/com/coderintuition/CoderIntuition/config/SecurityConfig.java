@@ -127,6 +127,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/activity/**").permitAll()
             .antMatchers("/stripe/**").permitAll()
             .antMatchers("/save/**").permitAll()
+            .antMatchers("/email-unsubscribe/**").permitAll()
             .anyRequest().authenticated()
             .and()
             .oauth2Login()
