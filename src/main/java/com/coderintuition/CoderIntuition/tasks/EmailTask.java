@@ -43,10 +43,9 @@ public class EmailTask {
 
     // send email every morning at 9am Eastern
     // @Scheduled(cron = "0 * * * * *", zone = "America/New_York")
-    // @Scheduled(cron = "0 0 9 * * *", zone = "America/New_York")
+    @Scheduled(cron = "0 0 9 * * *", zone = "America/New_York")
     public void sendEmails() {
         List<User> emailableUsers = userRepository.findEmailableUsers();
-        log.info("Emailable users: ");
         for (User user : emailableUsers) {
             log.info(user.getEmail());
 
