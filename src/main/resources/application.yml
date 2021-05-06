@@ -48,7 +48,7 @@ spring:
 app:
   auth:
     tokenSecret: ${CODERINTUITION_JWT_SECRET}
-    tokenExpirationMs: 604800000
+    tokenExpirationMs: 2592000000
   oauth2:
     authorizedRedirectUris:
       - https://coderintuition.com/oauth2/redirect
