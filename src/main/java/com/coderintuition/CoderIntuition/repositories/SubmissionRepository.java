@@ -1,6 +1,7 @@
 package com.coderintuition.CoderIntuition.repositories;
 
 import com.coderintuition.CoderIntuition.enums.Difficulty;
+import com.coderintuition.CoderIntuition.models.Problem;
 import com.coderintuition.CoderIntuition.models.Submission;
 import com.coderintuition.CoderIntuition.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,5 +22,7 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long> {
         "WHERE s.user = (:user) AND s.status = 'ACCEPTED' AND p.difficulty = (:difficulty)")
     int findNumOfCompletedProblemsByUserAndDifficulty(@Param("user") User user, @Param("difficulty")Difficulty difficulty);
 
+    @Query("SELECT COUNT(DISTINCT s.id) FROM Submission s WHERE s.problem = :problem")
+    int findNumCompletedSubmissionsByProblem(@Param("problem") Problem problem);
 }
 

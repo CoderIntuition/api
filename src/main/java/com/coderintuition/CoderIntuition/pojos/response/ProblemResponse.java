@@ -62,6 +62,9 @@ public class ProblemResponse {
     @NotNull
     private String javascriptCode;
 
+    @NotNull
+    private Integer numSubmissions;
+
     public static ProblemResponse fromProblem(Problem problem) {
         ProblemResponse problemResponse = new ProblemResponse();
         problemResponse.setId(problem.getId());
